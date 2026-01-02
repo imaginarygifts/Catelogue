@@ -53,29 +53,54 @@ body{margin:0;font-family:Inter;background:#000;color:#fff}
 .price{color:#f5e642;font-weight:600;margin-top:4px}
 
 /* PRODUCT IMAGES */
-.images{display:flex;gap:8px;overflow-x:auto;margin-top:8px}
+.images{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-top:10px
+}
 .images img{
   width:90px;height:90px;
   object-fit:cover;
   border-radius:10px;
-  cursor:pointer;
+  cursor:pointer
 }
 
 /* FORM */
-label{font-size:12px;color:#aaa;margin-top:10px;display:block}
-input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
+label{
+  font-size:12px;
+  color:#aaa;
+  margin-top:10px;
+  display:block
+}
+input[type="text"], input[type="file"]{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-top:4px
+}
 
 /* UPLOAD PREVIEW */
-.upload-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.preview-box{position:relative}
+.upload-preview{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px
+}
+.preview-box{
+  position:relative
+}
 .preview-box img{
   width:70px;height:70px;
   border-radius:8px;
   object-fit:cover
 }
 .preview-box span{
-  position:absolute;top:-6px;right:-6px;
-  background:red;color:#fff;
+  position:absolute;
+  top:-6px;right:-6px;
+  background:red;
+  color:#fff;
   border-radius:50%;
   width:18px;height:18px;
   font-size:12px;
@@ -84,7 +109,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
   cursor:pointer
 }
 
-/* ORDER BTN */
+/* ORDER BUTTON */
 .order-btn{
   margin-top:14px;
   background:#25D366;
@@ -95,13 +120,11 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
   cursor:pointer
 }
 
-/* HIDE */
-.hidden{display:none}
-
-/* FULLSCREEN IMAGE VIEW */
+/* FULLSCREEN IMAGE VIEWER */
 #imgViewer{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,0.9);
   z-index:99999;
   align-items:center;
@@ -113,10 +136,11 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
   border-radius:12px
 }
 
-/* UPLOAD OVERLAY */
+/* UPLOADING OVERLAY */
 #uploadOverlay{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,0.85);
   z-index:99998;
   align-items:center;
@@ -131,6 +155,8 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
   animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.hidden{display:none}
 </style>
 </head>
 
@@ -139,169 +165,159 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
 <div class="header">🎁 Imaginary Gifts – Customised Catalogue</div>
 
 <!-- CATEGORY BAR -->
-<div class="category-bar">
-  <div class="category-btn active" onclick="showCategory('mug')">MUG</div>
-  <div class="category-btn" onclick="showCategory('sipper')">SIPPER</div>
-  <div class="category-btn" onclick="showCategory('jewellery')">JEWELLERY</div>
-  <div class="category-btn" onclick="showCategory('keychain')">KEYCHAIN</div>
-  <div class="category-btn" onclick="showCategory('pen')">PEN</div>
-  <div class="category-btn" onclick="showCategory('combo')">GIFT COMBO</div>
-  <div class="category-btn" onclick="showCategory('wallet')">WALLET</div>
-  <div class="category-btn" onclick="showCategory('lamp')">NIGHT LAMP</div>
-  <div class="category-btn" onclick="showCategory('wood')">WOOD PLANK</div>
-  <div class="category-btn" onclick="showCategory('frame')">PHOTO FRAME</div>
-  <div class="category-btn" onclick="showCategory('led')">LED / NEON</div>
-  <div class="category-btn" onclick="showCategory('stand')">STANDY / DESK</div>
-</div>
+<div class="category-bar" id="categoryBar"></div>
 
-<div class="container">
+<div class="container" id="productContainer"></div>
 
-<!-- PRODUCT TEMPLATE -->
-<script>
-function productCard(name, price, category){
-return `
-<div class="card">
-  <h3>${name}</h3>
-  <div class="price">₹ ${price}</div>
-
-  <div class="images">
-    <img src="https://via.placeholder.com/600" onclick="openImage(this)">
-    <img src="https://via.placeholder.com/600" onclick="openImage(this)">
-    <img src="https://via.placeholder.com/600" onclick="openImage(this)">
-  </div>
-
-  <label>Enter Text</label>
-  <input type="text">
-
-  <label>Upload Images</label>
-  <div class="image-upload-box">
-    <input type="file" accept="image/*" onchange="handleUpload(this)">
-  </div>
-  <div class="upload-preview"></div>
-
-  <div class="order-btn" onclick="orderNow(this,'${name}','${category}','${price}')">
-    Order on WhatsApp
-  </div>
-</div>`;
-}
-</script>
-
-<div id="mug" class="category"></div>
-<div id="sipper" class="category hidden"></div>
-<div id="jewellery" class="category hidden"></div>
-<div id="keychain" class="category hidden"></div>
-<div id="pen" class="category hidden"></div>
-<div id="combo" class="category hidden"></div>
-<div id="wallet" class="category hidden"></div>
-<div id="lamp" class="category hidden"></div>
-<div id="wood" class="category hidden"></div>
-<div id="frame" class="category hidden"></div>
-<div id="led" class="category hidden"></div>
-<div id="stand" class="category hidden"></div>
-
-</div>
-
-<!-- IMAGE VIEWER -->
+<!-- FULLSCREEN IMAGE VIEWER -->
 <div id="imgViewer" onclick="this.style.display='none'">
   <img id="viewerImg">
 </div>
 
-<!-- UPLOADING OVERLAY -->
+<!-- UPLOAD OVERLAY -->
 <div id="uploadOverlay">
   <div class="spinner"></div>
-  <p style="margin-top:16px">Uploading image…</p>
+  <p style="margin-top:16px">Uploading image… Please wait</p>
 </div>
 
 <script>
-const products={
-  mug:[["Magic Photo Mug",349],["Inner Color Mug",299],["Handle Mug",329]],
-  sipper:[["Steel Sipper",499],["Gym Sipper",549],["Kids Sipper",449]],
-  jewellery:[["Name Pendant",699],["Photo Pendant",799],["Eye Pendant",899]],
-  keychain:[["Photo Keychain",149],["Acrylic Keychain",199],["Metal Keychain",249]],
-  pen:[["Name Pen",99],["Metal Pen",149],["Gift Pen",199]],
-  combo:[["Birthday Combo",999],["Couple Combo",1299],["Anniversary Combo",1599]],
-  wallet:[["Men Wallet",699],["Women Wallet",749],["Photo Wallet",899]],
-  lamp:[["3D Photo Lamp",1299],["Acrylic Lamp",999],["Heart Lamp",1099]],
-  wood:[["Wood Engrave Plank",799],["Couple Plank",999],["Family Plank",1299]],
-  frame:[["Acrylic Frame",999],["Glossy Frame",799],["Collage Frame",1499]],
-  led:[["LED Photo Frame",1799],["Neon Name Light",2499],["LED Quote Board",1999]],
-  stand:[["Photo Standy",499],["Name Standy",399],["Desk Plate",699]]
-};
+/* ===================== CLOUDINARY CONFIG ===================== */
+const CLOUD_NAME = "dpd2nhzrf";
+const UPLOAD_PRESET = "ig-upload";
+const WHATSAPP_NUMBER = "917385235738";
 
-for(const c in products){
-  const el=document.getElementById(c);
-  products[c].forEach(p=>el.innerHTML+=productCard(p[0],p[1],c.toUpperCase()));
+/* ===================== LOAD PRODUCTS ===================== */
+fetch("products.json")
+  .then(res => res.json())
+  .then(data => initCatalogue(data));
+
+function initCatalogue(products){
+  const bar = document.getElementById("categoryBar");
+  const keys = Object.keys(products);
+
+  keys.forEach((cat, i)=>{
+    const btn = document.createElement("div");
+    btn.className = "category-btn" + (i===0 ? " active" : "");
+    btn.innerText = cat.toUpperCase();
+    btn.onclick = () => renderCategory(cat, products);
+    bar.appendChild(btn);
+  });
+
+  renderCategory(keys[0], products);
 }
 
-function showCategory(cat){
-  document.querySelectorAll('.category').forEach(x=>x.classList.add('hidden'));
-  document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(cat).classList.remove('hidden');
-  event.target.classList.add('active');
+function renderCategory(cat, products){
+  document.querySelectorAll(".category-btn").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+
+  const box = document.getElementById("productContainer");
+  box.innerHTML = "";
+
+  products[cat].forEach(p=>{
+    let imgs = "";
+    p.images.forEach(img=>{
+      imgs += `<img src="${img}" onclick="openImage(this)">`;
+    });
+
+    box.innerHTML += `
+      <div class="card">
+        <h3>${p.name}</h3>
+        <div class="price">₹ ${p.price}</div>
+
+        <div class="images">${imgs}</div>
+
+        <label>Enter Text</label>
+        <input type="text" placeholder="Name / Message">
+
+        <label>Upload Images</label>
+        <div class="image-upload-box">
+          <input type="file" accept="image/*" onchange="handleUpload(this)">
+        </div>
+        <div class="upload-preview"></div>
+
+        <div class="order-btn"
+          onclick="orderNow(this,'${p.name}','${cat.toUpperCase()}','${p.price}')">
+          Order on WhatsApp
+        </div>
+      </div>
+    `;
+  });
 }
 
-/* FULLSCREEN IMAGE */
+/* ===================== IMAGE VIEW ===================== */
 function openImage(img){
-  document.getElementById("viewerImg").src=img.src;
-  document.getElementById("imgViewer").style.display="flex";
+  document.getElementById("viewerImg").src = img.src;
+  document.getElementById("imgViewer").style.display = "flex";
 }
 
-/* UPLOAD PREVIEW */
+/* ===================== IMAGE UPLOAD UI ===================== */
 function handleUpload(input){
-  const preview=input.closest('.card').querySelector('.upload-preview');
-  if(input.files.length>0){
-    const file=input.files[0];
-    const url=URL.createObjectURL(file);
+  if(input.files.length === 0) return;
 
-    const box=document.createElement('div');
-    box.className="preview-box";
-    box.innerHTML=`<img src="${url}"><span onclick="this.parentElement.remove()">×</span>`;
-    preview.appendChild(box);
+  const card = input.closest(".card");
+  const preview = card.querySelector(".upload-preview");
+  const file = input.files[0];
+  const url = URL.createObjectURL(file);
 
-    const next=document.createElement("input");
-    next.type="file";
-    next.accept="image/*";
-    next.onchange=function(){handleUpload(this)};
-    next.style.marginTop="8px";
-    input.parentElement.appendChild(next);
-  }
+  const box = document.createElement("div");
+  box.className = "preview-box";
+  box.innerHTML = `<img src="${url}"><span onclick="this.parentElement.remove()">×</span>`;
+  preview.appendChild(box);
+
+  const next = document.createElement("input");
+  next.type = "file";
+  next.accept = "image/*";
+  next.onchange = function(){handleUpload(this)};
+  next.style.marginTop = "8px";
+  input.parentElement.appendChild(next);
 }
 
-/* CLOUDINARY */
+/* ===================== CLOUDINARY UPLOAD ===================== */
 async function uploadToCloudinary(file){
-  const f=new FormData();
-  f.append("file",file);
-  f.append("upload_preset","ig-upload");
-  const r=await fetch("https://api.cloudinary.com/v1_1/dpd2nhzrf/image/upload",{method:"POST",body:f});
-  return (await r.json()).secure_url;
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    { method:"POST", body:fd }
+  );
+
+  const data = await res.json();
+  return data.secure_url;
 }
 
-async function orderNow(btn,product,category,price){
-  const card=btn.closest('.card');
-  const text=card.querySelector('input[type="text"]').value||"N/A";
-  const files=card.querySelectorAll('input[type="file"]');
+/* ===================== ORDER ===================== */
+async function orderNow(btn, product, category, price){
+  const card = btn.closest(".card");
+  const text = card.querySelector('input[type="text"]').value || "N/A";
+  const inputs = card.querySelectorAll('input[type="file"]');
 
-  document.getElementById("uploadOverlay").style.display="flex";
+  document.getElementById("uploadOverlay").style.display = "flex";
 
-  let links=[];
-  for(let i of files){
-    if(i.files.length>0){
+  let links = [];
+  for(let i of inputs){
+    if(i.files.length > 0){
       links.push(await uploadToCloudinary(i.files[0]));
     }
   }
 
-  document.getElementById("uploadOverlay").style.display="none";
+  document.getElementById("uploadOverlay").style.display = "none";
 
-  let msg=`Hi Imaginary Gifts 👋
+  let msg = `Hi Imaginary Gifts 👋
 Category: ${category}
 Product: ${product}
 Price: ₹${price}
-Text: ${text}
+Custom Text: ${text}
 
-Images:\n`;
-  links.forEach((l,i)=>msg+=`${i+1}. ${l}\n`);
+📸 Uploaded Images:\n`;
 
-  window.open("https://wa.me/917385235738?text="+encodeURIComponent(msg));
+  links.forEach((l,i)=> msg += `${i+1}. ${l}\n`);
+
+  window.open(
+    "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg),
+    "_blank"
+  );
 }
 </script>
 
