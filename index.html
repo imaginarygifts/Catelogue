@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Imaginary Gifts | Customised Gifts Catalogue</title>
+<title>Imaginary Gifts – Customised Catalogue</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -136,7 +136,7 @@ input[type="text"], input[type="file"]{
   border-radius:12px
 }
 
-/* UPLOADING OVERLAY */
+/* UPLOAD OVERLAY */
 #uploadOverlay{
   display:none;
   position:fixed;
@@ -155,8 +155,6 @@ input[type="text"], input[type="file"]{
   animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.hidden{display:none}
 </style>
 </head>
 
@@ -164,12 +162,10 @@ input[type="text"], input[type="file"]{
 
 <div class="header">🎁 Imaginary Gifts – Customised Catalogue</div>
 
-<!-- CATEGORY BAR -->
 <div class="category-bar" id="categoryBar"></div>
-
 <div class="container" id="productContainer"></div>
 
-<!-- FULLSCREEN IMAGE VIEWER -->
+<!-- IMAGE VIEWER -->
 <div id="imgViewer" onclick="this.style.display='none'">
   <img id="viewerImg">
 </div>
@@ -181,45 +177,48 @@ input[type="text"], input[type="file"]{
 </div>
 
 <script>
-/* ===================== CLOUDINARY CONFIG ===================== */
-const CLOUD_NAME = "dpd2nhzrf";
-const UPLOAD_PRESET = "ig-upload";
-const WHATSAPP_NUMBER = "917385235738";
+const CLOUD_NAME="dpd2nhzrf";
+const UPLOAD_PRESET="ig-upload";
+const WHATSAPP_NUMBER="917385235738";
 
-/* ===================== LOAD PRODUCTS ===================== */
+/* LOAD PRODUCTS */
 fetch("products.json")
-  .then(res => res.json())
-  .then(data => initCatalogue(data));
+  .then(r=>r.json())
+  .then(data=>initCatalogue(data));
 
 function initCatalogue(products){
-  const bar = document.getElementById("categoryBar");
-  const keys = Object.keys(products);
+  const bar=document.getElementById("categoryBar");
+  const keys=Object.keys(products);
 
-  keys.forEach((cat, i)=>{
-    const btn = document.createElement("div");
-    btn.className = "category-btn" + (i===0 ? " active" : "");
-    btn.innerText = cat.toUpperCase();
-    btn.onclick = () => renderCategory(cat, products);
+  keys.forEach((cat,i)=>{
+    const btn=document.createElement("div");
+    btn.className="category-btn";
+    btn.innerText=cat.toUpperCase();
+    btn.onclick=()=>renderCategory(cat,products,false);
     bar.appendChild(btn);
   });
 
-  renderCategory(keys[0], products);
+  // ✅ DEFAULT LOAD
+  renderCategory(keys[0],products,true);
 }
 
-function renderCategory(cat, products){
+function renderCategory(cat,products,firstLoad){
+  document.getElementById("productContainer").innerHTML="";
   document.querySelectorAll(".category-btn").forEach(b=>b.classList.remove("active"));
-  event.target.classList.add("active");
 
-  const box = document.getElementById("productContainer");
-  box.innerHTML = "";
+  if(firstLoad){
+    document.querySelectorAll(".category-btn")[0].classList.add("active");
+  }else{
+    event.target.classList.add("active");
+  }
 
   products[cat].forEach(p=>{
-    let imgs = "";
-    p.images.forEach(img=>{
-      imgs += `<img src="${img}" onclick="openImage(this)">`;
+    let imgs="";
+    p.images.forEach(i=>{
+      imgs+=`<img src="${i}" onclick="openImage(this)">`;
     });
 
-    box.innerHTML += `
+    document.getElementById("productContainer").innerHTML+=`
       <div class="card">
         <h3>${p.name}</h3>
         <div class="price">₹ ${p.price}</div>
@@ -244,78 +243,87 @@ function renderCategory(cat, products){
   });
 }
 
-/* ===================== IMAGE VIEW ===================== */
+/* FULLSCREEN PRODUCT IMAGE */
 function openImage(img){
-  document.getElementById("viewerImg").src = img.src;
-  document.getElementById("imgViewer").style.display = "flex";
+  document.getElementById("viewerImg").src=img.src;
+  document.getElementById("imgViewer").style.display="flex";
 }
 
-/* ===================== IMAGE UPLOAD UI ===================== */
+/* UPLOAD HANDLER (FIXED REMOVE ISSUE) */
 function handleUpload(input){
-  if(input.files.length === 0) return;
+  if(input.files.length===0)return;
 
-  const card = input.closest(".card");
-  const preview = card.querySelector(".upload-preview");
-  const file = input.files[0];
-  const url = URL.createObjectURL(file);
+  const card=input.closest(".card");
+  const preview=card.querySelector(".upload-preview");
+  const file=input.files[0];
+  const url=URL.createObjectURL(file);
 
-  const box = document.createElement("div");
-  box.className = "preview-box";
-  box.innerHTML = `<img src="${url}"><span onclick="this.parentElement.remove()">×</span>`;
+  const box=document.createElement("div");
+  box.className="preview-box";
+
+  const img=document.createElement("img");
+  img.src=url;
+
+  const remove=document.createElement("span");
+  remove.innerText="×";
+  remove.onclick=function(){
+    box.remove();
+    input.remove();
+  };
+
+  box.appendChild(img);
+  box.appendChild(remove);
   preview.appendChild(box);
 
-  const next = document.createElement("input");
-  next.type = "file";
-  next.accept = "image/*";
-  next.onchange = function(){handleUpload(this)};
-  next.style.marginTop = "8px";
+  const next=document.createElement("input");
+  next.type="file";
+  next.accept="image/*";
+  next.style.marginTop="8px";
+  next.onchange=function(){handleUpload(this)};
   input.parentElement.appendChild(next);
 }
 
-/* ===================== CLOUDINARY UPLOAD ===================== */
+/* CLOUDINARY */
 async function uploadToCloudinary(file){
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", UPLOAD_PRESET);
+  const fd=new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset",UPLOAD_PRESET);
 
-  const res = await fetch(
+  const r=await fetch(
     `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-    { method:"POST", body:fd }
+    {method:"POST",body:fd}
   );
-
-  const data = await res.json();
-  return data.secure_url;
+  return (await r.json()).secure_url;
 }
 
-/* ===================== ORDER ===================== */
-async function orderNow(btn, product, category, price){
-  const card = btn.closest(".card");
-  const text = card.querySelector('input[type="text"]').value || "N/A";
-  const inputs = card.querySelectorAll('input[type="file"]');
+/* ORDER */
+async function orderNow(btn,product,category,price){
+  const card=btn.closest(".card");
+  const text=card.querySelector('input[type="text"]').value||"N/A";
+  const inputs=card.querySelectorAll('input[type="file"]');
 
-  document.getElementById("uploadOverlay").style.display = "flex";
+  document.getElementById("uploadOverlay").style.display="flex";
 
-  let links = [];
+  let links=[];
   for(let i of inputs){
-    if(i.files.length > 0){
+    if(i.files.length>0){
       links.push(await uploadToCloudinary(i.files[0]));
     }
   }
 
-  document.getElementById("uploadOverlay").style.display = "none";
+  document.getElementById("uploadOverlay").style.display="none";
 
-  let msg = `Hi Imaginary Gifts 👋
+  let msg=`Hi Imaginary Gifts 👋
 Category: ${category}
 Product: ${product}
 Price: ₹${price}
-Custom Text: ${text}
+Text: ${text}
 
-📸 Uploaded Images:\n`;
-
-  links.forEach((l,i)=> msg += `${i+1}. ${l}\n`);
+Images:\n`;
+  links.forEach((l,i)=>msg+=`${i+1}. ${l}\n`);
 
   window.open(
-    "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg),
+    "https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(msg),
     "_blank"
   );
 }
