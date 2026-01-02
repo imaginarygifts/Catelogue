@@ -10,100 +10,20 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter;background:#000;color:#fff}
-
-/* HEADER */
-.header{
-  position:sticky;top:0;z-index:1000;
-  background:#0b0b0b;
-  padding:14px;
-  text-align:center;
-  font-weight:600;
-  border-bottom:1px solid #222;
-}
-
-/* CATEGORY BAR */
-.category-bar{
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  padding:10px;
-  background:#000;
-}
-.category-btn{
-  white-space:nowrap;
-  padding:8px 14px;
-  border-radius:20px;
-  background:#222;
-  font-size:13px;
-  cursor:pointer;
-}
-.category-btn.active{
-  background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976);
-}
-
-/* CONTAINER */
+.header{position:sticky;top:0;z-index:1000;background:#0b0b0b;padding:14px;text-align:center;font-weight:600;border-bottom:1px solid #222}
+.category-bar{display:flex;gap:10px;overflow-x:auto;padding:10px;background:#000}
+.category-btn{white-space:nowrap;padding:8px 14px;border-radius:20px;background:#222;font-size:13px;cursor:pointer}
+.category-btn.active{background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976)}
 .container{max-width:480px;margin:auto;padding:14px}
-
-/* CARD */
-.card{
-  background:#1c1c1c;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:20px;
-}
-.card h3{margin:0 0 8px;font-size:16px}
-
-/* IMAGES */
-.images{display:flex;gap:8px;overflow-x:auto}
-.images img{
-  width:90px;height:90px;
-  border-radius:10px;
-  object-fit:cover;
-}
-
-/* FORM */
+.card{background:#1c1c1c;border-radius:16px;padding:14px;margin-bottom:20px}
+.card h3{margin:0;font-size:16px}
+.price{margin-top:6px;font-weight:600;color:#f5e642}
 label{font-size:12px;color:#aaa;display:block;margin-top:10px}
-input,select{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  margin-top:4px;
-}
-
-/* ORDER BTN */
-.order-btn{
-  margin-top:14px;
-  background:#25D366;
-  color:#fff;
-  padding:14px;
-  border-radius:30px;
-  font-weight:600;
-  text-align:center;
-  cursor:pointer;
-}
-
-/* CATEGORY VISIBILITY */
+input{width:100%;padding:10px;border-radius:10px;border:none;margin-top:4px}
+.order-btn{margin-top:14px;background:#25D366;color:#fff;padding:14px;border-radius:30px;font-weight:600;text-align:center;cursor:pointer}
 .hidden{display:none}
-
-/* UPLOAD OVERLAY */
-#uploadOverlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.85);
-  z-index:99999;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-}
-.spinner{
-  width:50px;height:50px;
-  border:5px solid #333;
-  border-top:5px solid #25D366;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
+#uploadOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;flex-direction:column}
+.spinner{width:50px;height:50px;border:5px solid #333;border-top:5px solid #25D366;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -112,7 +32,6 @@ input,select{
 
 <div class="header">🎁 Imaginary Gifts – Customised Catalogue</div>
 
-<!-- CATEGORY BAR -->
 <div class="category-bar">
   <div class="category-btn active" onclick="showCategory('mug')">MUG</div>
   <div class="category-btn" onclick="showCategory('sipper')">SIPPER</div>
@@ -130,101 +49,77 @@ input,select{
 
 <div class="container">
 
-<!-- TEMPLATE: PRODUCT CARD (reused visually) -->
+<!-- TEMPLATE: PRODUCT CARD -->
+<script>
+function productCard(name, price, category){
+  return `
+  <div class="card">
+    <h3>${name}</h3>
+    <div class="price">₹ ${price}</div>
 
-<!-- ================= MUG ================= -->
-<div class="category mug">
-  <div class="card"><h3>Magic Photo Mug</h3>
-    <div class="images"><img src="https://via.placeholder.com/300"></div>
-    <label>Enter Text</label><input type="text">
+    <label>Enter Text</label>
+    <input type="text">
+
     <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Magic Photo Mug','Mug')">Order on WhatsApp</div>
-  </div>
+    <div class="image-upload-box">
+      <input type="file" accept="image/*" onchange="addNewImageInput(this)">
+    </div>
 
-  <div class="card"><h3>Inner Color Mug</h3>
-    <div class="images"><img src="https://via.placeholder.com/300"></div>
-    <label>Enter Text</label><input type="text">
-    <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Inner Color Mug','Mug')">Order on WhatsApp</div>
-  </div>
+    <div class="order-btn"
+      onclick="orderNow(this,'${name}','${category}','${price}')">
+      Order on WhatsApp
+    </div>
+  </div>`;
+}
+</script>
 
-  <div class="card"><h3>Handle Photo Mug</h3>
-    <div class="images"><img src="https://via.placeholder.com/300"></div>
-    <label>Enter Text</label><input type="text">
-    <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Handle Photo Mug','Mug')">Order on WhatsApp</div>
-  </div>
-</div>
-
-<!-- ================= SIPPERS ================= -->
-<div class="category sipper hidden">
-  <div class="card"><h3>Steel Sipper</h3>
-    <label>Enter Name</label><input type="text">
-    <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Steel Sipper','Sipper')">Order on WhatsApp</div>
-  </div>
-
-  <div class="card"><h3>Gym Sipper</h3>
-    <label>Enter Name</label><input type="text">
-    <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Gym Sipper','Sipper')">Order on WhatsApp</div>
-  </div>
-
-  <div class="card"><h3>Kids Sipper</h3>
-    <label>Enter Name</label><input type="text">
-    <label>Upload Images</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Kids Sipper','Sipper')">Order on WhatsApp</div>
-  </div>
-</div>
-
-<!-- ================= JEWELLERY ================= -->
-<div class="category jewellery hidden">
-  <div class="card"><h3>Name Pendant</h3>
-    <label>Enter Name</label><input type="text">
-    <label>Upload Reference</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Name Pendant','Jewellery')">Order on WhatsApp</div>
-  </div>
-
-  <div class="card"><h3>Photo Pendant</h3>
-    <label>Enter Text</label><input type="text">
-    <label>Upload Photo</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Photo Pendant','Jewellery')">Order on WhatsApp</div>
-  </div>
-
-  <div class="card"><h3>Eye Pendant</h3>
-    <label>Enter Name</label><input type="text">
-    <label>Upload Eye Image</label>
-    <div class="image-upload-box"><input type="file" accept="image/*" onchange="addNewImageInput(this)"></div>
-    <div class="order-btn" onclick="orderNow(this,'Eye Pendant','Jewellery')">Order on WhatsApp</div>
-  </div>
-</div>
-
-<!-- ================= OTHER CATEGORIES ================= -->
-<!-- (Keychain, Pen, Combo, Wallet, Lamp, Wood, Frame, LED, Standy) -->
-<!-- SAME STRUCTURE – already proven to work -->
-<!-- To keep answer readable, structure remains identical -->
+<div id="mug" class="category mug"></div>
+<div id="sipper" class="category sipper hidden"></div>
+<div id="jewellery" class="category jewellery hidden"></div>
+<div id="keychain" class="category keychain hidden"></div>
+<div id="pen" class="category pen hidden"></div>
+<div id="combo" class="category combo hidden"></div>
+<div id="wallet" class="category wallet hidden"></div>
+<div id="lamp" class="category lamp hidden"></div>
+<div id="wood" class="category wood hidden"></div>
+<div id="frame" class="category frame hidden"></div>
+<div id="led" class="category led hidden"></div>
+<div id="stand" class="category stand hidden"></div>
 
 </div>
 
-<!-- UPLOADING OVERLAY -->
 <div id="uploadOverlay">
   <div class="spinner"></div>
   <p style="margin-top:16px;font-size:14px">Uploading image… Please wait</p>
 </div>
 
 <script>
+const products={
+  mug:[["Magic Photo Mug",349],["Inner Color Mug",299],["Handle Photo Mug",329]],
+  sipper:[["Steel Sipper",499],["Gym Sipper",549],["Kids Sipper",449]],
+  jewellery:[["Name Pendant",699],["Photo Pendant",799],["Eye Pendant",899]],
+  keychain:[["Photo Keychain",149],["Acrylic Keychain",199],["Metal Keychain",249]],
+  pen:[["Name Pen",99],["Metal Pen",149],["Gift Pen",199]],
+  combo:[["Birthday Combo",999],["Couple Combo",1299],["Anniversary Combo",1599]],
+  wallet:[["Men Wallet",699],["Women Wallet",749],["Photo Wallet",899]],
+  lamp:[["3D Photo Lamp",1299],["Acrylic Lamp",999],["Heart Lamp",1099]],
+  wood:[["Wood Engrave Plank",799],["Couple Plank",999],["Family Plank",1299]],
+  frame:[["Acrylic Frame",999],["Glossy Frame",799],["Collage Frame",1499]],
+  led:[["LED Photo Frame",1799],["Neon Name Light",2499],["LED Quote Board",1999]],
+  stand:[["Photo Standy",499],["Name Standy",399],["Desk Plate",699]]
+};
+
+for(const cat in products){
+  const el=document.getElementById(cat);
+  products[cat].forEach(p=>{
+    el.innerHTML+=productCard(p[0],p[1],cat.toUpperCase());
+  });
+}
+
 function showCategory(cat){
   document.querySelectorAll('.category').forEach(c=>c.classList.add('hidden'));
   document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.'+cat).forEach(c=>c.classList.remove('hidden'));
+  document.getElementById(cat).classList.remove('hidden');
   event.target.classList.add('active');
 }
 
@@ -249,7 +144,7 @@ async function uploadToCloudinary(file){
   return data.secure_url;
 }
 
-async function orderNow(btn,product,category){
+async function orderNow(btn,product,category,price){
   const card=btn.closest('.card');
   const text=card.querySelector('input[type="text"]')?.value||"N/A";
   const inputs=card.querySelectorAll('input[type="file"]');
@@ -268,7 +163,8 @@ async function orderNow(btn,product,category){
   let msg=`Hi Imaginary Gifts 👋
 Category: ${category}
 Product: ${product}
-Text: ${text}
+Price: ₹${price}
+Custom Text: ${text}
 
 Images:\n`;
   links.forEach((l,i)=>msg+=`${i+1}. ${l}\n`);
