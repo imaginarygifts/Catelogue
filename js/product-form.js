@@ -116,20 +116,27 @@ function renderImagePreview() {
 window.addColor = () => {
   const name = document.getElementById("colorName").value.trim();
   const price = Number(document.getElementById("colorPrice").value || 0);
+  const required = document.getElementById("colorRequired")?.checked || false;
+
   if (!name) return;
 
-  colors.push({ name, price });
+  colors.push({ name, price, required });
   renderColors();
+
   document.getElementById("colorName").value = "";
   document.getElementById("colorPrice").value = "";
+  if (document.getElementById("colorRequired")) {
+    document.getElementById("colorRequired").checked = false;
+  }
 };
 
 function renderColors() {
   const list = document.getElementById("colorList");
   list.innerHTML = "";
+
   colors.forEach((c, i) => {
     const div = document.createElement("div");
-    div.innerText = `${c.name} (+₹${c.price}) ❌`;
+    div.innerText = `${c.name} (+₹${c.price}) ${c.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       colors.splice(i, 1);
       renderColors();
@@ -142,20 +149,27 @@ function renderColors() {
 window.addSize = () => {
   const name = document.getElementById("sizeName").value.trim();
   const price = Number(document.getElementById("sizePrice").value || 0);
+  const required = document.getElementById("sizeRequired")?.checked || false;
+
   if (!name) return;
 
-  sizes.push({ name, price });
+  sizes.push({ name, price, required });
   renderSizes();
+
   document.getElementById("sizeName").value = "";
   document.getElementById("sizePrice").value = "";
+  if (document.getElementById("sizeRequired")) {
+    document.getElementById("sizeRequired").checked = false;
+  }
 };
 
 function renderSizes() {
   const list = document.getElementById("sizeList");
   list.innerHTML = "";
+
   sizes.forEach((s, i) => {
     const div = document.createElement("div");
-    div.innerText = `${s.name} (+₹${s.price}) ❌`;
+    div.innerText = `${s.name} (+₹${s.price}) ${s.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       sizes.splice(i, 1);
       renderSizes();
@@ -170,10 +184,16 @@ window.addCustomOption = () => {
   const label = document.getElementById("customLabel").value.trim();
   const price = Number(document.getElementById("customPrice").value || 0);
   const choicesRaw = document.getElementById("customChoices").value;
+  const required = document.getElementById("customRequired")?.checked || false;
 
   if (!label) return;
 
-  const option = { type, label, price };
+  const option = {
+    type,
+    label,
+    price,
+    required
+  };
 
   if (type === "dropdown") {
     option.choices = choicesRaw
@@ -188,14 +208,18 @@ window.addCustomOption = () => {
   document.getElementById("customLabel").value = "";
   document.getElementById("customPrice").value = "";
   document.getElementById("customChoices").value = "";
+  if (document.getElementById("customRequired")) {
+    document.getElementById("customRequired").checked = false;
+  }
 };
 
 function renderCustomOptions() {
   const list = document.getElementById("customList");
   list.innerHTML = "";
+
   customOptions.forEach((o, i) => {
     const div = document.createElement("div");
-    div.innerText = `${o.type}: ${o.label} (+₹${o.price}) ❌`;
+    div.innerText = `${o.type}: ${o.label} (+₹${o.price}) ${o.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       customOptions.splice(i, 1);
       renderCustomOptions();
@@ -203,7 +227,6 @@ function renderCustomOptions() {
     list.appendChild(div);
   });
 }
-
 // ========== RELATED DESIGNS ==========
 async function loadDesignProducts() {
   const snap = await getDocs(collection(db, "products"));
