@@ -1,12 +1,21 @@
 import { db } from './firebase.js';
-import { 
-  collection, addDoc, getDocs, deleteDoc, doc,
-  query, orderBy, updateDoc
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const list = document.getElementById("catList");
+const input = document.getElementById("catName");
+
 let draggedItem = null;
 
+/* ---------- LOAD CATEGORIES ---------- */
 async function load() {
   list.innerHTML = "";
 
@@ -23,42 +32,88 @@ async function load() {
       <button onclick="del('${docu.id}')">❌</button>
     `;
 
-    // drag events
-    li.addEventListener("dragstart", () => draggedItem = li);
-    li.addEventListener("dragover", e => e.preventDefault());
-    li.addEventListener("drop", () => swapOrder(draggedItem, li));
+    /* ---- DRAG EVENTS ---- */
+
+    li.addEventListener("dragstart", () => {
+      draggedItem = li;
+      li.classList.add("dragging");
+    });
+
+    li.addEventListener("dragend", () => {
+      li.classList.remove("dragging");
+      clearDragOver();
+    });
+
+    li.addEventListener("dragover", e => {
+      e.preventDefault();
+      li.classList.add("drag-over");
+    });
+
+    li.addEventListener("dragleave", () => {
+      li.classList.remove("drag-over");
+    });
+
+    li.addEventListener("drop", async () => {
+      li.classList.remove("drag-over");
+      await reorderCategories(draggedItem, li);
+    });
 
     list.appendChild(li);
   });
 }
 
-async function swapOrder(item1, item2) {
-  if (!item1 || !item2 || item1 === item2) return;
-
-  const id1 = item1.dataset.id;
-  const id2 = item2.dataset.id;
-
-  const items = [...list.children];
-  const index1 = items.indexOf(item1);
-  const index2 = items.indexOf(item2);
-
-  await updateDoc(doc(db, "categories", id1), { order: index2 });
-  await updateDoc(doc(db, "categories", id2), { order: index1 });
-
-  load();
+/* ---------- CLEAR DRAG STYLES ---------- */
+function clearDragOver() {
+  document
+    .querySelectorAll(".drag-over")
+    .forEach(el => el.classList.remove("drag-over"));
 }
 
+/* ---------- REORDER LOGIC ---------- */
+async function reorderCategories(item1, item2) {
+  if (!item1 || !item2 || item1 === item2) return;
+
+  const items = [...list.children];
+  const fromIndex = items.indexOf(item1);
+  const toIndex = items.indexOf(item2);
+
+  if (fromIndex === toIndex) return;
+
+  // update UI instantly
+  if (fromIndex < toIndex) {
+    list.insertBefore(item1, item2.nextSibling);
+  } else {
+    list.insertBefore(item1, item2);
+  }
+
+  // update order in Firestore
+  const updates = [...list.children].map((li, index) => {
+    return updateDoc(doc(db, "categories", li.dataset.id), {
+      order: index
+    });
+  });
+
+  await Promise.all(updates);
+}
+
+/* ---------- ADD CATEGORY ---------- */
 window.addCategory = async () => {
-  const name = document.getElementById("catName").value.trim();
+  const name = input.value.trim();
   if (!name) return;
 
   const snap = await getDocs(collection(db, "categories"));
-  const order = snap.size; // next position
+  const order = snap.size;
 
-  await addDoc(collection(db, "categories"), { name, order });
+  await addDoc(collection(db, "categories"), {
+    name,
+    order
+  });
+
+  input.value = "";
   load();
 };
 
+/* ---------- DELETE CATEGORY ---------- */
 window.del = async (id) => {
   await deleteDoc(doc(db, "categories", id));
   load();
