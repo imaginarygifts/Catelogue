@@ -4,14 +4,14 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDaeaJy8haKhn3Ve5rUdrj7XItXPI-ujDU",
-  authDomain: "sellfix-designing.firebaseapp.com",
-  projectId: "sellfix-designing",
-  storageBucket: "sellfix-designing.firebasestorage.app",
-  messagingSenderId: "129826052151",
-  appId: "1:129826052151:web:ff6f1cb5fce219d65087b2"
+  apiKey: "AIzaSyATNHNTN0S_otYHNGuydqOjcr1AhCgD6yc",
+  authDomain: "imaginary-gifts.firebaseapp.com",
+  projectId: "imaginary-gifts",
+  storageBucket: "imaginary-gifts.firebasestorage.app",
+  messagingSenderId: "759826392629",
+  appId: "1:759826392629:web:9d9bbe53c8ab36ad07737c",
+  measurementId: "G-KXGKEFBC1F"
 };
-
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
