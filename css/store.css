@@ -368,3 +368,12 @@ body {
   border-radius: 8px;
   z-index: 2;
 }
+
+.order-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+}
