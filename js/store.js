@@ -1,6 +1,10 @@
 import { db } from "./firebase.js";
-import { collection, getDocs } from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const grid = document.getElementById("productGrid");
 const categoryBar = document.getElementById("categoryBar");
@@ -16,7 +20,12 @@ let activeTag = "all";
 /* ================= CATEGORIES ================= */
 
 async function loadCategories() {
-  const snap = await getDocs(collection(db, "categories"));
+  const q = query(
+    collection(db, "categories"),
+    orderBy("order")
+  );
+
+  const snap = await getDocs(q);
   allCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderCategoryBar();
 }
