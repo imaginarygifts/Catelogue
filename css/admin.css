@@ -566,3 +566,19 @@ li {
   background: rgba(255,255,255,0.2);
   border-radius: 10px;
 }
+
+
+#catList li {
+  background: #1f1f2e;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+}
+
+#catList li:active {
+  cursor: grabbing;
+}
