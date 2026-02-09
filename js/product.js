@@ -19,6 +19,64 @@ let selected = {
   imageLinks: {}
 };
 
+
+
+
+function validateRequiredSelections() {
+  const errors = [];
+
+document.querySelectorAll(".custom-input, .custom-select").forEach(el => {
+  el.classList.remove("error");
+});
+
+  // ===== REQUIRED COLOR =====
+  if (product?.variants?.colors?.some(c => c.required)) {
+    if (!selected.color) {
+      errors.push("Please select a color");
+    }
+  }
+
+  // ===== REQUIRED SIZE =====
+  if (product?.variants?.sizes?.some(s => s.required)) {
+    if (!selected.size) {
+      errors.push("Please select a size");
+    }
+  }
+
+  // ===== REQUIRED CUSTOM OPTIONS =====
+  if (product?.customOptions?.length) {
+    product.customOptions.forEach((o, i) => {
+      if (!o.required) return;
+
+      // TEXT / DROPDOWN
+      if (o.type === "text" || o.type === "dropdown") {
+        if (!selected.optionValues[i]) {
+          errors.push(`Please fill ${o.label}`);
+        }
+      }
+
+      // CHECKBOX
+      if (o.type === "checkbox") {
+        if (!selected.optionValues[i]) {
+          errors.push(`Please select ${o.label}`);
+        }
+      }
+
+      // IMAGE UPLOAD
+      if (o.type === "image") {
+        if (!selected.imageLinks[i]) {
+          errors.push(`Please upload ${o.label}`);
+        }
+      }
+    });
+  }
+
+  return errors;
+}
+
+
+
+
 // ===== LOAD PRODUCT =====
 async function loadProduct() {
   const snap = await getDoc(doc(db, "products", id));
@@ -257,6 +315,13 @@ function recalcPrice() {
 // ===== WHATSAPP ORDER =====
 
 window.orderNow = async function () {
+
+  const errors = validateRequiredSelections();
+  if (errors.length) {
+    alert("⚠ Please complete required options:\n\n" + errors.join("\n"));
+    return;
+  }
+
   try {
     // ================================
     // 1️⃣ ENSURE PRODUCT ID EXISTS
@@ -373,6 +438,12 @@ window.orderNow = async function () {
 //===== buy now =====
 
 window.buyNow = function () {
+
+  const errors = validateRequiredSelections();
+  if (errors.length) {
+    alert("⚠ Please complete required options:\n\n" + errors.join("\n"));
+    return;
+  }
   const data = {
     product,
     finalPrice,
