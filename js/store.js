@@ -17,14 +17,31 @@ let allTags = [];
 let activeCategory = "all";
 let activeTag = "all";
 
-/* ================= CATEGORIES ================= */
-
+/* ================= HELPERS ================= */
 
 function getUsedCategoryIds() {
-  return new Set(allProducts.map(p => p.categoryId));
+  return new Set(allProducts.map(p => p.categoryId).filter(Boolean));
 }
 
+function getUsedTagSlugs() {
+  const set = new Set();
+  allProducts.forEach(p => {
+    if (Array.isArray(p.tags)) {
+      p.tags.forEach(t => set.add(t));
+    }
+  });
+  return set;
+}
 
+/* ================= PRODUCTS ================= */
+
+async function loadProducts() {
+  const snap = await getDocs(collection(db, "products"));
+  allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderProducts();
+}
+
+/* ================= CATEGORIES ================= */
 
 async function loadCategories() {
   const q = query(
@@ -59,7 +76,10 @@ function createCategoryBtn(label, id) {
 
   div.onclick = () => {
     activeCategory = id;
-    document.querySelectorAll(".category-pill").forEach(p => p.classList.remove("active"));
+    document
+      .querySelectorAll(".category-pill")
+      .forEach(p => p.classList.remove("active"));
+
     div.classList.add("active");
     renderProducts();
   };
@@ -73,7 +93,11 @@ async function loadFrontendTags() {
   if (!tagRow) return;
 
   const snap = await getDocs(collection(db, "tags"));
-  allTags = snap.docs.map(d => d.data());
+  const usedTagSlugs = getUsedTagSlugs();
+
+  allTags = snap.docs
+    .map(d => d.data())
+    .filter(tag => usedTagSlugs.has(tag.slug));
 
   renderTags();
 }
@@ -81,9 +105,7 @@ async function loadFrontendTags() {
 function renderTags() {
   tagRow.innerHTML = "";
 
-  // ALL tag
-  const allChip = createTagChip("All", "all");
-  tagRow.appendChild(allChip);
+  tagRow.appendChild(createTagChip("All", "all"));
 
   allTags.forEach(tag => {
     tagRow.appendChild(createTagChip(tag.name, tag.slug));
@@ -96,7 +118,6 @@ function createTagChip(label, slug) {
   chip.innerText = label;
 
   chip.onclick = () => {
-    // toggle
     activeTag = activeTag === slug ? "all" : slug;
     updateTagUI();
     renderProducts();
@@ -107,26 +128,19 @@ function createTagChip(label, slug) {
 
 function updateTagUI() {
   document.querySelectorAll(".tag-chip").forEach(chip => {
-    const tag = chip.innerText.toLowerCase();
+    const slug = chip.innerText.toLowerCase();
     chip.classList.remove("active");
 
     if (
-      (activeTag === "all" && tag === "all") ||
-      tag === activeTag
+      (activeTag === "all" && slug === "all") ||
+      slug === activeTag
     ) {
       chip.classList.add("active");
     }
   });
 }
 
-/* ================= PRODUCTS ================= */
-
-async function loadProducts() {
-  const snap = await getDocs(collection(db, "products"));
-  allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderProducts();
-  return;
-}
+/* ================= RENDER PRODUCTS ================= */
 
 function renderProducts() {
   grid.innerHTML = "";
@@ -137,7 +151,7 @@ function renderProducts() {
 
     const tagMatch =
       activeTag === "all" ||
-      (p.tags && p.tags.includes(activeTag));
+      (Array.isArray(p.tags) && p.tags.includes(activeTag));
 
     return categoryMatch && tagMatch;
   });
@@ -151,19 +165,18 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
-const isBestseller = p.tags && p.tags.includes("bestseller");
+    const isBestseller = p.tags && p.tags.includes("bestseller");
 
-card.innerHTML = `
-  <div class="img-wrap">
-    ${isBestseller ? `<span class="badge">🔥 Bestseller</span>` : ""}
-    <img src="${p.images?.[0] || ''}">
-  </div>
-
-  <div class="info">
-    <h4>${p.name}</h4>
-    <p>₹${p.basePrice}</p>
-  </div>
-`;
+    card.innerHTML = `
+      <div class="img-wrap">
+        ${isBestseller ? `<span class="badge">🔥 Bestseller</span>` : ""}
+        <img src="${p.images?.[0] || ""}">
+      </div>
+      <div class="info">
+        <h4>${p.name}</h4>
+        <p>₹${p.basePrice}</p>
+      </div>
+    `;
 
     card.onclick = () => {
       location.href = `product.html?id=${p.id}`;
@@ -175,6 +188,8 @@ card.innerHTML = `
 
 /* ================= INIT ================= */
 
-await loadProducts();
-await loadCategories();
-loadFrontendTags();
+(async function init() {
+  await loadProducts();
+  await loadCategories();
+  await loadFrontendTags();
+})();
