@@ -19,6 +19,13 @@ let activeTag = "all";
 
 /* ================= CATEGORIES ================= */
 
+
+function getUsedCategoryIds() {
+  return new Set(allProducts.map(p => p.categoryId));
+}
+
+
+
 async function loadCategories() {
   const q = query(
     collection(db, "categories"),
@@ -26,7 +33,12 @@ async function loadCategories() {
   );
 
   const snap = await getDocs(q);
-  allCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const usedCategoryIds = getUsedCategoryIds();
+
+  allCategories = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(cat => usedCategoryIds.has(cat.id));
+
   renderCategoryBar();
 }
 
@@ -113,6 +125,7 @@ async function loadProducts() {
   const snap = await getDocs(collection(db, "products"));
   allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderProducts();
+  return;
 }
 
 function renderProducts() {
@@ -162,6 +175,6 @@ card.innerHTML = `
 
 /* ================= INIT ================= */
 
-loadCategories();
+await loadProducts();
+await loadCategories();
 loadFrontendTags();
-loadProducts();
