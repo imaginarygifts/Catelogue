@@ -454,6 +454,10 @@ window.submitWaOrder = async function () {
     alert("Order failed: " + err.message);
   }
 };
+window.closeWaForm = function () {
+  document.getElementById("waFormOverlay").classList.add("hidden");
+};
+
 
 
 
