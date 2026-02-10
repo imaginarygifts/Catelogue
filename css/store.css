@@ -362,6 +362,6 @@ body {
   border: none;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf);
-  color: white;
+background: linear-gradient(135deg, #00ff9c, #00c3ff);
+  color: black;
 }
