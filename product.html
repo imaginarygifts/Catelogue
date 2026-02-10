@@ -20,6 +20,26 @@
 
 </div>
 
+
+<!-- WhatsApp Order Form -->
+<div id="waFormOverlay" class="hidden">
+  <div class="wa-form">
+    <h3>Enter delivery details</h3>
+
+    <input id="custName" placeholder="Full Name">
+    <input id="custPhone" placeholder="Mobile Number">
+    <textarea id="custAddress" placeholder="Full Address"></textarea>
+    <input id="custPincode" placeholder="Pincode">
+
+    <div class="wa-actions">
+      <button onclick="closeWaForm()">Cancel</button>
+      <button onclick="submitWaOrder()">Continue to WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+
+
 <div class="sticky-order">
   <button class="order-btn" onclick="orderNow()">Order on WhatsApp</button>
 </div>
