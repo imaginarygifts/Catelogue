@@ -314,30 +314,44 @@ function recalcPrice() {
 
 // ===== WHATSAPP ORDER =====
 
-window.orderNow = async function () {
+window.orderNow = function () {
 
+  // 1️⃣ Validate required product options first
   const errors = validateRequiredSelections();
   if (errors.length) {
     alert("⚠ Please complete required options:\n\n" + errors.join("\n"));
     return;
   }
 
+  // 2️⃣ Open WhatsApp order form
+  document.getElementById("waFormOverlay").classList.remove("hidden");
+};
+
+
+window.submitWaOrder = async function () {
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const address = document.getElementById("custAddress").value.trim();
+  const pincode = document.getElementById("custPincode").value.trim();
+
+  // ================= VALIDATION =================
+  if (!name || !phone || !address || !pincode) {
+    alert("⚠ Please fill all customer details");
+    return;
+  }
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    alert("⚠ Enter valid 10-digit mobile number");
+    return;
+  }
+
+  if (!/^\d{6}$/.test(pincode)) {
+    alert("⚠ Enter valid 6-digit pincode");
+    return;
+  }
+
   try {
-    // ================================
-    // 1️⃣ ENSURE PRODUCT ID EXISTS
-    // ================================
-    const productId =
-      product?.id ||
-      new URLSearchParams(location.search).get("id");
-
-    if (!productId) {
-      alert("Product ID missing");
-      return;
-    }
-
-    // ================================
-    // 2️⃣ GET / CREATE ORDER COUNTER
-    // ================================
+    // ================= ORDER NUMBER =================
     const counterRef = doc(db, "counters", "orders");
     const counterSnap = await getDoc(counterRef);
 
@@ -352,34 +366,38 @@ window.orderNow = async function () {
 
     const orderNumber = `IG-${nextNumber}`;
 
-    // ================================
-    // 3️⃣ BUILD ORDER DATA (✅ FIXED SCHEMA)
-    // ================================
+    // ================= SAVE ORDER =================
     const orderData = {
       orderNumber,
 
-      productId,
-      productName: product?.name || "",
-      productImage: product?.images?.[0] || "",
-      categoryId: product?.categoryId || null,
-      tags: product?.tags || [],
-
-      variants: {
-        color: selected?.color || null,
-        size: selected?.size || null
+      customer: {
+        name,
+        phone,
+        address,
+        pincode
       },
 
-      customOptions: Object.keys(selected?.options || {}).map(i => ({
-        label: product?.customOptions?.[i]?.label || "",
-        value: selected?.optionValues?.[i] || "Selected",
-        image: selected?.imageLinks?.[i] || null
+      productId: id,
+      productName: product.name,
+      productImage: product.images?.[0] || "",
+      categoryId: product.categoryId || null,
+      tags: product.tags || [],
+
+      variants: {
+        color: selected.color || null,
+        size: selected.size || null
+      },
+
+      customOptions: Object.keys(selected.options || {}).map(i => ({
+        label: product.customOptions?.[i]?.label || "",
+        value: selected.optionValues?.[i] || "",
+        image: selected.imageLinks?.[i] || null
       })),
 
       pricing: {
-        finalAmount: Number(finalPrice) || 0
+        finalAmount: Number(finalPrice)
       },
 
-      // ✅ UNIFIED PAYMENT OBJECT (VERY IMPORTANT)
       payment: {
         mode: "whatsapp",
         status: "pending",
@@ -388,52 +406,60 @@ window.orderNow = async function () {
 
       orderStatus: "pending",
       source: "product-whatsapp",
-
-      productLink: window.location.href,
+      productLink: location.href,
       createdAt: Date.now()
     };
 
-    // ================================
-    // 4️⃣ SAVE ORDER
-    // ================================
     await addDoc(collection(db, "orders"), orderData);
 
-    // ================================
-    // 5️⃣ BUILD WHATSAPP MESSAGE
-    // ================================
+    // ================= WHATSAPP MESSAGE =================
     let msg = `🛍 *New Order — Imaginary Gifts*\n\n`;
     msg += `🧾 *Order No:* ${orderNumber}\n\n`;
-    msg += `📦 *Product:* ${orderData.productName}\n`;
 
-    if (orderData.variants.color)
-      msg += `🎨 Color: ${orderData.variants.color.name}\n`;
+    msg += `👤 *Name:* ${name}\n`;
+    msg += `📞 *Mobile:* ${phone}\n`;
+    msg += `🏠 *Address:* ${address}\n`;
+    msg += `📮 *Pincode:* ${pincode}\n\n`;
 
-    if (orderData.variants.size)
-      msg += `📏 Size: ${orderData.variants.size.name}\n`;
+    msg += `📦 *Product:* ${product.name}\n`;
 
-    if (orderData.customOptions.length) {
+    if (selected.color)
+      msg += `🎨 Color: ${selected.color.name}\n`;
+
+    if (selected.size)
+      msg += `📏 Size: ${selected.size.name}\n`;
+
+    if (Object.keys(selected.optionValues).length) {
       msg += `\n⚙ Options:\n`;
-      orderData.customOptions.forEach(o => {
-        msg += `- ${o.label}: ${o.value}\n`;
-        if (o.image) msg += `  Image: ${o.image}\n`;
+      Object.keys(selected.optionValues).forEach(i => {
+        msg += `- ${product.customOptions[i].label}: ${selected.optionValues[i]}\n`;
+        if (selected.imageLinks[i]) {
+          msg += `  Image: ${selected.imageLinks[i]}\n`;
+        }
       });
     }
 
-    msg += `\n💰 *Total:* ₹${orderData.pricing.finalAmount}\n`;
-    msg += `💳 Payment: WhatsApp (Pending)\n\n`;
-    msg += `🔗 Product Link:\n${orderData.productLink}`;
+    msg += `\n💰 *Total:* ₹${finalPrice}\n`;
+    msg += `🔗 Product Link:\n${location.href}`;
 
-    // ================================
-    // 6️⃣ OPEN WHATSAPP
-    // ================================
+    // ================= OPEN WHATSAPP =================
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
+
+    // Close form
+    document.getElementById("waFormOverlay").classList.add("hidden");
 
   } catch (err) {
     console.error(err);
     alert("Order failed: " + err.message);
   }
 };
+
+window.closeWaForm = function () {
+  document.getElementById("waFormOverlay").classList.add("hidden");
+};
+
+
 
 //===== buy now =====
 
