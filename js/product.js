@@ -455,10 +455,6 @@ window.submitWaOrder = async function () {
   }
 };
 
-window.closeWaForm = function () {
-  document.getElementById("waFormOverlay").classList.add("hidden");
-};
-
 
 
 //===== buy now =====
