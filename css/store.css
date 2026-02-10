@@ -344,6 +344,17 @@ body {
   z-index: 2;
 }
 
+
+.sticky-order {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+}
+
 .order-btn {
   width: 100%;
   padding: 14px;
