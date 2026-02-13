@@ -336,7 +336,7 @@ function sendWhatsApp(order) {
   msg += `\nTotal: ₹${order.pricing.finalAmount}\n`;
   msg += `Payment: ${order.payment.mode}\n`;
 
-  const url = `https://wa.me/917030191819?text=${encodeURIComponent(msg)}`;
+  const url = `https://wa.me/917385235738?text=${encodeURIComponent(msg)}`;
   window.open(url, "_blank");
 }
 
