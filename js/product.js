@@ -77,6 +77,33 @@ document.querySelectorAll(".custom-input, .custom-select").forEach(el => {
 
 
 
+function updatePageMeta(product) {
+  // Page title
+  document.title = product.name;
+
+  // Open Graph tags
+  document.querySelector('meta[property="og:title"]').setAttribute("content", product.name);
+
+  document.querySelector('meta[property="og:description"]').setAttribute(
+    "content",
+    product.description || "Have a look at this product"
+  );
+
+  document.querySelector('meta[property="og:image"]').setAttribute(
+    "content",
+    product.image
+  );
+
+  document.querySelector('meta[property="og:url"]').setAttribute(
+    "content",
+    window.location.href
+  );
+}
+
+
+
+
+
 // ===== LOAD PRODUCT =====
 async function loadProduct() {
   const snap = await getDoc(doc(db, "products", id));
@@ -84,6 +111,12 @@ async function loadProduct() {
 
   product = snap.data();
   finalPrice = product.basePrice;
+
+  updatePageMeta({
+    name: product.name,
+    description: product.description,
+    image: product.images?.[0] || ""
+  });
 
   renderSlider(product.images);
   await loadRelatedDesigns();
