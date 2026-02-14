@@ -433,17 +433,19 @@ body {
 /* Share Button (1/4 width) */
 .share-btn {
   flex: 1;
-    background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf);
+  background: linear-gradient(135deg, #ff8a00, #ffb347);
   color: #000;
   border: none;
   border-radius: 14px;
-  font-size: 16px;
-font-weight: 600;
+  font-size: 14px;
+  font-weight: 600;
+  height: 54px;
+  cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 54px;
-  cursor: pointer;
+  gap: 6px;
 }
 
 /* WhatsApp Button (3/4 width) */
