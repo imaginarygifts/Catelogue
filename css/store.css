@@ -433,11 +433,12 @@ body {
 /* Share Button (1/4 width) */
 .share-btn {
   flex: 1;
-  background: #1f1f1f;
-  color: #fff;
+    background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf);
+  color: #000;
   border: none;
   border-radius: 14px;
-  font-size: 22px;
+  font-size: 16px;
+font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
