@@ -146,47 +146,36 @@ window.delCategory = async (id) => {
 ===================================================== */
 
 async function loadSubCategories(categoryId) {
-  subList.innerHTML = "";
+  subList.innerHTML = "<li>Loading…</li>";
 
-  if (!categoryId) {
-    subList.innerHTML = `<li class="empty">Select a category</li>`;
-    return;
-  }
-
-  console.log("🔍 Loading subcategories for:", categoryId);
+  console.log("🔥 FORCE loading ALL subcategories");
 
   try {
-    const q = query(
-      collection(db, "subcategories"),
-      where("categoryId", "==", categoryId)
-    );
+    const snap = await getDocs(collection(db, "subcategories"));
 
-    const snap = await getDocs(q);
-
-    console.log("📦 Found:", snap.size);
+    console.log("🔥 TOTAL subcategories:", snap.size);
 
     if (snap.empty) {
-      subList.innerHTML = `<li class="empty">No sub-categories</li>`;
+      subList.innerHTML = "<li>No subcategories found</li>";
       return;
     }
 
+    subList.innerHTML = "";
+
     snap.forEach(docu => {
-      console.log("➡", docu.data());
+      console.log("➡", docu.id, docu.data());
 
       const li = document.createElement("li");
       li.className = "subcat-item";
-      li.innerHTML = `
-        <span>${docu.data().name}</span>
-        <button onclick="delSubCategory('${docu.id}', '${categoryId}')">❌</button>
-      `;
+      li.innerHTML = `<span>${docu.data().name}</span>`;
       subList.appendChild(li);
     });
 
   } catch (err) {
-    console.error(err);
-    alert("Failed to load sub-categories");
+    console.error("❌ LOAD FAILED", err);
   }
 }
+
 
 window.addSubCategory = async () => {
   const name = document.getElementById("subCatName").value.trim();
