@@ -14,22 +14,33 @@
     <span class="title">Categories</span>
   </div>
 
-  <!-- Page Content -->
   <div class="page-wrap">
 
-    <!-- Add Category -->
+    <!-- ===== ADD CATEGORY ===== -->
     <div class="add-category-wrap">
-      <input
-        type="text"
-        id="catName"
-        placeholder="Category name"
-        autocomplete="off"
-      >
-      <button class="add-category-btn" onclick="addCategory()">Add</button>
+      <input id="catName" placeholder="Category name">
+      <button onclick="addCategory()">Add Category</button>
     </div>
 
-    <!-- Category List -->
+    <!-- CATEGORY LIST -->
     <ul id="catList"></ul>
+
+    <hr style="margin:30px 0">
+
+    <!-- ===== SUB CATEGORY SECTION ===== -->
+    <h3>Sub-Categories</h3>
+
+    <select id="parentCategory">
+      <option value="">Select Category</option>
+    </select>
+
+    <div class="add-category-wrap">
+      <input id="subCatName" placeholder="Sub-category name">
+      <button onclick="addSubCategory()">Add Sub-Category</button>
+    </div>
+
+    <!-- SUB CATEGORY LIST -->
+    <ul id="subCatList"></ul>
 
   </div>
 
