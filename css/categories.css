@@ -148,3 +148,48 @@ body {
     background: linear-gradient(135deg, #0b0c1a, #11132b);
   }
 }
+
+
+/* ---------- SUB CATEGORY UI ---------- */
+
+#parentCategory {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+#subCatList {
+  margin-top: 12px;
+  padding: 0;
+}
+
+.subcat-item {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.subcat-item span {
+  font-weight: 500;
+}
+
+.subcat-item button {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.empty {
+  list-style: none;
+  text-align: center;
+  color: #888;
+  padding: 10px;
+}
