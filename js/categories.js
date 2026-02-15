@@ -11,34 +11,40 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ================= CATEGORIES ================= */
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
 const list = document.getElementById("catList");
 const input = document.getElementById("catName");
 const parentSelect = document.getElementById("parentCategory");
+const subList = document.getElementById("subCatList");
 
 let draggedItem = null;
 
-/* ---------- LOAD CATEGORIES ---------- */
+/* =====================================================
+   LOAD CATEGORIES
+===================================================== */
+
 async function loadCategories() {
   list.innerHTML = "";
   parentSelect.innerHTML = `<option value="">Select Category</option>`;
+  subList.innerHTML = "";
 
   const q = query(collection(db, "categories"), orderBy("order"));
   const snap = await getDocs(q);
 
   snap.forEach(docu => {
-    // List
+    /* ---------- CATEGORY LIST ---------- */
     const li = document.createElement("li");
     li.draggable = true;
     li.dataset.id = docu.id;
-
     li.innerHTML = `
       <span>${docu.data().name}</span>
       <button onclick="delCategory('${docu.id}')">❌</button>
     `;
 
-    // Drag
+    /* ---------- DRAG EVENTS ---------- */
     li.addEventListener("dragstart", () => {
       draggedItem = li;
       li.classList.add("dragging");
@@ -65,21 +71,23 @@ async function loadCategories() {
 
     list.appendChild(li);
 
-    // Dropdown
+    /* ---------- DROPDOWN ---------- */
     const opt = document.createElement("option");
-    opt.value = docu.id;
+    opt.value = docu.id;              // 🔥 IMPORTANT (ID)
     opt.textContent = docu.data().name;
     parentSelect.appendChild(opt);
   });
 }
 
-/* ---------- CLEAR DRAG ---------- */
+/* =====================================================
+   CATEGORY HELPERS
+===================================================== */
+
 function clearDragOver() {
   document.querySelectorAll(".drag-over")
     .forEach(el => el.classList.remove("drag-over"));
 }
 
-/* ---------- REORDER ---------- */
 async function reorderCategories(item1, item2) {
   if (!item1 || !item2 || item1 === item2) return;
 
@@ -97,88 +105,138 @@ async function reorderCategories(item1, item2) {
   );
 }
 
-/* ---------- ADD CATEGORY ---------- */
+/* =====================================================
+   CATEGORY ACTIONS
+===================================================== */
+
 window.addCategory = async () => {
   const name = input.value.trim();
-  if (!name) return;
+  if (!name) return alert("Enter category name");
 
-  const snap = await getDocs(collection(db, "categories"));
+  try {
+    const snap = await getDocs(collection(db, "categories"));
 
-  await addDoc(collection(db, "categories"), {
-    name,
-    order: snap.size
-  });
+    await addDoc(collection(db, "categories"), {
+      name,
+      order: snap.size
+    });
 
-  input.value = "";
-  loadCategories();
+    input.value = "";
+    loadCategories();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add category");
+  }
 };
 
-/* ---------- DELETE CATEGORY ---------- */
 window.delCategory = async (id) => {
-  await deleteDoc(doc(db, "categories", id));
-  loadCategories();
+  if (!confirm("Delete this category?")) return;
+
+  try {
+    await deleteDoc(doc(db, "categories", id));
+    loadCategories();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete category");
+  }
 };
 
-/* ================= SUB CATEGORIES ================= */
+/* =====================================================
+   SUB CATEGORIES
+===================================================== */
 
-const subList = document.getElementById("subCatList");
-
-parentSelect.addEventListener("change", e => {
-  loadSubCategories(e.target.value);
-});
-
-/* ---------- LOAD SUB CATEGORIES ---------- */
 async function loadSubCategories(categoryId) {
   subList.innerHTML = "";
-  if (!categoryId) return;
 
-  const q = query(
-    collection(db, "subcategories"),
-    where("categoryId", "==", categoryId),
-    orderBy("order")
-  );
+  if (!categoryId) {
+    subList.innerHTML = `<li class="empty">Select a category</li>`;
+    return;
+  }
 
-  const snap = await getDocs(q);
+  console.log("🔍 Loading subcategories for:", categoryId);
 
-  snap.forEach(docu => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <span>${docu.data().name}</span>
-      <button onclick="delSubCategory('${docu.id}', '${categoryId}')">❌</button>
-    `;
-    subList.appendChild(li);
-  });
+  try {
+    const q = query(
+      collection(db, "subcategories"),
+      where("categoryId", "==", categoryId)
+    );
+
+    const snap = await getDocs(q);
+
+    console.log("📦 Found:", snap.size);
+
+    if (snap.empty) {
+      subList.innerHTML = `<li class="empty">No sub-categories</li>`;
+      return;
+    }
+
+    snap.forEach(docu => {
+      console.log("➡", docu.data());
+
+      const li = document.createElement("li");
+      li.className = "subcat-item";
+      li.innerHTML = `
+        <span>${docu.data().name}</span>
+        <button onclick="delSubCategory('${docu.id}', '${categoryId}')">❌</button>
+      `;
+      subList.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load sub-categories");
+  }
 }
 
-/* ---------- ADD SUB CATEGORY ---------- */
 window.addSubCategory = async () => {
   const name = document.getElementById("subCatName").value.trim();
   const categoryId = parentSelect.value;
 
-  if (!name || !categoryId) return;
+  if (!categoryId) return alert("Select category first");
+  if (!name) return alert("Enter sub-category name");
 
-  const snap = await getDocs(
-    query(
-      collection(db, "subcategories"),
-      where("categoryId", "==", categoryId)
-    )
-  );
+  try {
+    console.log("➕ Saving subcategory:", name, categoryId);
 
-  await addDoc(collection(db, "subcategories"), {
-    name,
-    categoryId,
-    order: snap.size
-  });
+    await addDoc(collection(db, "subcategories"), {
+      name,
+      categoryId,
+      createdAt: Date.now()
+    });
 
-  document.getElementById("subCatName").value = "";
-  loadSubCategories(categoryId);
+    document.getElementById("subCatName").value = "";
+
+    // 🔥 FORCE reload
+    loadSubCategories(categoryId);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add sub-category");
+  }
 };
 
-/* ---------- DELETE SUB CATEGORY ---------- */
 window.delSubCategory = async (id, categoryId) => {
-  await deleteDoc(doc(db, "subcategories", id));
-  loadSubCategories(categoryId);
+  if (!confirm("Delete this sub-category?")) return;
+
+  try {
+    await deleteDoc(doc(db, "subcategories", id));
+    loadSubCategories(categoryId);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete sub-category");
+  }
 };
 
-/* ---------- INIT ---------- */
+/* =====================================================
+   EVENTS
+===================================================== */
+
+parentSelect.addEventListener("change", () => {
+  loadSubCategories(parentSelect.value);
+});
+
+/* =====================================================
+   INIT
+===================================================== */
+
 loadCategories();
