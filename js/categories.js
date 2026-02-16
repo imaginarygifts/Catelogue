@@ -73,10 +73,16 @@ async function loadCategories() {
 
     /* ---------- DROPDOWN ---------- */
     const opt = document.createElement("option");
-    opt.value = docu.id;              // 🔥 IMPORTANT (ID)
+    opt.value = docu.id;
     opt.textContent = docu.data().name;
     parentSelect.appendChild(opt);
   });
+
+  /* 🔥 AUTO-SELECT FIRST CATEGORY & LOAD SUB-CATEGORIES */
+  if (parentSelect.options.length > 1) {
+    parentSelect.selectedIndex = 1; // skip "Select Category"
+    loadSubCategories(parentSelect.value);
+  }
 }
 
 /* =====================================================
@@ -84,7 +90,8 @@ async function loadCategories() {
 ===================================================== */
 
 function clearDragOver() {
-  document.querySelectorAll(".drag-over")
+  document
+    .querySelectorAll(".drag-over")
     .forEach(el => el.classList.remove("drag-over"));
 }
 
@@ -115,7 +122,6 @@ window.addCategory = async () => {
 
   try {
     const snap = await getDocs(collection(db, "categories"));
-
     await addDoc(collection(db, "categories"), {
       name,
       order: snap.size
@@ -142,40 +148,42 @@ window.delCategory = async (id) => {
 };
 
 /* =====================================================
-   SUB CATEGORIES
+   SUB-CATEGORIES
 ===================================================== */
 
 async function loadSubCategories(categoryId) {
   subList.innerHTML = "<li>Loading…</li>";
-
-  console.log("🔥 FORCE loading ALL subcategories");
+  if (!categoryId) return;
 
   try {
-    const snap = await getDocs(collection(db, "subcategories"));
+    const q = query(
+      collection(db, "subcategories"),
+      where("categoryId", "==", categoryId)
+    );
 
-    console.log("🔥 TOTAL subcategories:", snap.size);
+    const snap = await getDocs(q);
 
     if (snap.empty) {
-      subList.innerHTML = "<li>No subcategories found</li>";
+      subList.innerHTML = `<li class="empty">No sub-categories</li>`;
       return;
     }
 
     subList.innerHTML = "";
 
     snap.forEach(docu => {
-      console.log("➡", docu.id, docu.data());
-
       const li = document.createElement("li");
       li.className = "subcat-item";
-      li.innerHTML = `<span>${docu.data().name}</span>`;
+      li.innerHTML = `
+        <span>${docu.data().name}</span>
+        <button onclick="delSubCategory('${docu.id}', '${categoryId}')">❌</button>
+      `;
       subList.appendChild(li);
     });
-
   } catch (err) {
-    console.error("❌ LOAD FAILED", err);
+    console.error(err);
+    alert("Failed to load sub-categories");
   }
 }
-
 
 window.addSubCategory = async () => {
   const name = document.getElementById("subCatName").value.trim();
@@ -185,8 +193,6 @@ window.addSubCategory = async () => {
   if (!name) return alert("Enter sub-category name");
 
   try {
-    console.log("➕ Saving subcategory:", name, categoryId);
-
     await addDoc(collection(db, "subcategories"), {
       name,
       categoryId,
@@ -194,10 +200,7 @@ window.addSubCategory = async () => {
     });
 
     document.getElementById("subCatName").value = "";
-
-    // 🔥 FORCE reload
     loadSubCategories(categoryId);
-
   } catch (err) {
     console.error(err);
     alert("Failed to add sub-category");
