@@ -3,81 +3,109 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const grid = document.getElementById("productGrid");
 const categoryBar = document.getElementById("categoryBar");
 const tagRow = document.getElementById("tagFilterRow");
+const subCategoryBar = document.getElementById("subCategoryBar"); // 🔥 ADD THIS IN HTML
 
 let allProducts = [];
 let allCategories = [];
-let allTags = [];
+let mainCategories = [];
+let subCategories = [];
 
-let activeCategory = "all";
+let activeCategory = "all";     // main category
+let activeSubCategory = "all";  // sub category
 let activeTag = "all";
-
-/* ================= HELPERS ================= */
-
-function getUsedCategoryIds() {
-  return new Set(allProducts.map(p => p.categoryId).filter(Boolean));
-}
-
-function getUsedTagSlugs() {
-  const set = new Set();
-  allProducts.forEach(p => {
-    if (Array.isArray(p.tags)) {
-      p.tags.forEach(t => set.add(t));
-    }
-  });
-  return set;
-}
 
 /* ================= PRODUCTS ================= */
 
 async function loadProducts() {
   const snap = await getDocs(collection(db, "products"));
   allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderProducts();
 }
 
 /* ================= CATEGORIES ================= */
 
 async function loadCategories() {
-  const q = query(
-    collection(db, "categories"),
-    orderBy("order")
+  const snap = await getDocs(
+    query(collection(db, "categories"), orderBy("order"))
   );
 
-  const snap = await getDocs(q);
-  const usedCategoryIds = getUsedCategoryIds();
+  allCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  allCategories = snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
-    .filter(cat => usedCategoryIds.has(cat.id));
+  mainCategories = allCategories.filter(c => !c.parentId);
+  subCategories = allCategories.filter(c => c.parentId);
 
-  renderCategoryBar();
+  renderMainCategories();
 }
 
-function renderCategoryBar() {
+/* ================= MAIN CATEGORY BAR ================= */
+
+function renderMainCategories() {
   categoryBar.innerHTML = "";
+  subCategoryBar.innerHTML = "";
 
-  categoryBar.appendChild(createCategoryBtn("All", "all"));
+  categoryBar.appendChild(createMainCategoryBtn("All", "all"));
 
-  allCategories.forEach(cat => {
-    categoryBar.appendChild(createCategoryBtn(cat.name, cat.id));
+  mainCategories.forEach(cat => {
+    categoryBar.appendChild(createMainCategoryBtn(cat.name, cat.id));
   });
 }
 
-function createCategoryBtn(label, id) {
+function createMainCategoryBtn(label, id) {
   const div = document.createElement("div");
   div.className = "category-pill" + (activeCategory === id ? " active" : "");
   div.innerText = label;
 
   div.onclick = () => {
     activeCategory = id;
+    activeSubCategory = "all";
+
     document
-      .querySelectorAll(".category-pill")
+      .querySelectorAll("#categoryBar .category-pill")
+      .forEach(p => p.classList.remove("active"));
+
+    div.classList.add("active");
+
+    renderSubCategories();
+    renderProducts();
+  };
+
+  return div;
+}
+
+/* ================= SUB CATEGORY BAR ================= */
+
+function renderSubCategories() {
+  subCategoryBar.innerHTML = "";
+
+  if (activeCategory === "all") return;
+
+  const subs = subCategories.filter(s => s.parentId === activeCategory);
+  if (!subs.length) return;
+
+  subCategoryBar.appendChild(createSubCategoryBtn("All", "all"));
+
+  subs.forEach(sub => {
+    subCategoryBar.appendChild(createSubCategoryBtn(sub.name, sub.id));
+  });
+}
+
+function createSubCategoryBtn(label, id) {
+  const div = document.createElement("div");
+  div.className =
+    "subcategory-pill" + (activeSubCategory === id ? " active" : "");
+  div.innerText = label;
+
+  div.onclick = () => {
+    activeSubCategory = id;
+
+    document
+      .querySelectorAll(".subcategory-pill")
       .forEach(p => p.classList.remove("active"));
 
     div.classList.add("active");
@@ -93,18 +121,17 @@ async function loadFrontendTags() {
   if (!tagRow) return;
 
   const snap = await getDocs(collection(db, "tags"));
-  const usedTagSlugs = getUsedTagSlugs();
 
-  allTags = snap.docs
-    .map(d => d.data())
-    .filter(tag => usedTagSlugs.has(tag.slug));
+  allProducts.forEach(p => {
+    if (!Array.isArray(p.tags)) p.tags = [];
+  });
 
+  allTags = snap.docs.map(d => d.data());
   renderTags();
 }
 
 function renderTags() {
   tagRow.innerHTML = "";
-
   tagRow.appendChild(createTagChip("All", "all"));
 
   allTags.forEach(tag => {
@@ -128,12 +155,10 @@ function createTagChip(label, slug) {
 
 function updateTagUI() {
   document.querySelectorAll(".tag-chip").forEach(chip => {
-    const slug = chip.innerText.toLowerCase();
     chip.classList.remove("active");
-
     if (
-      (activeTag === "all" && slug === "all") ||
-      slug === activeTag
+      (activeTag === "all" && chip.innerText === "All") ||
+      chip.innerText.toLowerCase() === activeTag
     ) {
       chip.classList.add("active");
     }
@@ -146,14 +171,18 @@ function renderProducts() {
   grid.innerHTML = "";
 
   const filtered = allProducts.filter(p => {
-    const categoryMatch =
+    const mainMatch =
       activeCategory === "all" || p.categoryId === activeCategory;
+
+    const subMatch =
+      activeSubCategory === "all" ||
+      p.subCategoryId === activeSubCategory;
 
     const tagMatch =
       activeTag === "all" ||
       (Array.isArray(p.tags) && p.tags.includes(activeTag));
 
-    return categoryMatch && tagMatch;
+    return mainMatch && subMatch && tagMatch;
   });
 
   if (!filtered.length) {
@@ -165,7 +194,7 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
-    const isBestseller = p.tags && p.tags.includes("bestseller");
+    const isBestseller = p.tags?.includes("bestseller");
 
     card.innerHTML = `
       <div class="img-wrap">
@@ -192,4 +221,5 @@ function renderProducts() {
   await loadProducts();
   await loadCategories();
   await loadFrontendTags();
+  renderProducts();
 })();
