@@ -68,17 +68,46 @@ function hidePopup() {
 }
 
 // Load categories
+
 async function loadCategories() {
   catSelect.innerHTML = `<option value="">Select category</option>`;
-  const snap = await getDocs(collection(db, "categories"));
-  snap.forEach(doc => {
+
+  const snap = await getDocs(
+    query(collection(db, "categories"), orderBy("order"))
+  );
+
+  const main = [];
+  const subs = {};
+
+  snap.forEach(d => {
+    const c = { id: d.id, ...d.data() };
+    if (!c.parentId) {
+      main.push(c);
+      subs[c.id] = [];
+    } else {
+      if (!subs[c.parentId]) subs[c.parentId] = [];
+      subs[c.parentId].push(c);
+    }
+  });
+
+  main.forEach(m => {
     const opt = document.createElement("option");
-    opt.value = doc.id;
-    opt.innerText = doc.data().name;
+    opt.value = m.id;
+    opt.textContent = m.name;
+    opt.dataset.type = "main";
     catSelect.appendChild(opt);
+
+    (subs[m.id] || []).forEach(s => {
+      const subOpt = document.createElement("option");
+      subOpt.value = s.id;
+      subOpt.textContent = "— " + s.name;
+      subOpt.dataset.type = "sub";
+      subOpt.dataset.parent = m.id; // 🔥 CRITICAL
+      catSelect.appendChild(subOpt);
+    });
   });
 }
-loadCategories();
+
 
 // ========== IMAGE PICKER ==========
 if (imagesInput) {
@@ -357,22 +386,23 @@ window.saveProduct = async () => {
     };
 
     const docRef = await addDoc(collection(db, "products"), {
-      name,
-      description: descInput.value,
-      basePrice: Number(price),
-      categoryId: cat,
-      images: uploadedImages,
-      variants: {
-        colors,
-        sizes
-      },
-      customOptions,
-      paymentSettings,
-      relatedDesigns,
-      tags: selectedTags,
-      isBestseller,
-      createdAt: Date.now()
-    });
+  name,
+  description: descInput.value,
+  basePrice: Number(price),
+  categoryId,        // 🔥 MAIN CATEGORY
+  subCategoryId,     // 🔥 SUB CATEGORY OR NULL
+  images: uploadedImages,
+  variants: {
+    colors,
+    sizes
+  },
+  customOptions,
+  paymentSettings,
+  relatedDesigns,
+  tags: selectedTags,
+  isBestseller,
+  createdAt: Date.now()
+});
 
     const newId = docRef.id;
 
