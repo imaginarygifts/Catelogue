@@ -6,12 +6,15 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ================= ELEMENTS ================= */
+/* ================= ELEMENTS (SAFE) ================= */
 
 const grid = document.getElementById("productGrid");
 const categoryBar = document.getElementById("categoryBar");
 const subCategoryBar = document.getElementById("subCategoryBar");
 const tagRow = document.getElementById("tagFilterRow");
+
+if (!grid) console.error("❌ productGrid missing");
+if (!categoryBar) console.error("❌ categoryBar missing");
 
 /* ================= STATE ================= */
 
@@ -42,16 +45,27 @@ async function loadCategories() {
   subCategories = allCategories.filter(c => c.parentId);
 }
 
+async function loadFrontendTags() {
+  if (!tagRow) return;
+
+  const snap = await getDocs(collection(db, "tags"));
+  allTags = snap.docs.map(d => d.data());
+}
+
 /* ================= CATEGORY UI ================= */
 
 function renderMainCategories() {
+  if (!categoryBar) return;
+
   categoryBar.innerHTML = "";
-  subCategoryBar.innerHTML = "";
+  if (subCategoryBar) subCategoryBar.innerHTML = "";
 
   categoryBar.appendChild(createMainCategoryBtn("All", "all", true));
 
   mainCategories.forEach(cat => {
-    categoryBar.appendChild(createMainCategoryBtn(cat.name, cat.id));
+    categoryBar.appendChild(
+      createMainCategoryBtn(cat.name, cat.id)
+    );
   });
 }
 
@@ -60,7 +74,6 @@ function createMainCategoryBtn(label, id, forceActive = false) {
   div.className =
     "category-pill" +
     ((activeCategory === id || forceActive) ? " active" : "");
-
   div.innerText = label;
 
   div.onclick = () => {
@@ -83,17 +96,26 @@ function createMainCategoryBtn(label, id, forceActive = false) {
 /* ================= SUB CATEGORIES ================= */
 
 function renderSubCategories() {
+  if (!subCategoryBar) return;
+
   subCategoryBar.innerHTML = "";
 
   if (activeCategory === "all") return;
 
-  const subs = subCategories.filter(s => s.parentId === activeCategory);
+  const subs = subCategories.filter(
+    s => s.parentId === activeCategory
+  );
+
   if (!subs.length) return;
 
-  subCategoryBar.appendChild(createSubCategoryBtn("All", "all", true));
+  subCategoryBar.appendChild(
+    createSubCategoryBtn("All", "all", true)
+  );
 
   subs.forEach(sub => {
-    subCategoryBar.appendChild(createSubCategoryBtn(sub.name, sub.id));
+    subCategoryBar.appendChild(
+      createSubCategoryBtn(sub.name, sub.id)
+    );
   });
 }
 
@@ -102,7 +124,6 @@ function createSubCategoryBtn(label, id, forceActive = false) {
   div.className =
     "subcategory-pill" +
     ((activeSubCategory === id || forceActive) ? " active" : "");
-
   div.innerText = label;
 
   div.onclick = () => {
@@ -121,21 +142,16 @@ function createSubCategoryBtn(label, id, forceActive = false) {
 
 /* ================= TAGS ================= */
 
-async function loadFrontendTags() {
+function renderTags() {
   if (!tagRow) return;
 
-  const snap = await getDocs(collection(db, "tags"));
-  allTags = snap.docs.map(d => d.data());
-
-  renderTags();
-}
-
-function renderTags() {
   tagRow.innerHTML = "";
   tagRow.appendChild(createTagChip("All", "all", true));
 
   allTags.forEach(tag => {
-    tagRow.appendChild(createTagChip(tag.name, tag.slug));
+    tagRow.appendChild(
+      createTagChip(tag.name, tag.slug)
+    );
   });
 }
 
@@ -144,7 +160,6 @@ function createTagChip(label, slug, forceActive = false) {
   chip.className =
     "tag-chip" +
     ((activeTag === slug || forceActive) ? " active" : "");
-
   chip.innerText = label;
 
   chip.onclick = () => {
@@ -164,23 +179,28 @@ function createTagChip(label, slug, forceActive = false) {
 /* ================= PRODUCT FILTER ================= */
 
 function renderProducts() {
+  if (!grid) return;
+
   grid.innerHTML = "";
 
   const filtered = allProducts.filter(p => {
-    // CATEGORY LOGIC
-    if (activeCategory !== "all") {
-      if (p.categoryId !== activeCategory) return false;
-    }
+    // MAIN CATEGORY
+    if (activeCategory !== "all" && p.categoryId !== activeCategory)
+      return false;
 
-    // SUB CATEGORY LOGIC
-    if (activeSubCategory !== "all") {
-      if (p.subCategoryId !== activeSubCategory) return false;
-    }
+    // SUB CATEGORY
+    if (
+      activeSubCategory !== "all" &&
+      p.subCategoryId !== activeSubCategory
+    )
+      return false;
 
-    // TAG LOGIC
-    if (activeTag !== "all") {
-      if (!Array.isArray(p.tags) || !p.tags.includes(activeTag)) return false;
-    }
+    // TAG
+    if (
+      activeTag !== "all" &&
+      (!Array.isArray(p.tags) || !p.tags.includes(activeTag))
+    )
+      return false;
 
     return true;
   });
@@ -216,10 +236,14 @@ function renderProducts() {
 /* ================= INIT ================= */
 
 (async function init() {
+  console.log("✅ store.js loaded");
+
   await loadProducts();
   await loadCategories();
   await loadFrontendTags();
 
-  renderMainCategories();   // 🔥 CRITICAL
-  renderProducts();         // 🔥 SHOW PRODUCTS ON LOAD
+  renderMainCategories(); // show category pills
+  renderSubCategories(); // safe (empty)
+  renderTags();          // restore tags
+  renderProducts();      // show products immediately
 })();
