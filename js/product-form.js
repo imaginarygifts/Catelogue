@@ -342,11 +342,35 @@ loadTags();
 window.saveProduct = async () => {
   const name = nameInput.value.trim();
   const price = priceInput.value;
-  const cat = catSelect.value;
-  const isBestseller = document.getElementById("isBestseller")?.checked || false;
+  const selectedOption = catSelect.options[catSelect.selectedIndex];
+  const isBestseller =
+    document.getElementById("isBestseller")?.checked || false;
 
-  if (!name || !price || !cat) {
+  if (!name || !price || !selectedOption || !selectedOption.value) {
     showPopup("⚠ Fill all required fields");
+    setTimeout(hidePopup, 1500);
+    return;
+  }
+
+  /* ================= CATEGORY LOGIC (STEP 2) ================= */
+
+  let categoryId = null;
+  let subCategoryId = null;
+
+  // MAIN CATEGORY SELECTED
+  if (selectedOption.dataset.type === "main") {
+    categoryId = selectedOption.value;
+    subCategoryId = null;
+  }
+
+  // SUB CATEGORY SELECTED
+  if (selectedOption.dataset.type === "sub") {
+    subCategoryId = selectedOption.value;
+    categoryId = selectedOption.dataset.parent; // 🔥 MAIN CATEGORY ID
+  }
+
+  if (!categoryId) {
+    showPopup("⚠ Invalid category selection");
     setTimeout(hidePopup, 1500);
     return;
   }
@@ -386,27 +410,30 @@ window.saveProduct = async () => {
     };
 
     const docRef = await addDoc(collection(db, "products"), {
-  name,
-  description: descInput.value,
-  basePrice: Number(price),
-  categoryId,        // 🔥 MAIN CATEGORY
-  subCategoryId,     // 🔥 SUB CATEGORY OR NULL
-  images: uploadedImages,
-  variants: {
-    colors,
-    sizes
-  },
-  customOptions,
-  paymentSettings,
-  relatedDesigns,
-  tags: selectedTags,
-  isBestseller,
-  createdAt: Date.now()
-});
+      name,
+      description: descInput.value,
+      basePrice: Number(price),
+
+      // 🔥 CORRECT CATEGORY DATA
+      categoryId,        // MAIN CATEGORY
+      subCategoryId,     // SUB CATEGORY OR null
+
+      images: uploadedImages,
+      variants: {
+        colors,
+        sizes
+      },
+      customOptions,
+      paymentSettings,
+      relatedDesigns,
+      tags: selectedTags,
+      isBestseller,
+      createdAt: Date.now()
+    });
 
     const newId = docRef.id;
 
-    // ========== BIDIRECTIONAL RELATED DESIGNS ==========
+    // ===== BIDIRECTIONAL RELATED DESIGNS =====
     for (const rid of relatedDesigns) {
       const refDoc = doc(db, "products", rid);
       const snap = await getDoc(refDoc);
@@ -430,7 +457,7 @@ window.saveProduct = async () => {
     }, 1200);
 
   } catch (e) {
-    showPopup("❌ " + e.message);
     console.error(e);
+    showPopup("❌ " + e.message);
   }
 };
