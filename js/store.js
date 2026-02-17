@@ -175,8 +175,9 @@ function renderProducts() {
       activeCategory === "all" || p.categoryId === activeCategory;
 
     const subMatch =
-      activeSubCategory === "all" ||
-      p.subCategoryId === activeSubCategory;
+  activeSubCategory === "all" ||
+  p.subCategoryId === activeSubCategory ||
+  (!p.subCategoryId && p.categoryId === activeCategory);
 
     const tagMatch =
       activeTag === "all" ||
