@@ -5,7 +5,9 @@ import {
   getDocs,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   ref,
@@ -89,6 +91,7 @@ async function loadCategories() {
       subs[c.parentId].push(c);
     }
   });
+loadCategories();
 
   main.forEach(m => {
     const opt = document.createElement("option");
