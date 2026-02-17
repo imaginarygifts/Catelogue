@@ -172,11 +172,20 @@ function renderProducts() {
     if (activeCategory !== "all" && p.categoryId !== activeCategory)
       return false;
 
-    if (
-      activeSubCategory !== "all" &&
-      p.subCategoryId !== activeSubCategory
-    )
-      return false;
+
+
+    if (activeSubCategory !== "all") {
+  // Show product if:
+  // 1. It matches subCategoryId OR
+  // 2. It belongs to main category but has no subCategoryId yet
+  if (
+    p.subCategoryId !== activeSubCategory &&
+    (!p.subCategoryId && p.categoryId !== activeCategory)
+  ) {
+    return false;
+  }
+}
+
 
     if (
       activeTag !== "all" &&
