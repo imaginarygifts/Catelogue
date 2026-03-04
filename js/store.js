@@ -174,14 +174,9 @@ function renderProducts() {
 
 
 
-    if (activeSubCategory !== "all") {
-  // Show product if:
-  // 1. It matches subCategoryId OR
-  // 2. It belongs to main category but has no subCategoryId yet
-  if (
-    p.subCategoryId !== activeSubCategory &&
-    (!p.subCategoryId && p.categoryId !== activeCategory)
-  ) {
+   // Sub category filter
+if (activeSubCategory !== "all") {
+  if (p.subCategoryId !== activeSubCategory) {
     return false;
   }
 }
