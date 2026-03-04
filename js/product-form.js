@@ -70,7 +70,6 @@ function hidePopup() {
 }
 
 // Load categories
-
 async function loadCategories() {
   catSelect.innerHTML = `<option value="">Select category</option>`;
 
@@ -83,6 +82,7 @@ async function loadCategories() {
 
   snap.forEach(d => {
     const c = { id: d.id, ...d.data() };
+
     if (!c.parentId) {
       main.push(c);
       subs[c.id] = [];
@@ -91,7 +91,6 @@ async function loadCategories() {
       subs[c.parentId].push(c);
     }
   });
-loadCategories();
 
   main.forEach(m => {
     const opt = document.createElement("option");
@@ -105,12 +104,13 @@ loadCategories();
       subOpt.value = s.id;
       subOpt.textContent = "— " + s.name;
       subOpt.dataset.type = "sub";
-      subOpt.dataset.parent = m.id; // 🔥 CRITICAL
+      subOpt.dataset.parent = m.id;
       catSelect.appendChild(subOpt);
     });
   });
 }
 
+loadCategories();
 
 // ========== IMAGE PICKER ==========
 if (imagesInput) {
@@ -346,34 +346,22 @@ window.saveProduct = async () => {
   const name = nameInput.value.trim();
   const price = priceInput.value;
   const selectedOption = catSelect.options[catSelect.selectedIndex];
-  const isBestseller =
-    document.getElementById("isBestseller")?.checked || false;
 
-  if (!name || !price || !selectedOption || !selectedOption.value) {
+let categoryId = null;
+let subCategoryId = null;
+
+if (selectedOption.dataset.type === "main") {
+  categoryId = selectedOption.value;
+}
+
+if (selectedOption.dataset.type === "sub") {
+  subCategoryId = selectedOption.value;
+  categoryId = selectedOption.dataset.parent;
+}
+  const isBestseller = document.getElementById("isBestseller")?.checked || false;
+
+  if (!name || !price || !selectedOption.value) {
     showPopup("⚠ Fill all required fields");
-    setTimeout(hidePopup, 1500);
-    return;
-  }
-
-  /* ================= CATEGORY LOGIC (STEP 2) ================= */
-
-  let categoryId = null;
-  let subCategoryId = null;
-
-  // MAIN CATEGORY SELECTED
-  if (selectedOption.dataset.type === "main") {
-    categoryId = selectedOption.value;
-    subCategoryId = null;
-  }
-
-  // SUB CATEGORY SELECTED
-  if (selectedOption.dataset.type === "sub") {
-    subCategoryId = selectedOption.value;
-    categoryId = selectedOption.dataset.parent; // 🔥 MAIN CATEGORY ID
-  }
-
-  if (!categoryId) {
-    showPopup("⚠ Invalid category selection");
     setTimeout(hidePopup, 1500);
     return;
   }
@@ -416,11 +404,8 @@ window.saveProduct = async () => {
       name,
       description: descInput.value,
       basePrice: Number(price),
-
-      // 🔥 CORRECT CATEGORY DATA
-      categoryId,        // MAIN CATEGORY
-      subCategoryId,     // SUB CATEGORY OR null
-
+      categoryId,
+subCategoryId,
       images: uploadedImages,
       variants: {
         colors,
@@ -436,7 +421,7 @@ window.saveProduct = async () => {
 
     const newId = docRef.id;
 
-    // ===== BIDIRECTIONAL RELATED DESIGNS =====
+    // ========== BIDIRECTIONAL RELATED DESIGNS ==========
     for (const rid of relatedDesigns) {
       const refDoc = doc(db, "products", rid);
       const snap = await getDoc(refDoc);
@@ -460,7 +445,7 @@ window.saveProduct = async () => {
     }, 1200);
 
   } catch (e) {
-    console.error(e);
     showPopup("❌ " + e.message);
+    console.error(e);
   }
 };
