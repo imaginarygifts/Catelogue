@@ -5,7 +5,7 @@ window.sharePage = async function () {
   // Use dynamic title set by updatePageMeta()
   const title = document.title && document.title !== "Product"
     ? document.title
-    : "Have a look at this product";
+    : "Have a look at this product ${product.name}";
 
   const text = "Have a look at this product 👇";
 
