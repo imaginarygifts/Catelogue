@@ -4,7 +4,9 @@ import {
   getDoc,
   updateDoc,
   getDocs,
-  collection
+  collection,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   ref,
@@ -77,13 +79,47 @@ window.toggleSection = (id) => {
 
 // ===== LOAD CATEGORIES =====
 async function loadCategories() {
-  const snap = await getDocs(collection(db, "categories"));
+
+  const snap = await getDocs(
+    query(collection(db, "categories"), orderBy("order"))
+  );
+
   catSelect.innerHTML = `<option value="">Select category</option>`;
+
+  const main = [];
+  const subs = {};
+
   snap.forEach(d => {
+    const c = { id: d.id, ...d.data() };
+
+    if (!c.parentId) {
+      main.push(c);
+      subs[c.id] = [];
+    } else {
+      if (!subs[c.parentId]) subs[c.parentId] = [];
+      subs[c.parentId].push(c);
+    }
+  });
+
+  main.forEach(m => {
+
     const opt = document.createElement("option");
-    opt.value = d.id;
-    opt.innerText = d.data().name;
+    opt.value = m.id;
+    opt.textContent = m.name;
+    opt.dataset.type = "main";
     catSelect.appendChild(opt);
+
+    (subs[m.id] || []).forEach(s => {
+
+      const subOpt = document.createElement("option");
+      subOpt.value = s.id;
+      subOpt.textContent = "— " + s.name;
+      subOpt.dataset.type = "sub";
+      subOpt.dataset.parent = m.id;
+
+      catSelect.appendChild(subOpt);
+    });
+
   });
 }
 
@@ -100,8 +136,7 @@ async function loadProduct() {
   nameInput.value = p.name || "";
   descInput.value = p.description || "";
   priceInput.value = p.basePrice || "";
-  catSelect.value = p.categoryId || "";
-
+  catSelect.value = p.subCategoryId || p.categoryId || "";
   existingImages = p.images || [];
 
   colors = p.variants?.colors || [];
@@ -379,10 +414,22 @@ window.toggleTag = function(slug, checked) {
 window.updateProduct = async () => {
   const name = nameInput.value.trim();
   const price = priceInput.value;
-  const cat = catSelect.value;
+  const selectedOption = catSelect.options[catSelect.selectedIndex];
+
+let categoryId = null;
+let subCategoryId = null;
+
+if (selectedOption.dataset.type === "main") {
+  categoryId = selectedOption.value;
+}
+
+if (selectedOption.dataset.type === "sub") {
+  subCategoryId = selectedOption.value;
+  categoryId = selectedOption.dataset.parent;
+}
   const isBestseller = document.getElementById("isBestseller")?.checked || false;
 
-  if (!name || !price || !cat) {
+  if (!name || !price || !selectedOption.value) {
     showPopup("⚠ Fill all required fields");
     setTimeout(hidePopup, 1500);
     return;
@@ -426,7 +473,8 @@ window.updateProduct = async () => {
       name,
       description: descInput.value,
       basePrice: Number(price),
-      categoryId: cat,
+      categoryId,
+subCategoryId,
       images: finalImages,
       variants: {
         colors,
