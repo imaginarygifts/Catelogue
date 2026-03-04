@@ -78,6 +78,7 @@ document.querySelectorAll(".custom-input, .custom-select").forEach(el => {
 
 
 function updatePageMeta(product) {
+alert("hi"+product.name)
   // Page title
   document.title = product.name;
 
