@@ -205,7 +205,7 @@ if (activeSubCategory !== "all") {
       <p>₹${p.basePrice}</p>
     `;
     card.onclick = () => {
-      location.href = `product.html?id=${p.id}`;
+      location.href = `product?id=${p.id}`;
     };
     grid.appendChild(card);
   });
