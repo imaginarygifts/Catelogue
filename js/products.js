@@ -15,6 +15,8 @@ let subCategories = [];
 let activeCategory = "all";
 let activeSubCategory = "all";
 
+
+
 /* ================= LOAD CATEGORIES ================= */
 
 async function loadCategories() {
