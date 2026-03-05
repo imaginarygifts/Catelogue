@@ -596,48 +596,38 @@ li {
 
 
 
-/* ================= ACCORDION HEADERS ================= */
+/* ================= ACCORDION HEADER ================= */
 
 .accordion,
 .accordion-header{
 
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  background:linear-gradient(180deg,#11141c,#0b0e14);
+  border:1px solid rgba(255,255,255,0.06);
+
+  border-radius:14px;
 
   padding:16px 18px;
   margin-top:16px;
 
-  border-radius:14px;
-
-  background:linear-gradient(180deg,#10131a,#0b0e14);
-  border:1px solid rgba(255,255,255,0.06);
-
   font-size:16px;
   font-weight:600;
-  color:#fff;
 
   cursor:pointer;
-
-  transition:all .25s ease;
+  transition:.25s;
 }
-
-/* hover */
 
 .accordion:hover,
 .accordion-header:hover{
-
-  background:rgba(255,255,255,0.04);
-  transform:translateY(-1px);
+  background:#161a22;
 }
 
-/* ================= BODY ================= */
+/* ================= ACCORDION BODY ================= */
 
 #variantsSection,
 #customSection,
 .accordion-body{
 
-  background:#0c0f15;
+  background:#0e1118;
 
   border:1px solid rgba(255,255,255,0.05);
   border-top:none;
@@ -645,50 +635,31 @@ li {
   border-radius:0 0 14px 14px;
 
   padding:18px;
-
   margin-bottom:14px;
-
 }
 
-/* ================= INPUTS ================= */
+/* ================= PAYMENT CHECKBOX ================= */
 
-#variantsSection input,
-#customSection input,
-#customSection select,
-.accordion-body input,
-.accordion-body select{
-
-  width:100%;
-
-  padding:10px 12px;
-  margin:6px 0 10px;
-
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.08);
-
-  background:#141821;
-  color:#fff;
-
-  font-size:14px;
+.payment-check{
+  padding:10px 0;
 }
 
-/* ================= LABELS ================= */
-
-label{
+.payment-check label{
 
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:10px;
 
-  font-size:14px;
-  margin:8px 0;
+  font-size:15px;
 }
 
-/* ================= ROW (discount fields) ================= */
+/* ================= DISCOUNT ROW ================= */
 
 .row{
 
-  display:flex;
+  display:grid;
+  grid-template-columns: 1fr 90px 120px;
+
   gap:10px;
   align-items:center;
 
@@ -696,74 +667,70 @@ label{
 }
 
 .row label{
-  min-width:140px;
+  font-size:14px;
 }
+
+/* select */
 
 .row select{
-  width:80px;
+
+  padding:10px;
+  border-radius:10px;
+
+  background:#151922;
+  border:1px solid rgba(255,255,255,0.08);
+  color:#fff;
 }
+
+/* input */
 
 .row input{
-  flex:1;
+
+  padding:10px;
+  border-radius:10px;
+
+  background:#151922;
+  border:1px solid rgba(255,255,255,0.08);
+  color:#fff;
 }
 
-/* ================= LIST ITEMS ================= */
+/* ================= VARIANT LIST ITEMS ================= */
 
 #colorList div,
 #sizeList div,
 #customList div{
 
-  background:#151922;
+  background:#161a23;
 
-  padding:10px 12px;
+  padding:10px;
   border-radius:10px;
 
   margin-top:8px;
-
-  font-size:13px;
 
   display:flex;
   justify-content:space-between;
   align-items:center;
 
-  cursor:pointer;
+  font-size:13px;
 }
 
-/* hover */
+/* ================= DIVIDER ================= */
 
-#colorList div:hover,
-#sizeList div:hover,
-#customList div:hover{
+.accordion-body hr{
 
-  background:#1b2030;
-}
-
-/* ================= HR ================= */
-
-hr{
   border:none;
   height:1px;
   background:rgba(255,255,255,0.08);
+
   margin:18px 0;
 }
 
-/* ================= MOBILE OPTIMIZATION ================= */
+/* ================= MOBILE ================= */
 
 @media(max-width:600px){
 
-  .accordion,
-  .accordion-header{
-    font-size:15px;
-    padding:14px 16px;
-  }
-
   .row{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .row label{
-    min-width:auto;
+    grid-template-columns:1fr 70px 90px;
   }
 
 }
