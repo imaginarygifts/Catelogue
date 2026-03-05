@@ -266,20 +266,24 @@ function renderColors() {
 
 // ========== SIZES ==========
 window.addEditSize = () => {
+
   const name = document.getElementById("editSizeName").value.trim();
   const price = Number(document.getElementById("editSizePrice").value || 0);
-  if (!name) return;
-
   const required = document.getElementById("sizeRequired")?.checked || false;
 
-sizes.push({
-  name,
-  price,
-  required
-});
+  if (!name) return;
+
+  sizes.push({
+    name,
+    price,
+    required
+  });
+
   renderSizes();
+
   document.getElementById("editSizeName").value = "";
   document.getElementById("editSizePrice").value = "";
+  document.getElementById("sizeRequired").checked = false;
 };
 
 function renderSizes() {
