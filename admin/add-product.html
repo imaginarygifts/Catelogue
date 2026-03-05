@@ -127,26 +127,31 @@
 
     <h4>Payment Methods</h4>
 
-    <label>
-      <input type="checkbox" id="allowOnline" checked>
-      Allow Online Payment
-    </label>
+    <div class="payment-check">
+      <label>
+        <input type="checkbox" id="allowOnline" checked>
+        Allow Online Payment
+      </label>
+    </div>
 
-    <label>
-      <input type="checkbox" id="allowCOD">
-      Allow Cash on Delivery
-    </label>
+    <div class="payment-check">
+      <label>
+        <input type="checkbox" id="allowCOD">
+        Allow Cash on Delivery
+      </label>
+    </div>
 
-    <label>
-      <input type="checkbox" id="allowAdvance">
-      Allow Advance Payment
-    </label>
+    <div class="payment-check">
+      <label>
+        <input type="checkbox" id="allowAdvance">
+        Allow Advance Payment
+      </label>
+    </div>
 
     <hr>
 
     <h4>Discounts</h4>
 
-    <!-- Online Discount -->
     <div class="row">
       <label>Online Discount</label>
       <select id="onlineDiscountType">
@@ -157,7 +162,6 @@
       <input type="number" id="onlineDiscountValue" placeholder="Value">
     </div>
 
-    <!-- COD Discount -->
     <div class="row">
       <label>COD Discount</label>
       <select id="codDiscountType">
@@ -168,7 +172,6 @@
       <input type="number" id="codDiscountValue" placeholder="Value">
     </div>
 
-    <!-- Advance Discount -->
     <div class="row">
       <label>Advance Discount</label>
       <select id="advanceDiscountType">
