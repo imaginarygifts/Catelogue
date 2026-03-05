@@ -244,7 +244,7 @@ function render() {
 
 // ===== DESIGN NAVIGATION =====
 window.goToDesign = function(pid) {
-  location.href = `product.html?id=${pid}`;
+  location.href = `product?id=${pid}`;
 };
 
 // ===== SLIDER =====
