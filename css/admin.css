@@ -596,17 +596,21 @@ li {
 
 
 
-.accordion{
+/* ================= ACCORDION HEADERS ================= */
+
+.accordion,
+.accordion-header{
+
   display:flex;
   align-items:center;
   justify-content:space-between;
 
-  padding:14px 18px;
+  padding:16px 18px;
   margin-top:16px;
 
   border-radius:14px;
 
-  background:linear-gradient(180deg,#0f1117,#0a0c12);
+  background:linear-gradient(180deg,#10131a,#0b0e14);
   border:1px solid rgba(255,255,255,0.06);
 
   font-size:16px;
@@ -614,20 +618,152 @@ li {
   color:#fff;
 
   cursor:pointer;
+
   transition:all .25s ease;
 }
 
-/* hover effect */
+/* hover */
 
-.accordion:hover{
+.accordion:hover,
+.accordion-header:hover{
+
   background:rgba(255,255,255,0.04);
   transform:translateY(-1px);
 }
 
-/* open state (optional if you add class later) */
+/* ================= BODY ================= */
 
-.accordion.active{
-  border:1px solid rgba(255,120,60,0.5);
-  box-shadow:0 0 20px rgba(255,120,60,0.15);
+#variantsSection,
+#customSection,
+.accordion-body{
+
+  background:#0c0f15;
+
+  border:1px solid rgba(255,255,255,0.05);
+  border-top:none;
+
+  border-radius:0 0 14px 14px;
+
+  padding:18px;
+
+  margin-bottom:14px;
+
 }
 
+/* ================= INPUTS ================= */
+
+#variantsSection input,
+#customSection input,
+#customSection select,
+.accordion-body input,
+.accordion-body select{
+
+  width:100%;
+
+  padding:10px 12px;
+  margin:6px 0 10px;
+
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:#141821;
+  color:#fff;
+
+  font-size:14px;
+}
+
+/* ================= LABELS ================= */
+
+label{
+
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  font-size:14px;
+  margin:8px 0;
+}
+
+/* ================= ROW (discount fields) ================= */
+
+.row{
+
+  display:flex;
+  gap:10px;
+  align-items:center;
+
+  margin-bottom:12px;
+}
+
+.row label{
+  min-width:140px;
+}
+
+.row select{
+  width:80px;
+}
+
+.row input{
+  flex:1;
+}
+
+/* ================= LIST ITEMS ================= */
+
+#colorList div,
+#sizeList div,
+#customList div{
+
+  background:#151922;
+
+  padding:10px 12px;
+  border-radius:10px;
+
+  margin-top:8px;
+
+  font-size:13px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  cursor:pointer;
+}
+
+/* hover */
+
+#colorList div:hover,
+#sizeList div:hover,
+#customList div:hover{
+
+  background:#1b2030;
+}
+
+/* ================= HR ================= */
+
+hr{
+  border:none;
+  height:1px;
+  background:rgba(255,255,255,0.08);
+  margin:18px 0;
+}
+
+/* ================= MOBILE OPTIMIZATION ================= */
+
+@media(max-width:600px){
+
+  .accordion,
+  .accordion-header{
+    font-size:15px;
+    padding:14px 16px;
+  }
+
+  .row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .row label{
+    min-width:auto;
+  }
+
+}
