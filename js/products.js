@@ -216,6 +216,7 @@ window.duplicateProduct = async (id) => {
   }
 };
 
+
 /* ================= INIT ================= */
 
 loadCategories();
