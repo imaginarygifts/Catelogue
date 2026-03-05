@@ -78,29 +78,37 @@ document.querySelectorAll(".custom-input, .custom-select").forEach(el => {
 
 
 function updatePageMeta(product) {
-alert("hi")
-  // Page title
-  document.title = product.name;
 
-  // Open Graph tags
-  document.querySelector('meta[property="og:title"]').setAttribute("content", product.name);
+  const title = product.name || "Imaginary Gifts";
+  const description =
+    product.description || "Check out this customized product";
+  const image = product.images?.[0] || "";
+  const url = window.location.href;
 
-  document.querySelector('meta[property="og:description"]').setAttribute(
-    "content",
-    product.description || "Have a look at this product"
-  );
+  // Title
+  document.title = title;
 
-  document.querySelector('meta[property="og:image"]').setAttribute(
-    "content",
-    product.image
-  );
+  // Meta description
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute("content", description);
 
-  document.querySelector('meta[property="og:url"]').setAttribute(
-    "content",
-    window.location.href
-  );
+  // Open Graph
+  document
+    .querySelector('meta[property="og:title"]')
+    ?.setAttribute("content", title);
+
+  document
+    .querySelector('meta[property="og:description"]')
+    ?.setAttribute("content", description);
+
+  document
+    .querySelector('meta[property="og:image"]')
+    ?.setAttribute("content", image);
+
+  document
+    .querySelector('meta[property="og:url"]')
+    ?.setAttribute("content", url);
 }
-
 
 
 
