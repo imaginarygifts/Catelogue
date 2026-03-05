@@ -592,3 +592,42 @@ li {
   border:none;
 }
 
+
+
+
+
+.accordion{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:14px 18px;
+  margin-top:16px;
+
+  border-radius:14px;
+
+  background:linear-gradient(180deg,#0f1117,#0a0c12);
+  border:1px solid rgba(255,255,255,0.06);
+
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+
+  cursor:pointer;
+  transition:all .25s ease;
+}
+
+/* hover effect */
+
+.accordion:hover{
+  background:rgba(255,255,255,0.04);
+  transform:translateY(-1px);
+}
+
+/* open state (optional if you add class later) */
+
+.accordion.active{
+  border:1px solid rgba(255,120,60,0.5);
+  box-shadow:0 0 20px rgba(255,120,60,0.15);
+}
+
