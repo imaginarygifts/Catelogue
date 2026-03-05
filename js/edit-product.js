@@ -230,14 +230,24 @@ newImagesInput.addEventListener("change", () => {
 });
 // ========== COLORS ==========
 window.addEditColor = () => {
+
   const name = document.getElementById("editColorName").value.trim();
   const price = Number(document.getElementById("editColorPrice").value || 0);
+  const required = document.getElementById("colorRequired")?.checked || false;
+
   if (!name) return;
 
-  colors.push({ name, price });
+  colors.push({
+    name,
+    price,
+    required
+  });
+
   renderColors();
+
   document.getElementById("editColorName").value = "";
   document.getElementById("editColorPrice").value = "";
+  document.getElementById("colorRequired").checked = false;
 };
 
 function renderColors() {
@@ -245,7 +255,7 @@ function renderColors() {
   list.innerHTML = "";
   colors.forEach((c, i) => {
     const div = document.createElement("div");
-    div.innerText = `${c.name} (+₹${c.price}) ❌`;
+   div.innerText = `${c.name} (+₹${c.price}) ${c.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       colors.splice(i, 1);
       renderColors();
@@ -260,7 +270,13 @@ window.addEditSize = () => {
   const price = Number(document.getElementById("editSizePrice").value || 0);
   if (!name) return;
 
-  sizes.push({ name, price });
+  const required = document.getElementById("sizeRequired")?.checked || false;
+
+sizes.push({
+  name,
+  price,
+  required
+});
   renderSizes();
   document.getElementById("editSizeName").value = "";
   document.getElementById("editSizePrice").value = "";
@@ -271,7 +287,7 @@ function renderSizes() {
   list.innerHTML = "";
   sizes.forEach((s, i) => {
     const div = document.createElement("div");
-    div.innerText = `${s.name} (+₹${s.price}) ❌`;
+    div.innerText = `${s.name} (+₹${s.price}) ${s.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       sizes.splice(i, 1);
       renderSizes();
@@ -282,14 +298,21 @@ function renderSizes() {
 
 // ========== CUSTOM OPTIONS ==========
 window.addEditCustomOption = () => {
+
   const type = document.getElementById("editCustomType").value;
   const label = document.getElementById("editCustomLabel").value.trim();
   const price = Number(document.getElementById("editCustomPrice").value || 0);
   const choicesRaw = document.getElementById("editCustomChoices").value;
+  const required = document.getElementById("customRequired")?.checked || false;
 
   if (!label) return;
 
-  const option = { type, label, price };
+  const option = {
+    type,
+    label,
+    price,
+    required
+  };
 
   if (type === "dropdown") {
     option.choices = choicesRaw
@@ -299,11 +322,13 @@ window.addEditCustomOption = () => {
   }
 
   customOptions.push(option);
+
   renderCustomOptions();
 
   document.getElementById("editCustomLabel").value = "";
   document.getElementById("editCustomPrice").value = "";
   document.getElementById("editCustomChoices").value = "";
+  document.getElementById("customRequired").checked = false;
 };
 
 function renderCustomOptions() {
@@ -311,7 +336,7 @@ function renderCustomOptions() {
   list.innerHTML = "";
   customOptions.forEach((o, i) => {
     const div = document.createElement("div");
-    div.innerText = `${o.type}: ${o.label} (+₹${o.price}) ❌`;
+    div.innerText = `${o.type}: ${o.label} (+₹${o.price}) ${o.required ? "(Required)" : ""} ❌`;
     div.onclick = () => {
       customOptions.splice(i, 1);
       renderCustomOptions();
