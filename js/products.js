@@ -1,5 +1,5 @@
 import { db } from "./firebase.js";
-import { collection, getDocs, deleteDoc, doc, query, orderBy } 
+import { collection, getDocs, deleteDoc, doc, query, orderBy, addDoc } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const list = document.getElementById("productList");
@@ -158,6 +158,7 @@ function renderProducts() {
 
         <div style="display:flex;gap:10px">
           <button class="btn-outline" onclick="editProduct('${p.id}')">Edit</button>
+          <button class="btn-outline" onclick="duplicateProduct('${p.id}')">Duplicate</button>
           <button class="btn-outline" onclick="deleteProduct('${p.id}')">Delete</button>
         </div>
       </div>
@@ -182,6 +183,37 @@ window.deleteProduct = async (id) => {
   await deleteDoc(doc(db, "products", id));
 
   loadProducts();
+};
+
+/* ================= DUPLICATE PRODUCT ================= */
+
+window.duplicateProduct = async (id) => {
+
+  if (!confirm("Duplicate this product?")) return;
+
+  try {
+
+    const product = allProducts.find(p => p.id === id);
+    if (!product) return;
+
+    const copy = { ...product };
+
+    delete copy.id;
+
+    copy.name = product.name + " (Copy)";
+    copy.createdAt = Date.now();
+
+    const newDoc = await addDoc(collection(db, "products"), copy);
+
+    // Open edit page of duplicated product
+    location.href = `edit-product.html?id=${newDoc.id}`;
+
+  } catch (err) {
+
+    console.error(err);
+    alert("Duplicate failed");
+
+  }
 };
 
 /* ================= INIT ================= */
