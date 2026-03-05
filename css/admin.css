@@ -567,3 +567,28 @@ li {
   border-radius: 10px;
 }
 
+
+
+.subcategory-bar{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:8px 12px;
+}
+
+.subcategory-pill{
+  padding:8px 16px;
+  border-radius:20px;
+  background:#1a1a1f;
+  color:#fff;
+  font-size:13px;
+  white-space:nowrap;
+  cursor:pointer;
+  border:1px solid #2a2a2f;
+}
+
+.subcategory-pill.active{
+  background:linear-gradient(45deg,#ff8c2f,#ff3d77);
+  border:none;
+}
+
