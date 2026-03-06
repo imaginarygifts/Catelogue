@@ -17,17 +17,21 @@
 
 <h3>Upload Images</h3>
 
+<div class="upload-box">
+
 <input type="text" id="folderName" placeholder="Folder name (example: magic-mug)">
 
 <input type="file" id="galleryUpload" multiple>
 
-<button class="btn" onclick="uploadGalleryImages()">Upload</button>
+<button class="upload-btn" onclick="uploadGalleryImages()">
+Upload
+</button>
+
+</div>
 
 <h3>Gallery</h3>
 
 <div id="galleryGrid" class="gallery-grid"></div>
-
-</div>
 
 <script type="module" src="../js/gallery.js"></script>
 
