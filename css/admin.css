@@ -791,3 +791,112 @@ margin-top:20px;
 font-size:13px;
 opacity:0.7;
 }
+
+
+
+
+
+
+/* MENU BUTTON */
+
+.menu-btn{
+font-size:22px;
+background:none;
+border:none;
+color:white;
+cursor:pointer;
+margin-right:10px;
+}
+
+
+/* SIDEBAR */
+
+.sidebar{
+position:fixed;
+top:0;
+left:-260px;
+width:260px;
+height:100%;
+background:#0b0b0b;
+box-shadow:4px 0 15px rgba(0,0,0,0.6);
+transition:0.3s;
+z-index:1000;
+display:flex;
+flex-direction:column;
+}
+
+.sidebar.open{
+left:0;
+}
+
+
+/* HEADER */
+
+.sidebar-header{
+padding:20px;
+border-bottom:1px solid #222;
+}
+
+.sidebar-email{
+font-size:14px;
+word-break:break-all;
+opacity:0.9;
+}
+
+
+/* MENU */
+
+.sidebar-menu{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.sidebar-menu a{
+padding:14px 20px;
+text-decoration:none;
+color:white;
+border-bottom:1px solid #111;
+font-size:15px;
+}
+
+.sidebar-menu a:hover{
+background:#1a1a1a;
+}
+
+
+/* FOOTER */
+
+.sidebar-footer{
+border-top:1px solid #222;
+display:flex;
+flex-direction:column;
+}
+
+.sidebar-footer a{
+padding:14px 20px;
+text-decoration:none;
+color:white;
+}
+
+.sidebar-footer a:hover{
+background:#1a1a1a;
+}
+
+
+/* OVERLAY */
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+z-index:900;
+}
+
+#overlay.show{
+display:block;
+}
