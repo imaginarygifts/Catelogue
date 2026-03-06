@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Product Image Gallery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../css/gallery.css">
+</head>
+
+<body>
+
+<div class="topbar">
+<span class="back-btn" onclick="location.href='dashboard.html'">←</span>
+<span class="title">Image Gallery</span>
+</div>
+
+<div class="container">
+
+<h3>Upload Images</h3>
+
+<input type="text" id="folderName" placeholder="Folder name (example: magic-mug)">
+
+<input type="file" id="galleryUpload" multiple>
+
+<button class="btn" onclick="uploadGalleryImages()">Upload</button>
+
+<h3>Gallery</h3>
+
+<div id="galleryGrid" class="gallery-grid"></div>
+
+</div>
+
+<script type="module" src="../js/gallery.js"></script>
+
+</body>
+</html>
