@@ -25,17 +25,7 @@
 <button class="gradient-btn" onclick="location.href='excel.html'">Bulk Upload</button>
 <button class="gradient-btn" onclick="location.href='cleanup.html'">stirage Cleanup</button>
 </div>
-<section id="cleanupPanel" class="cleanup-panel">
-  <h3>🧹 Storage Cleanup (Custom Images)</h3>
 
-  <div class="cleanup-actions">
-    <button class="btn-outline" onclick="deleteOlderThan7Days()">Delete > 7 Days</button>
-    <button class="btn-danger" onclick="deleteSelectedImages()">Delete Selected</button>
-    <button class="btn-outline" onclick="toggleSelectAll()" id="selectAllBtn">Select All</button>
-  </div>
-
-  <div id="cleanupList" class="cleanup-grid"></div>
-</section>
 <!-- 🔐 Guard -->
 <script type="module" src="../js/guard.js"></script>
 
