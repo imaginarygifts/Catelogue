@@ -115,3 +115,9 @@ grid-template-columns:repeat(2,1fr);
 }
 
 }
+
+#uploadStatus{
+margin-top:10px;
+font-size:14px;
+opacity:0.8;
+}
