@@ -10,35 +10,33 @@ deleteObject
 
 
 const grid = document.getElementById("galleryGrid");
-
 const viewer = document.getElementById("viewer");
-
 const viewerImg = document.getElementById("viewerImg");
-
 const folderSelect = document.getElementById("folderSelect");
+const breadcrumbs = document.getElementById("breadcrumbs");
+const toolbar = document.getElementById("toolbar");
+const progressBar = document.getElementById("progressBar");
 
 
 let currentFolder = "";
+let selectedItems = [];
 
-let selectedImages = [];
 
+/* LOAD FOLDERS FOR DROPDOWN */
 
-/* LOAD FOLDERS */
+async function loadFolderDropdown(){
 
-async function loadFolders(){
+folderSelect.innerHTML=`<option value="">Select Folder</option>`;
 
-folderSelect.innerHTML = `<option value="">Root</option>`;
+const rootRef=ref(storage,"product-images");
 
-const rootRef = ref(storage,"product-images");
-
-const res = await listAll(rootRef);
+const res=await listAll(rootRef);
 
 res.prefixes.forEach(f=>{
 
 const opt=document.createElement("option");
 
 opt.value=f.name;
-
 opt.innerText=f.name;
 
 folderSelect.appendChild(opt);
@@ -47,8 +45,7 @@ folderSelect.appendChild(opt);
 
 }
 
-loadFolders();
-
+loadFolderDropdown();
 
 
 /* LOAD GALLERY */
@@ -56,8 +53,12 @@ loadFolders();
 async function loadGallery(folder=""){
 
 currentFolder=folder;
+selectedItems=[];
+toolbar.style.display="none";
 
 grid.innerHTML="";
+
+updateBreadcrumbs();
 
 const path=folder?`product-images/${folder}`:"product-images";
 
@@ -66,24 +67,39 @@ const folderRef=ref(storage,path);
 const res=await listAll(folderRef);
 
 
-/* SHOW FOLDERS */
+/* FOLDERS */
 
 res.prefixes.forEach(f=>{
 
-const box=document.createElement("div");
+const card=document.createElement("div");
+card.className="folderCard";
 
-box.className="folder";
+card.innerHTML=`
+<input type="checkbox">
+<div class="folderIcon">📁</div>
+<div>${f.name}</div>
+`;
 
-box.innerText="📁 "+f.name;
+card.querySelector("input").onchange=e=>{
 
-box.onclick=()=>loadGallery(f.fullPath.replace("product-images/",""));
+toggleSelect(f,e.target.checked,true);
 
-grid.appendChild(box);
+};
+
+card.onclick=(e)=>{
+
+if(e.target.tagName!=="INPUT"){
+loadGallery(f.fullPath.replace("product-images/",""));
+}
+
+};
+
+grid.appendChild(card);
 
 });
 
 
-/* SHOW IMAGES */
+/* IMAGES */
 
 for(const file of res.items){
 
@@ -94,26 +110,15 @@ const card=document.createElement("div");
 card.className="imageCard";
 
 card.innerHTML=`
-
 <input type="checkbox">
-
 <img src="${url}">
-
 `;
 
 card.querySelector("img").onclick=()=>openViewer(url);
 
 card.querySelector("input").onchange=e=>{
 
-if(e.target.checked){
-
-selectedImages.push(file);
-
-}else{
-
-selectedImages=selectedImages.filter(i=>i!==file);
-
-}
+toggleSelect(file,e.target.checked,false);
 
 };
 
@@ -127,13 +132,93 @@ loadGallery();
 
 
 
+/* SELECT */
+
+function toggleSelect(item,checked,isFolder){
+
+if(checked){
+
+selectedItems.push({item,isFolder});
+
+}else{
+
+selectedItems=selectedItems.filter(i=>i.item!==item);
+
+}
+
+toolbar.style.display=selectedItems.length?"flex":"none";
+
+}
+
+
+
+/* DELETE */
+
+window.deleteSelected=async()=>{
+
+if(!confirm("Delete selected items?"))return;
+
+for(const obj of selectedItems){
+
+if(!obj.isFolder){
+
+await deleteObject(obj.item);
+
+}
+
+}
+
+selectedItems=[];
+loadGallery(currentFolder);
+
+};
+
+
+
+/* MOVE */
+
+window.moveSelected=async()=>{
+
+const folder=prompt("Move to folder name");
+
+if(!folder)return;
+
+for(const obj of selectedItems){
+
+if(!obj.isFolder){
+
+const url=await getDownloadURL(obj.item);
+
+const res=await fetch(url);
+
+const blob=await res.blob();
+
+const newRef=ref(storage,"product-images/"+folder+"/"+obj.item.name);
+
+await uploadBytes(newRef,blob);
+
+await deleteObject(obj.item);
+
+}
+
+}
+
+selectedItems=[];
+loadGallery();
+
+};
+
+
+
 /* UPLOAD */
 
-window.uploadFiles = async()=>{
+window.uploadFiles=async()=>{
 
 const files=document.getElementById("fileInput").files;
 
 if(!files.length)return;
+
+let count=0;
 
 for(const file of files){
 
@@ -147,13 +232,29 @@ await uploadImage(file);
 
 }
 
+count++;
+
+updateProgress(count/files.length*100);
+
 }
+
+setTimeout(()=>updateProgress(0),800);
 
 loadGallery(currentFolder);
 
 };
 
 
+
+function updateProgress(val){
+
+progressBar.style.width=val+"%";
+
+}
+
+
+
+/* IMAGE UPLOAD */
 
 async function uploadImage(file){
 
@@ -193,76 +294,6 @@ await uploadImage(new File([blob],name));
 
 
 
-/* DELETE */
-
-window.deleteSelected=async()=>{
-
-if(!selectedImages.length)return;
-
-if(!confirm("Delete selected images?"))return;
-
-for(const file of selectedImages){
-
-await deleteObject(file);
-
-}
-
-selectedImages=[];
-
-loadGallery(currentFolder);
-
-};
-
-
-
-/* MOVE */
-
-window.moveSelected=async()=>{
-
-const folder=prompt("Move to folder:");
-
-if(!folder)return;
-
-for(const file of selectedImages){
-
-const url=await getDownloadURL(file);
-
-const res=await fetch(url);
-
-const blob=await res.blob();
-
-const newRef=ref(storage,"product-images/"+folder+"/"+file.name);
-
-await uploadBytes(newRef,blob);
-
-await deleteObject(file);
-
-}
-
-selectedImages=[];
-
-loadGallery();
-
-};
-
-
-
-/* COPY */
-
-window.copyLink=async()=>{
-
-if(!selectedImages.length)return;
-
-const url=await getDownloadURL(selectedImages[0]);
-
-navigator.clipboard.writeText(url);
-
-alert("Link copied");
-
-};
-
-
-
 /* VIEWER */
 
 function openViewer(url){
@@ -273,17 +304,49 @@ viewerImg.src=url;
 
 }
 
-window.closeViewer=()=>{
+window.closeViewer=()=>viewer.style.display="none";
 
-viewer.style.display="none";
 
-};
+
+/* BREADCRUMBS */
+
+function updateBreadcrumbs(){
+
+breadcrumbs.innerHTML="";
+
+const parts=currentFolder.split("/").filter(Boolean);
+
+let path="";
+
+const root=document.createElement("span");
+
+root.innerText="Home";
+
+root.onclick=()=>loadGallery("");
+
+breadcrumbs.appendChild(root);
+
+parts.forEach(p=>{
+
+path+=p+"/";
+
+const span=document.createElement("span");
+
+span.innerText=" / "+p;
+
+span.onclick=()=>loadGallery(path.slice(0,-1));
+
+breadcrumbs.appendChild(span);
+
+});
+
+}
 
 
 
 /* CREATE FOLDER */
 
-window.createFolder=()=>{
+window.createFolder=async()=>{
 
 const name=prompt("Folder name");
 
@@ -291,9 +354,10 @@ if(!name)return;
 
 const refPath=ref(storage,"product-images/"+name+"/.keep");
 
-uploadBytes(refPath,new Blob());
+await uploadBytes(refPath,new Blob());
 
-loadFolders();
+loadFolderDropdown();
+loadGallery();
 
 };
 
