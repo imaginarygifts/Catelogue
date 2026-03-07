@@ -4,84 +4,83 @@ import {
 ref,
 uploadBytes,
 listAll,
-getDownloadURL
+getDownloadURL,
+deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 
 const grid = document.getElementById("galleryGrid");
-const statusBox = document.getElementById("uploadStatus");
+
+const viewer = document.getElementById("viewer");
+
+const viewerImg = document.getElementById("viewerImg");
+
+const folderSelect = document.getElementById("folderSelect");
 
 
-/* ================= LOAD ROOT GALLERY ================= */
+let currentFolder = "";
 
-async function loadGallery(){
+let selectedImages = [];
+
+
+/* LOAD FOLDERS */
+
+async function loadFolders(){
+
+folderSelect.innerHTML = `<option value="">Root</option>`;
 
 const rootRef = ref(storage,"product-images");
 
 const res = await listAll(rootRef);
 
+res.prefixes.forEach(f=>{
+
+const opt=document.createElement("option");
+
+opt.value=f.name;
+
+opt.innerText=f.name;
+
+folderSelect.appendChild(opt);
+
+});
+
+}
+
+loadFolders();
+
+
+
+/* LOAD GALLERY */
+
+async function loadGallery(folder=""){
+
+currentFolder=folder;
+
 grid.innerHTML="";
 
+const path=folder?`product-images/${folder}`:"product-images";
 
-/* SHOW IMAGES DIRECTLY IN ROOT */
-
-for(const file of res.items){
-
-const url = await getDownloadURL(file);
-
-const card=document.createElement("div");
-card.className="gallery-card";
-
-card.innerHTML=`<img src="${url}">`;
-
-grid.appendChild(card);
-
-}
-
-
-/* SHOW FOLDERS */
-
-for(const folder of res.prefixes){
-
-const folderBox=document.createElement("div");
-
-folderBox.className="gallery-folder";
-
-folderBox.innerHTML=`📁 ${folder.name}`;
-
-folderBox.onclick=()=>openFolder(folder);
-
-grid.appendChild(folderBox);
-
-}
-
-}
-
-
-loadGallery();
-
-
-
-/* ================= OPEN FOLDER ================= */
-
-async function openFolder(folderRef){
-
-grid.innerHTML="";
+const folderRef=ref(storage,path);
 
 const res=await listAll(folderRef);
 
 
-/* BACK BUTTON */
+/* SHOW FOLDERS */
 
-const back=document.createElement("div");
+res.prefixes.forEach(f=>{
 
-back.className="gallery-back";
+const box=document.createElement("div");
 
-back.innerHTML="← Back";
+box.className="folder";
 
-back.onclick=loadGallery;
+box.innerText="📁 "+f.name;
 
-grid.appendChild(back);
+box.onclick=()=>loadGallery(f.fullPath.replace("product-images/",""));
+
+grid.appendChild(box);
+
+});
 
 
 /* SHOW IMAGES */
@@ -92,68 +91,155 @@ const url=await getDownloadURL(file);
 
 const card=document.createElement("div");
 
-card.className="gallery-card";
+card.className="imageCard";
 
-card.innerHTML=`<img src="${url}">`;
+card.innerHTML=`
+
+<input type="checkbox">
+
+<img src="${url}">
+
+`;
+
+card.querySelector("img").onclick=()=>openViewer(url);
+
+card.querySelector("input").onchange=e=>{
+
+if(e.target.checked){
+
+selectedImages.push(file);
+
+}else{
+
+selectedImages=selectedImages.filter(i=>i!==file);
+
+}
+
+};
 
 grid.appendChild(card);
 
 }
 
-
-/* SHOW SUBFOLDERS */
-
-for(const folder of res.prefixes){
-
-const folderBox=document.createElement("div");
-
-folderBox.className="gallery-folder";
-
-folderBox.innerHTML=`📁 ${folder.name}`;
-
-folderBox.onclick=()=>openFolder(folder);
-
-grid.appendChild(folderBox);
-
 }
 
-}
+loadGallery();
 
 
 
-/* ================= UPLOAD FILES ================= */
+/* UPLOAD */
 
-window.startUpload = async ()=>{
+window.uploadFiles = async()=>{
 
-const files = document.getElementById("fileInput").files;
-const folder = document.getElementById("folderPath").value.trim();
+const files=document.getElementById("fileInput").files;
 
-if(!files.length){
-alert("Select files");
-return;
-}
+if(!files.length)return;
 
 for(const file of files){
 
 if(file.name.endsWith(".zip")){
 
-await handleZip(file,folder);
+await handleZip(file);
 
-}
+}else{
 
-else{
-
-const path = folder
-? folder + "/" + file.name
-: file.name;
-
-await uploadImage(file,path);
+await uploadImage(file);
 
 }
 
 }
 
-statusBox.innerText="Upload complete";
+loadGallery(currentFolder);
+
+};
+
+
+
+async function uploadImage(file){
+
+const folder=folderSelect.value;
+
+const path=folder?`${folder}/${file.name}`:file.name;
+
+const storageRef=ref(storage,"product-images/"+path);
+
+await uploadBytes(storageRef,file);
+
+}
+
+
+
+/* ZIP */
+
+async function handleZip(zipFile){
+
+const zip=await JSZip.loadAsync(zipFile);
+
+for(const name in zip.files){
+
+const file=zip.files[name];
+
+if(!file.dir){
+
+const blob=await file.async("blob");
+
+await uploadImage(new File([blob],name));
+
+}
+
+}
+
+}
+
+
+
+/* DELETE */
+
+window.deleteSelected=async()=>{
+
+if(!selectedImages.length)return;
+
+if(!confirm("Delete selected images?"))return;
+
+for(const file of selectedImages){
+
+await deleteObject(file);
+
+}
+
+selectedImages=[];
+
+loadGallery(currentFolder);
+
+};
+
+
+
+/* MOVE */
+
+window.moveSelected=async()=>{
+
+const folder=prompt("Move to folder:");
+
+if(!folder)return;
+
+for(const file of selectedImages){
+
+const url=await getDownloadURL(file);
+
+const res=await fetch(url);
+
+const blob=await res.blob();
+
+const newRef=ref(storage,"product-images/"+folder+"/"+file.name);
+
+await uploadBytes(newRef,blob);
+
+await deleteObject(file);
+
+}
+
+selectedImages=[];
 
 loadGallery();
 
@@ -161,44 +247,56 @@ loadGallery();
 
 
 
-/* ================= ZIP UPLOAD ================= */
+/* COPY */
 
-async function handleZip(zipFile,folder){
+window.copyLink=async()=>{
 
-statusBox.innerText="Extracting ZIP...";
+if(!selectedImages.length)return;
 
-const zip = await JSZip.loadAsync(zipFile);
+const url=await getDownloadURL(selectedImages[0]);
 
-for(const fileName in zip.files){
+navigator.clipboard.writeText(url);
 
-const file = zip.files[fileName];
+alert("Link copied");
 
-if(!file.dir){
+};
 
-const blob = await file.async("blob");
 
-const path = folder
-? folder + "/" + fileName
-: fileName;
 
-await uploadImage(blob,path);
+/* VIEWER */
 
-}
+function openViewer(url){
 
-}
+viewer.style.display="flex";
+
+viewerImg.src=url;
 
 }
 
+window.closeViewer=()=>{
+
+viewer.style.display="none";
+
+};
 
 
-/* ================= IMAGE UPLOAD ================= */
 
-async function uploadImage(file,path){
+/* CREATE FOLDER */
 
-statusBox.innerText="Uploading " + path;
+window.createFolder=()=>{
 
-const storageRef = ref(storage,"product-images/"+path);
+const name=prompt("Folder name");
 
-await uploadBytes(storageRef,file);
+if(!name)return;
 
-}
+const refPath=ref(storage,"product-images/"+name+"/.keep");
+
+uploadBytes(refPath,new Blob());
+
+loadFolders();
+
+};
+
+
+
+window.goBack=()=>history.back();
