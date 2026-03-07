@@ -9,9 +9,10 @@ getDownloadURL
 
 
 const grid = document.getElementById("galleryGrid");
+const statusBox = document.getElementById("uploadStatus");
 
 
-/* LOAD GALLERY */
+/* ================= LOAD GALLERY ================= */
 
 async function loadGallery(){
 
@@ -30,6 +31,7 @@ for(const item of subRes.items){
 const url = await getDownloadURL(item);
 
 const card = document.createElement("div");
+
 card.className="gallery-card";
 
 card.innerHTML=`<img src="${url}">`;
@@ -46,16 +48,53 @@ loadGallery();
 
 
 
-/* ZIP UPLOAD */
+/* ================= START UPLOAD ================= */
 
-window.uploadZipImages = async ()=>{
+window.startUpload = async ()=>{
 
-const zipFile = document.getElementById("zipUpload").files[0];
+const files = document.getElementById("fileInput").files;
+const folder = document.getElementById("folderPath").value.trim();
 
-if(!zipFile){
-alert("Please select ZIP file");
+if(!files.length){
+alert("Select files");
 return;
 }
+
+statusBox.innerText="Preparing files...";
+
+for(const file of files){
+
+/* ZIP FILE */
+
+if(file.name.endsWith(".zip")){
+
+await handleZip(file,folder);
+
+}
+
+/* NORMAL IMAGE */
+
+else{
+
+await uploadImage(file,folder+"/"+file.name);
+
+}
+
+}
+
+statusBox.innerText="Upload complete";
+
+loadGallery();
+
+};
+
+
+
+/* ================= ZIP HANDLER ================= */
+
+async function handleZip(zipFile,folder){
+
+statusBox.innerText="Extracting ZIP...";
 
 const zip = await JSZip.loadAsync(zipFile);
 
@@ -67,18 +106,26 @@ if(!file.dir){
 
 const blob = await file.async("blob");
 
-/* upload path */
+const path = folder + "/" + fileName;
 
-const storageRef = ref(storage,"product-images/"+fileName);
-
-await uploadBytes(storageRef,blob);
+await uploadImage(blob,path);
 
 }
 
 }
 
-alert("Images uploaded successfully");
+}
 
-loadGallery();
 
-};
+
+/* ================= IMAGE UPLOAD ================= */
+
+async function uploadImage(file,path){
+
+statusBox.innerText="Uploading " + path;
+
+const storageRef = ref(storage,"product-images/"+path);
+
+await uploadBytes(storageRef,file);
+
+}
