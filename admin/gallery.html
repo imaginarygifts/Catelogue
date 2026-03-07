@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Image Gallery</title>
 
 <link rel="stylesheet" href="../css/gallery.css">
@@ -10,10 +12,16 @@
 
 <body>
 
+
 <div class="topbar">
+
 <button onclick="goBack()">←</button>
+
 <h2>Image Gallery</h2>
+
 </div>
+
+
 
 <div class="uploadBox">
 
@@ -27,24 +35,29 @@
 
 <button onclick="uploadFiles()">Upload Images</button>
 
-<div id="progressBox">
-<div id="progressBar"></div>
 </div>
 
-</div>
 
 
 <div id="breadcrumbs"></div>
 
 
+
 <div id="toolbar">
+
 <button onclick="deleteSelected()">Delete</button>
+
 <button onclick="moveSelected()">Move</button>
+
 </div>
+
 
 
 <div id="galleryGrid"></div>
 
+
+
+<!-- FULLSCREEN VIEWER -->
 
 <div id="viewer">
 
@@ -53,6 +66,29 @@
 <img id="viewerImg">
 
 </div>
+
+
+
+<!-- UPLOAD POPUP -->
+
+<div id="uploadPopup">
+
+<div class="uploadBoxPopup">
+
+<h3>Uploading...</h3>
+
+<div class="progressBarOuter">
+
+<div id="uploadProgressBar"></div>
+
+</div>
+
+<div id="uploadPercent">0%</div>
+
+</div>
+
+</div>
+
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
