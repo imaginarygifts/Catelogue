@@ -1,144 +1,95 @@
-/* PAGE */
-
 body{
-background:#0b0b0b;
-color:white;
-font-family:Arial, sans-serif;
-margin:0;
+background:#000;
+color:#fff;
+font-family:sans-serif;
+padding:15px;
 }
 
-
-/* CONTAINER */
-
-.container{
-padding:20px;
+.topbar{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:20px;
 }
 
-
-/* TITLES */
-
-h3{
-margin-top:25px;
-margin-bottom:10px;
-font-size:18px;
-}
-
-
-/* UPLOAD BOX */
-
-.upload-box{
+.uploadBox{
 background:#111;
 padding:15px;
 border-radius:12px;
-border:1px solid #222;
+margin-bottom:20px;
 display:flex;
 flex-direction:column;
 gap:10px;
 }
 
-
-/* INPUT */
-
-.upload-box input[type="text"]{
-padding:12px;
-border-radius:8px;
-border:1px solid #333;
-background:#0f0f0f;
-color:white;
-outline:none;
+.toolbar{
+display:flex;
+gap:10px;
+margin-bottom:15px;
 }
 
-
-/* FILE INPUT */
-
-.upload-box input[type="file"]{
-color:white;
-}
-
-
-/* BUTTON */
-
-.upload-btn{
-padding:12px;
+button{
+padding:10px 15px;
 border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#ff8a00,#e52e71);
-color:white;
-font-weight:bold;
+border-radius:8px;
 cursor:pointer;
+background:linear-gradient(45deg,#ff9800,#ff2d7a);
+color:#fff;
 }
 
-
-/* GALLERY GRID */
-
-.gallery-grid{
+#galleryGrid{
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(2,1fr);
 gap:12px;
-margin-top:15px;
 }
 
-
-/* IMAGE CARD */
-
-.gallery-card{
-background:#111;
-border-radius:10px;
-overflow:hidden;
-border:1px solid #222;
+.imageCard{
 position:relative;
 }
 
-
-.gallery-card img{
+.imageCard img{
 width:100%;
-height:110px;
+aspect-ratio:1/1;
 object-fit:cover;
-display:block;
+border-radius:12px;
 }
 
-
-/* IMAGE HOVER */
-
-.gallery-card:hover{
-transform:scale(1.03);
-transition:0.2s;
+.imageCard input{
+position:absolute;
+top:8px;
+left:8px;
 }
 
-
-/* MOBILE */
-
-@media (max-width:600px){
-
-.gallery-grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-}
-
-#uploadStatus{
-margin-top:10px;
-font-size:14px;
-opacity:0.8;
-}
-
-.gallery-folder{
+.folder{
 background:#111;
-border:1px solid #333;
-padding:20px;
-border-radius:12px;
-font-size:18px;
-cursor:pointer;
+padding:25px;
 text-align:center;
-}
-
-.gallery-back{
-margin-bottom:20px;
-font-size:16px;
+border-radius:12px;
 cursor:pointer;
 }
 
-.gallery-card img{
+#viewer{
+position:fixed;
+top:0;
+left:0;
 width:100%;
-border-radius:12px;
+height:100%;
+background:#000;
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+#viewer img{
+max-width:95%;
+max-height:95%;
+}
+
+.backBtn{
+position:absolute;
+top:20px;
+left:20px;
+font-size:22px;
+background:none;
 }
