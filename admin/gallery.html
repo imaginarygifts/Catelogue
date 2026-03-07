@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Image Gallery</title>
 
@@ -12,17 +11,15 @@
 <body>
 
 <div class="topbar">
-
 <button onclick="goBack()">←</button>
-
 <h2>Image Gallery</h2>
-
 </div>
-
 
 <div class="uploadBox">
 
-<select id="folderSelect"></select>
+<select id="folderSelect">
+<option value="">Select Folder</option>
+</select>
 
 <button onclick="createFolder()">+ New Folder</button>
 
@@ -30,17 +27,19 @@
 
 <button onclick="uploadFiles()">Upload Images</button>
 
+<div id="progressBox">
+<div id="progressBar"></div>
+</div>
+
 </div>
 
 
-<div class="toolbar">
+<div id="breadcrumbs"></div>
 
+
+<div id="toolbar">
 <button onclick="deleteSelected()">Delete</button>
-
 <button onclick="moveSelected()">Move</button>
-
-<button onclick="copyLink()">Copy Link</button>
-
 </div>
 
 
