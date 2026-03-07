@@ -3,15 +3,13 @@ import { storage } from "./firebase.js";
 import {
 ref,
 uploadBytesResumable,
+uploadBytes,
 listAll,
 getDownloadURL,
-deleteObject,
-uploadBytes
+deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-
 const grid = document.getElementById("galleryGrid");
-
 const viewer = document.getElementById("viewer");
 const viewerImg = document.getElementById("viewerImg");
 
@@ -19,14 +17,15 @@ const folderSelect = document.getElementById("folderSelect");
 const breadcrumbs = document.getElementById("breadcrumbs");
 const toolbar = document.getElementById("toolbar");
 
+const uploadPopup = document.getElementById("uploadPopup");
 const progressBar = document.getElementById("uploadProgressBar");
 const progressText = document.getElementById("uploadPercent");
-const uploadPopup = document.getElementById("uploadPopup");
-
 
 let currentFolder = "";
 let selectedItems = [];
 
+let moveMode = false;
+let moveItems = [];
 
 
 /* ================= LOAD FOLDER DROPDOWN ================= */
@@ -55,7 +54,6 @@ folderSelect.appendChild(opt);
 loadFolderDropdown();
 
 
-
 /* ================= LOAD GALLERY ================= */
 
 async function loadGallery(folder=""){
@@ -77,7 +75,7 @@ const folderRef = ref(storage,path);
 const res = await listAll(folderRef);
 
 
-/* SHOW FOLDERS */
+/* ===== FOLDERS ===== */
 
 res.prefixes.forEach(f=>{
 
@@ -96,9 +94,21 @@ toggleSelect(f,e.target.checked,true);
 };
 
 card.onclick = e=>{
-if(e.target.tagName!=="INPUT"){
-loadGallery(f.fullPath.replace("product-images/",""));
+
+if(e.target.tagName==="INPUT") return;
+
+const folderPath = f.fullPath.replace("product-images/","");
+
+if(moveMode){
+
+pasteHere(folderPath);
+
+}else{
+
+loadGallery(folderPath);
+
 }
+
 };
 
 grid.appendChild(card);
@@ -106,7 +116,7 @@ grid.appendChild(card);
 });
 
 
-/* SHOW IMAGES */
+/* ===== IMAGES ===== */
 
 for(const file of res.items){
 
@@ -165,7 +175,19 @@ if(!confirm("Delete selected items?")) return;
 
 for(const obj of selectedItems){
 
-if(!obj.isFolder){
+if(obj.isFolder){
+
+const folderRef = ref(storage,obj.item.fullPath);
+
+const res = await listAll(folderRef);
+
+for(const file of res.items){
+
+await deleteObject(file);
+
+}
+
+}else{
 
 await deleteObject(obj.item);
 
@@ -183,21 +205,49 @@ loadGallery(currentFolder);
 
 /* ================= MOVE ================= */
 
-window.moveSelected = async ()=>{
+window.moveSelected = ()=>{
 
-const folder = prompt("Move to folder name");
+moveMode = true;
 
-if(!folder) return;
+moveItems = [...selectedItems];
 
-for(const obj of selectedItems){
+alert("Move mode active. Click destination folder.");
 
-if(!obj.isFolder){
+};
+
+
+
+async function pasteHere(folder){
+
+if(!confirm("Paste selected items here?")) return;
+
+for(const obj of moveItems){
+
+if(obj.isFolder){
+
+const srcFolder = ref(storage,obj.item.fullPath);
+
+const res = await listAll(srcFolder);
+
+for(const file of res.items){
+
+const url = await getDownloadURL(file);
+
+const blob = await fetch(url).then(r=>r.blob());
+
+const newRef = ref(storage,"product-images/"+folder+"/"+file.name);
+
+await uploadBytes(newRef,blob);
+
+await deleteObject(file);
+
+}
+
+}else{
 
 const url = await getDownloadURL(obj.item);
 
-const res = await fetch(url);
-
-const blob = await res.blob();
+const blob = await fetch(url).then(r=>r.blob());
 
 const newRef = ref(storage,"product-images/"+folder+"/"+obj.item.name);
 
@@ -209,11 +259,12 @@ await deleteObject(obj.item);
 
 }
 
-selectedItems=[];
+moveMode = false;
+moveItems = [];
 
-loadGallery();
+loadGallery(folder);
 
-};
+}
 
 
 
@@ -227,7 +278,7 @@ if(!files.length) return;
 
 uploadPopup.style.display="flex";
 
-let done = 0;
+let uploaded = 0;
 
 for(const file of files){
 
@@ -241,7 +292,7 @@ await uploadImage(file);
 
 }
 
-done++;
+uploaded++;
 
 }
 
@@ -267,7 +318,9 @@ const uploadTask = uploadBytesResumable(storageRef,file);
 
 return new Promise((resolve,reject)=>{
 
-uploadTask.on("state_changed",
+uploadTask.on(
+
+"state_changed",
 
 snapshot=>{
 
@@ -291,7 +344,7 @@ resolve
 
 
 
-/* ================= ZIP ================= */
+/* ================= ZIP UPLOAD ================= */
 
 async function handleZip(zipFile){
 
@@ -325,7 +378,7 @@ viewerImg.src=url;
 
 }
 
-window.closeViewer = ()=> viewer.style.display="none";
+window.closeViewer = ()=>viewer.style.display="none";
 
 
 
@@ -336,8 +389,6 @@ function updateBreadcrumbs(){
 breadcrumbs.innerHTML="";
 
 const parts = currentFolder.split("/").filter(Boolean);
-
-let path="";
 
 const root = document.createElement("span");
 
