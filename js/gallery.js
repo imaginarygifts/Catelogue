@@ -12,25 +12,85 @@ const grid = document.getElementById("galleryGrid");
 const statusBox = document.getElementById("uploadStatus");
 
 
-/* ================= LOAD GALLERY ================= */
+/* ================= LOAD ROOT GALLERY ================= */
 
 async function loadGallery(){
 
-const folderRef = ref(storage,"product-images");
+const rootRef = ref(storage,"product-images");
 
-const res = await listAll(folderRef);
+const res = await listAll(rootRef);
 
 grid.innerHTML="";
 
+
+/* SHOW IMAGES DIRECTLY IN ROOT */
+
+for(const file of res.items){
+
+const url = await getDownloadURL(file);
+
+const card=document.createElement("div");
+card.className="gallery-card";
+
+card.innerHTML=`<img src="${url}">`;
+
+grid.appendChild(card);
+
+}
+
+
+/* SHOW FOLDERS */
+
 for(const folder of res.prefixes){
 
-const subRes = await listAll(folder);
+const folderBox=document.createElement("div");
 
-for(const item of subRes.items){
+folderBox.className="gallery-folder";
 
-const url = await getDownloadURL(item);
+folderBox.innerHTML=`📁 ${folder.name}`;
 
-const card = document.createElement("div");
+folderBox.onclick=()=>openFolder(folder);
+
+grid.appendChild(folderBox);
+
+}
+
+}
+
+
+loadGallery();
+
+
+
+/* ================= OPEN FOLDER ================= */
+
+async function openFolder(folderRef){
+
+grid.innerHTML="";
+
+const res=await listAll(folderRef);
+
+
+/* BACK BUTTON */
+
+const back=document.createElement("div");
+
+back.className="gallery-back";
+
+back.innerHTML="← Back";
+
+back.onclick=loadGallery;
+
+grid.appendChild(back);
+
+
+/* SHOW IMAGES */
+
+for(const file of res.items){
+
+const url=await getDownloadURL(file);
+
+const card=document.createElement("div");
 
 card.className="gallery-card";
 
@@ -40,15 +100,28 @@ grid.appendChild(card);
 
 }
 
-}
+
+/* SHOW SUBFOLDERS */
+
+for(const folder of res.prefixes){
+
+const folderBox=document.createElement("div");
+
+folderBox.className="gallery-folder";
+
+folderBox.innerHTML=`📁 ${folder.name}`;
+
+folderBox.onclick=()=>openFolder(folder);
+
+grid.appendChild(folderBox);
 
 }
 
-loadGallery();
+}
 
 
 
-/* ================= START UPLOAD ================= */
+/* ================= UPLOAD FILES ================= */
 
 window.startUpload = async ()=>{
 
@@ -60,11 +133,7 @@ alert("Select files");
 return;
 }
 
-statusBox.innerText="Preparing files...";
-
 for(const file of files){
-
-/* ZIP FILE */
 
 if(file.name.endsWith(".zip")){
 
@@ -72,11 +141,13 @@ await handleZip(file,folder);
 
 }
 
-/* NORMAL IMAGE */
-
 else{
 
-await uploadImage(file,folder+"/"+file.name);
+const path = folder
+? folder + "/" + file.name
+: file.name;
+
+await uploadImage(file,path);
 
 }
 
@@ -90,7 +161,7 @@ loadGallery();
 
 
 
-/* ================= ZIP HANDLER ================= */
+/* ================= ZIP UPLOAD ================= */
 
 async function handleZip(zipFile,folder){
 
@@ -106,7 +177,9 @@ if(!file.dir){
 
 const blob = await file.async("blob");
 
-const path = folder + "/" + fileName;
+const path = folder
+? folder + "/" + fileName
+: fileName;
 
 await uploadImage(blob,path);
 
