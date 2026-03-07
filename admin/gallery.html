@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Product Image Gallery</title>
+<title>Image Gallery</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../css/admin.css">
 <link rel="stylesheet" href="../css/gallery.css">
+
+<!-- ZIP Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 </head>
 
 <body>
@@ -15,16 +21,14 @@
 
 <div class="container">
 
-<h3>Upload Images</h3>
+<h3>Upload ZIP Folder</h3>
 
 <div class="upload-box">
 
-<input type="text" id="folderName" placeholder="Folder name (example: magic-mug)">
+<input type="file" id="zipUpload" accept=".zip">
 
-<input type="file" id="galleryUpload" multiple>
-
-<button class="upload-btn" onclick="uploadGalleryImages()">
-Upload
+<button class="upload-btn" onclick="uploadZipImages()">
+Upload ZIP
 </button>
 
 </div>
@@ -32,6 +36,8 @@ Upload
 <h3>Gallery</h3>
 
 <div id="galleryGrid" class="gallery-grid"></div>
+
+</div>
 
 <script type="module" src="../js/gallery.js"></script>
 
