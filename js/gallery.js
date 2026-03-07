@@ -9,6 +9,7 @@ getDownloadURL,
 deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+
 const grid = document.getElementById("galleryGrid");
 const viewer = document.getElementById("viewer");
 const viewerImg = document.getElementById("viewerImg");
@@ -167,15 +168,7 @@ for(const obj of selectedItems){
 
 if(obj.isFolder){
 
-const folderRef = ref(storage,obj.item.fullPath);
-
-const res = await listAll(folderRef);
-
-for(const file of res.items){
-
-await deleteObject(file);
-
-}
+await deleteFolderRecursive(obj.item.fullPath);
 
 }else{
 
@@ -190,6 +183,34 @@ selectedItems=[];
 loadGallery(currentFolder);
 
 };
+
+
+
+/* ================= RECURSIVE FOLDER DELETE ================= */
+
+async function deleteFolderRecursive(path){
+
+const folderRef = ref(storage,path);
+
+const res = await listAll(folderRef);
+
+/* delete files */
+
+for(const file of res.items){
+
+await deleteObject(file);
+
+}
+
+/* delete subfolders */
+
+for(const sub of res.prefixes){
+
+await deleteFolderRecursive(sub.fullPath);
+
+}
+
+}
 
 
 
