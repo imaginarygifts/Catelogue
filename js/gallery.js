@@ -11,6 +11,8 @@ getDownloadURL
 const grid = document.getElementById("galleryGrid");
 
 
+/* LOAD GALLERY */
+
 async function loadGallery(){
 
 const folderRef = ref(storage,"product-images");
@@ -21,9 +23,9 @@ grid.innerHTML="";
 
 for(const folder of res.prefixes){
 
-const folderRes = await listAll(folder);
+const subRes = await listAll(folder);
 
-for(const item of folderRes.items){
+for(const item of subRes.items){
 
 const url = await getDownloadURL(item);
 
@@ -44,25 +46,38 @@ loadGallery();
 
 
 
-window.uploadGalleryImages = async ()=>{
+/* ZIP UPLOAD */
 
-const files = document.getElementById("galleryUpload").files;
-const folder = document.getElementById("folderName").value;
+window.uploadZipImages = async ()=>{
 
-if(!folder){
-alert("Enter folder name");
+const zipFile = document.getElementById("zipUpload").files[0];
+
+if(!zipFile){
+alert("Please select ZIP file");
 return;
 }
 
-for(const file of files){
+const zip = await JSZip.loadAsync(zipFile);
 
-const fileRef = ref(storage,`product-images/${folder}/${file.name}`);
+for(const fileName in zip.files){
 
-await uploadBytes(fileRef,file);
+const file = zip.files[fileName];
+
+if(!file.dir){
+
+const blob = await file.async("blob");
+
+/* upload path */
+
+const storageRef = ref(storage,"product-images/"+fileName);
+
+await uploadBytes(storageRef,blob);
 
 }
 
-alert("Uploaded");
+}
+
+alert("Images uploaded successfully");
 
 loadGallery();
 
