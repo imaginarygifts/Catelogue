@@ -20,15 +20,18 @@
 </div>
 
 <div class="container">
-
-<h3>Upload ZIP Folder</h3>
+<h3>Upload Images</h3>
 
 <div class="upload-box">
 
-<input type="file" id="zipUpload" accept=".zip">
+<input type="text" id="folderPath" placeholder="Folder path (example: mug/magic-mug)">
 
-<button class="upload-btn" onclick="uploadZipImages()">
-Upload ZIP
+<input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.webp,.zip">
+
+<div id="uploadStatus"></div>
+
+<button class="upload-btn" onclick="startUpload()">
+Upload Files
 </button>
 
 </div>
