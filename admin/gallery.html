@@ -1,46 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Image Gallery</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery</title>
 
-<link rel="stylesheet" href="../css/admin.css">
 <link rel="stylesheet" href="../css/gallery.css">
-
-<!-- ZIP Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 </head>
 
 <body>
 
 <div class="topbar">
-<span class="back-btn" onclick="location.href='dashboard.html'">←</span>
-<span class="title">Image Gallery</span>
+
+<button onclick="goBack()">←</button>
+
+<h2>Image Gallery</h2>
+
 </div>
 
-<div class="container">
-<h3>Upload Images</h3>
 
-<div class="upload-box">
+<div class="uploadBox">
 
-<input type="text" id="folderPath" placeholder="Folder path (example: mug/magic-mug)">
+<select id="folderSelect"></select>
+
+<button onclick="createFolder()">+ New Folder</button>
 
 <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.webp,.zip">
 
-<div id="uploadStatus"></div>
-
-<button class="upload-btn" onclick="startUpload()">
-Upload Files
-</button>
+<button onclick="uploadFiles()">Upload Images</button>
 
 </div>
 
-<h3>Gallery</h3>
 
-<div id="galleryGrid" class="gallery-grid"></div>
+<div class="toolbar">
+
+<button onclick="deleteSelected()">Delete</button>
+
+<button onclick="moveSelected()">Move</button>
+
+<button onclick="copyLink()">Copy Link</button>
 
 </div>
+
+
+<div id="galleryGrid"></div>
+
+
+<div id="viewer">
+
+<button class="backBtn" onclick="closeViewer()">←</button>
+
+<img id="viewerImg">
+
+</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
