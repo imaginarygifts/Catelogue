@@ -9,6 +9,7 @@ getDownloadURL,
 deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+
 const grid = document.getElementById("galleryGrid");
 const viewer = document.getElementById("viewer");
 const viewerImg = document.getElementById("viewerImg");
@@ -40,10 +41,10 @@ const res = await listAll(rootRef);
 
 res.prefixes.forEach(f=>{
 
-const opt = document.createElement("option");
+const opt=document.createElement("option");
 
-opt.value = f.name;
-opt.innerText = f.name;
+opt.value=f.name;
+opt.innerText=f.name;
 
 folderSelect.appendChild(opt);
 
@@ -58,9 +59,9 @@ loadFolderDropdown();
 
 async function loadGallery(folder=""){
 
-currentFolder = folder;
+currentFolder=folder;
 
-selectedItems = [];
+selectedItems=[];
 
 toolbar.style.display="none";
 
@@ -68,36 +69,36 @@ grid.innerHTML="";
 
 updateBreadcrumbs();
 
-const path = folder ? `product-images/${folder}` : "product-images";
+const path=folder ? `product-images/${folder}` : "product-images";
 
-const folderRef = ref(storage,path);
+const folderRef=ref(storage,path);
 
-const res = await listAll(folderRef);
+const res=await listAll(folderRef);
 
 
-/* ===== FOLDERS ===== */
+/* ===== SHOW FOLDERS ===== */
 
 res.prefixes.forEach(f=>{
 
-const card = document.createElement("div");
+const card=document.createElement("div");
 
 card.className="folderCard";
 
-card.innerHTML = `
+card.innerHTML=`
 <input type="checkbox">
 <div class="folderIcon">📁</div>
 <div>${f.name}</div>
 `;
 
-card.querySelector("input").onchange = e=>{
+card.querySelector("input").onchange=e=>{
 toggleSelect(f,e.target.checked,true);
 };
 
-card.onclick = e=>{
+card.onclick=e=>{
 
 if(e.target.tagName==="INPUT") return;
 
-const folderPath = f.fullPath.replace("product-images/","");
+const folderPath=f.fullPath.replace("product-images/","");
 
 if(moveMode){
 
@@ -116,24 +117,24 @@ grid.appendChild(card);
 });
 
 
-/* ===== IMAGES ===== */
+/* ===== SHOW IMAGES ===== */
 
 for(const file of res.items){
 
-const url = await getDownloadURL(file);
+const url=await getDownloadURL(file);
 
-const card = document.createElement("div");
+const card=document.createElement("div");
 
 card.className="imageCard";
 
-card.innerHTML = `
+card.innerHTML=`
 <input type="checkbox">
 <img src="${url}">
 `;
 
-card.querySelector("img").onclick = ()=>openViewer(url);
+card.querySelector("img").onclick=()=>openViewer(url);
 
-card.querySelector("input").onchange = e=>{
+card.querySelector("input").onchange=e=>{
 toggleSelect(file,e.target.checked,false);
 };
 
@@ -157,11 +158,11 @@ selectedItems.push({item,isFolder});
 
 }else{
 
-selectedItems = selectedItems.filter(i=>i.item!==item);
+selectedItems=selectedItems.filter(i=>i.item!==item);
 
 }
 
-toolbar.style.display = selectedItems.length ? "flex":"none";
+toolbar.style.display = selectedItems.length ? "flex" : "none";
 
 }
 
@@ -177,9 +178,9 @@ for(const obj of selectedItems){
 
 if(obj.isFolder){
 
-const folderRef = ref(storage,obj.item.fullPath);
+const folderRef=ref(storage,obj.item.fullPath);
 
-const res = await listAll(folderRef);
+const res=await listAll(folderRef);
 
 for(const file of res.items){
 
@@ -207,35 +208,46 @@ loadGallery(currentFolder);
 
 window.moveSelected = ()=>{
 
-moveMode = true;
+if(!selectedItems.length){
+alert("Select items first");
+return;
+}
 
-moveItems = [...selectedItems];
+moveMode=true;
 
-alert("Move mode active. Click destination folder.");
+moveItems=[...selectedItems];
+
+alert("Move mode active.\nOpen destination folder and click 'Paste Here'.");
 
 };
 
 
 
-async function pasteHere(folder){
+async function pasteHere(destFolder){
 
 if(!confirm("Paste selected items here?")) return;
 
+const destPrefix = destFolder
+? `product-images/${destFolder}`
+: "product-images";
+
 for(const obj of moveItems){
+
+/* ===== MOVE FOLDER ===== */
 
 if(obj.isFolder){
 
-const srcFolder = ref(storage,obj.item.fullPath);
+const srcFolderRef=ref(storage,obj.item.fullPath);
 
-const res = await listAll(srcFolder);
+const res=await listAll(srcFolderRef);
 
 for(const file of res.items){
 
-const url = await getDownloadURL(file);
+const url=await getDownloadURL(file);
 
-const blob = await fetch(url).then(r=>r.blob());
+const blob=await fetch(url).then(r=>r.blob());
 
-const newRef = ref(storage,"product-images/"+folder+"/"+file.name);
+const newRef=ref(storage,`${destPrefix}/${file.name}`);
 
 await uploadBytes(newRef,blob);
 
@@ -243,13 +255,17 @@ await deleteObject(file);
 
 }
 
-}else{
+}
 
-const url = await getDownloadURL(obj.item);
+/* ===== MOVE IMAGE ===== */
 
-const blob = await fetch(url).then(r=>r.blob());
+else{
 
-const newRef = ref(storage,"product-images/"+folder+"/"+obj.item.name);
+const url=await getDownloadURL(obj.item);
+
+const blob=await fetch(url).then(r=>r.blob());
+
+const newRef=ref(storage,`${destPrefix}/${obj.item.name}`);
 
 await uploadBytes(newRef,blob);
 
@@ -259,10 +275,13 @@ await deleteObject(obj.item);
 
 }
 
-moveMode = false;
-moveItems = [];
+moveMode=false;
 
-loadGallery(folder);
+moveItems=[];
+
+selectedItems=[];
+
+loadGallery(destFolder);
 
 }
 
@@ -272,13 +291,11 @@ loadGallery(folder);
 
 window.uploadFiles = async ()=>{
 
-const files = document.getElementById("fileInput").files;
+const files=document.getElementById("fileInput").files;
 
 if(!files.length) return;
 
 uploadPopup.style.display="flex";
-
-let uploaded = 0;
 
 for(const file of files){
 
@@ -292,8 +309,6 @@ await uploadImage(file);
 
 }
 
-uploaded++;
-
 }
 
 uploadPopup.style.display="none";
@@ -304,31 +319,29 @@ loadGallery(currentFolder);
 
 
 
-/* ================= IMAGE UPLOAD WITH PROGRESS ================= */
+/* ================= IMAGE UPLOAD ================= */
 
 async function uploadImage(file){
 
-const folder = folderSelect.value;
+const folder=folderSelect.value;
 
-const path = folder ? `${folder}/${file.name}` : file.name;
+const path=folder ? `${folder}/${file.name}` : file.name;
 
-const storageRef = ref(storage,"product-images/"+path);
+const storageRef=ref(storage,"product-images/"+path);
 
-const uploadTask = uploadBytesResumable(storageRef,file);
+const uploadTask=uploadBytesResumable(storageRef,file);
 
 return new Promise((resolve,reject)=>{
 
-uploadTask.on(
-
-"state_changed",
+uploadTask.on("state_changed",
 
 snapshot=>{
 
-const progress = (snapshot.bytesTransferred/snapshot.totalBytes)*100;
+const progress=(snapshot.bytesTransferred/snapshot.totalBytes)*100;
 
-progressBar.style.width = progress+"%";
+progressBar.style.width=progress+"%";
 
-progressText.innerText = Math.round(progress)+"%";
+progressText.innerText=Math.round(progress)+"%";
 
 },
 
@@ -348,15 +361,15 @@ resolve
 
 async function handleZip(zipFile){
 
-const zip = await JSZip.loadAsync(zipFile);
+const zip=await JSZip.loadAsync(zipFile);
 
 for(const name in zip.files){
 
-const file = zip.files[name];
+const file=zip.files[name];
 
 if(!file.dir){
 
-const blob = await file.async("blob");
+const blob=await file.async("blob");
 
 await uploadImage(new File([blob],name));
 
@@ -378,7 +391,7 @@ viewerImg.src=url;
 
 }
 
-window.closeViewer = ()=>viewer.style.display="none";
+window.closeViewer = ()=> viewer.style.display="none";
 
 
 
@@ -388,9 +401,9 @@ function updateBreadcrumbs(){
 
 breadcrumbs.innerHTML="";
 
-const parts = currentFolder.split("/").filter(Boolean);
+const parts=currentFolder.split("/").filter(Boolean);
 
-const root = document.createElement("span");
+const root=document.createElement("span");
 
 root.innerText="Home";
 
@@ -402,13 +415,13 @@ breadcrumbs.appendChild(root);
 
 parts.forEach((p,index)=>{
 
-const span = document.createElement("span");
+const span=document.createElement("span");
 
 span.className="crumb";
 
 span.innerText=" / "+p;
 
-const folderPath = parts.slice(0,index+1).join("/");
+const folderPath=parts.slice(0,index+1).join("/");
 
 span.onclick=()=>loadGallery(folderPath);
 
@@ -424,19 +437,20 @@ breadcrumbs.appendChild(span);
 
 window.createFolder = async ()=>{
 
-const name = prompt("Folder name");
+const name=prompt("Folder name");
 
 if(!name) return;
 
-const refPath = ref(storage,"product-images/"+name+"/.keep");
+const refPath=ref(storage,"product-images/"+name+"/.keep");
 
 await uploadBytes(refPath,new Blob());
 
 loadFolderDropdown();
+
 loadGallery();
 
 };
 
 
 
-window.goBack = ()=>history.back();
+window.goBack = ()=> history.back();
