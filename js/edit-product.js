@@ -11,7 +11,8 @@ import {
 import {
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  listAll
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // ===== GET PRODUCT ID =====
@@ -60,6 +61,7 @@ let relatedDesigns = [];
 let allProducts = [];
 
 let selectedTags = [];
+let gallerySelected = [];
 
 // ===== POPUP =====
 function showPopup(msg) {
@@ -439,6 +441,75 @@ window.toggleTag = function(slug, checked) {
     selectedTags = selectedTags.filter(t => t !== slug);
   }
 };
+
+
+// ========== STORAGE GALLERY PICKER ==========
+
+window.openGalleryPicker = async function () {
+
+  const popup = document.getElementById("galleryPicker");
+  const grid = document.getElementById("galleryPickerGrid");
+
+  popup.classList.remove("hidden");
+  grid.innerHTML = "";
+
+  const folderRef = ref(storage, "product-images");
+
+  const res = await listAll(folderRef);
+
+  for (const file of res.items) {
+
+    const url = await getDownloadURL(file);
+
+    const div = document.createElement("div");
+    div.className = "gallery-img";
+
+    div.innerHTML = `
+      <input type="checkbox" class="gallery-check">
+      <img src="${url}">
+    `;
+
+    const checkbox = div.querySelector("input");
+
+    checkbox.onchange = () => {
+
+      if (checkbox.checked) {
+        gallerySelected.push(url);
+      } else {
+        gallerySelected = gallerySelected.filter(x => x !== url);
+      }
+
+    };
+
+    grid.appendChild(div);
+
+  }
+
+};
+
+
+window.closeGalleryPicker = function () {
+
+  document.getElementById("galleryPicker").classList.add("hidden");
+
+};
+
+
+window.addSelectedImages = function () {
+
+  gallerySelected.forEach(url => {
+    existingImages.push(url);
+  });
+
+  gallerySelected = [];
+
+  renderImagePreview();
+
+  closeGalleryPicker();
+
+};
+
+
 // ========== UPDATE PRODUCT ==========
 window.updateProduct = async () => {
   const name = nameInput.value.trim();
