@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Image Gallery</title>
 
@@ -16,58 +16,18 @@
 
 <!-- HEADER -->
 
-<div class="galleryHeader">
+<div class="header">
 
-<button class="backBtn" onclick="goBack()">←</button>
+<button class="backBtn" onclick="history.back()">←</button>
 
 <h2>Image Gallery</h2>
 
 </div>
 
 
-
-<!-- UPLOAD PANEL -->
-
-<div class="uploadCard">
-
-<select id="folderSelect" class="folderSelect">
-<option value="">Select Folder</option>
-</select>
-
-<button class="gradient-btn" onclick="createFolder()">
-+ New Folder
-</button>
-
-<input
-type="file"
-id="fileInput"
-multiple
-accept="image/*,.zip"
->
-
-<button class="gradient-btn" onclick="uploadFiles()">
-Upload Images
-</button>
-
-</div>
-
-
-
 <!-- BREADCRUMBS -->
 
 <div id="breadcrumbs" class="breadcrumbs"></div>
-
-
-
-<!-- TOOLBAR -->
-
-<div id="toolbar" class="toolbar" style="display:none">
-
-<button class="danger-btn" onclick="deleteSelected()">
-Delete
-</button>
-
-</div>
 
 
 
@@ -77,47 +37,46 @@ Delete
 
 
 
-<!-- IMAGE VIEWER -->
+<!-- ACTION BUTTONS -->
 
-<div id="viewer" class="viewer" style="display:none">
+<div class="actions">
 
-<button class="viewerClose" onclick="closeViewer()">←</button>
+<button onclick="createFolder()" class="btn">
++ Add Folder
+</button>
+
+<input
+type="file"
+id="fileInput"
+multiple
+accept="image/*"
+style="display:none"
+>
+
+<button
+onclick="document.getElementById('fileInput').click()"
+class="btn"
+>
++ Add Images
+</button>
+
+</div>
+
+
+
+<!-- VIEWER -->
+
+<div id="viewer" class="viewer">
 
 <img id="viewerImg">
 
-</div>
-
-
-
-<!-- UPLOAD PROGRESS -->
-
-<div id="uploadPopup" class="uploadPopup" style="display:none">
-
-<div class="uploadBox">
-
-<div class="progressBar">
-
-<div id="uploadProgressBar"></div>
-
-</div>
-
-<div id="uploadPercent">0%</div>
-
-</div>
+<button onclick="closeViewer()" class="closeViewer">←</button>
 
 </div>
 
 
-
-<!-- ZIP SUPPORT -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-
-<!-- GALLERY SCRIPT -->
 
 <script type="module" src="../js/gallery.js"></script>
-
 
 </body>
 </html>
