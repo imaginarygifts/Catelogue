@@ -445,19 +445,53 @@ window.toggleTag = function(slug, checked) {
 
 // ========== STORAGE GALLERY PICKER ==========
 
-window.openGalleryPicker = async function () {
+let currentGalleryPath = "product-images";
 
-  const popup = document.getElementById("galleryPicker");
+window.openGalleryPicker = function () {
+
+  document.getElementById("galleryPicker").classList.remove("hidden");
+
+  loadGalleryFolder("product-images");
+
+};
+
+async function loadGalleryFolder(path){
+
+  currentGalleryPath = path;
+
   const grid = document.getElementById("galleryPickerGrid");
 
-  popup.classList.remove("hidden");
   grid.innerHTML = "";
 
-  const folderRef = ref(storage, "product-images");
+  const folderRef = ref(storage, path);
 
   const res = await listAll(folderRef);
 
-  for (const file of res.items) {
+
+  /* ===== SHOW FOLDERS ===== */
+
+  res.prefixes.forEach(folder => {
+
+    const div = document.createElement("div");
+    div.className = "gallery-folder";
+
+    div.innerHTML = `
+      <div class="folder-icon">📁</div>
+      <span>${folder.name}</span>
+    `;
+
+    div.onclick = () => {
+      loadGalleryFolder(folder.fullPath);
+    };
+
+    grid.appendChild(div);
+
+  });
+
+
+  /* ===== SHOW IMAGES ===== */
+
+  for(const file of res.items){
 
     const url = await getDownloadURL(file);
 
@@ -473,9 +507,9 @@ window.openGalleryPicker = async function () {
 
     checkbox.onchange = () => {
 
-      if (checkbox.checked) {
+      if(checkbox.checked){
         gallerySelected.push(url);
-      } else {
+      }else{
         gallerySelected = gallerySelected.filter(x => x !== url);
       }
 
@@ -485,15 +519,13 @@ window.openGalleryPicker = async function () {
 
   }
 
-};
-
+}
 
 window.closeGalleryPicker = function () {
 
   document.getElementById("galleryPicker").classList.add("hidden");
 
 };
-
 
 window.addSelectedImages = function () {
 
