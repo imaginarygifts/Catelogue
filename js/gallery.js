@@ -89,6 +89,8 @@ const res = await listAll(folderRef);
 
 res.prefixes.forEach(f=>{
 
+const folderName = decodeURIComponent(f.name);
+
 const card = document.createElement("div");
 
 card.className = "folderCard";
@@ -100,7 +102,7 @@ card.dataset.type = "folder";
 card.innerHTML = `
 <input type="checkbox" class="itemCheck">
 <div class="folderIcon">📁</div>
-<div>${f.name}</div>
+<div>${folderName}</div>
 `;
 
 const check = card.querySelector("input");
@@ -283,9 +285,13 @@ const name = prompt("Folder name");
 
 if(!name) return;
 
+const cleanName = name
+.replaceAll(" ","_")
+.replaceAll(":","");
+
 const path = currentFolder
-? `product-images/${currentFolder}/${name}/.keep`
-: `product-images/${name}/.keep`;
+? `product-images/${currentFolder}/${cleanName}/.keep`
+: `product-images/${cleanName}/.keep`;
 
 await uploadBytes(ref(storage,path),new Blob(["folder"]));
 
@@ -309,9 +315,11 @@ let count = 0;
 
 for(const file of files){
 
+const cleanName = file.name.replaceAll(" ","_");
+
 const path = currentFolder
-? `product-images/${currentFolder}/${file.name}`
-: `product-images/${file.name}`;
+? `product-images/${currentFolder}/${cleanName}`
+: `product-images/${cleanName}`;
 
 await uploadBytes(ref(storage,path),file);
 
@@ -343,7 +351,9 @@ let count = 0;
 
 for(const file of files){
 
-const relativePath = file.webkitRelativePath;
+let relativePath = file.webkitRelativePath
+.replaceAll(" ","_")
+.replaceAll(":","");
 
 const path = currentFolder
 ? `product-images/${currentFolder}/${relativePath}`
@@ -387,7 +397,7 @@ parts.forEach((p,index)=>{
 
 const span = document.createElement("span");
 
-span.innerText = " / " + p;
+span.innerText = " / " + decodeURIComponent(p);
 
 span.style.cursor="pointer";
 
