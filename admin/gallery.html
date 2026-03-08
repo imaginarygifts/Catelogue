@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <meta charset="UTF-8">
@@ -13,7 +12,6 @@
 </head>
 
 <body>
-
 
 
 <!-- HEADER -->
@@ -32,10 +30,13 @@
 
 <div class="uploadCard">
 
+<select id="folderSelect" class="folderSelect">
+<option value="">Select Folder</option>
+</select>
+
 <button class="gradient-btn" onclick="createFolder()">
 + New Folder
 </button>
-
 
 <input
 type="file"
@@ -43,7 +44,6 @@ id="fileInput"
 multiple
 accept="image/*,.zip"
 >
-
 
 <button class="gradient-btn" onclick="uploadFiles()">
 Upload Images
@@ -89,7 +89,7 @@ Delete
 
 
 
-<!-- UPLOAD PROGRESS POPUP -->
+<!-- UPLOAD PROGRESS -->
 
 <div id="uploadPopup" class="uploadPopup" style="display:none">
 
@@ -109,10 +109,9 @@ Delete
 
 
 
-<!-- JSZip for ZIP upload -->
+<!-- ZIP SUPPORT -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 
 
 <!-- GALLERY SCRIPT -->
@@ -120,7 +119,5 @@ Delete
 <script type="module" src="../js/gallery.js"></script>
 
 
-
 </body>
-
 </html>
