@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta charset="UTF-8">
@@ -14,8 +15,6 @@
 <body>
 
 
-<!-- HEADER -->
-
 <div class="header">
 
 <button class="backBtn" onclick="history.back()">←</button>
@@ -25,19 +24,27 @@
 </div>
 
 
-<!-- BREADCRUMBS -->
+<div class="topBar">
+
+<label class="selectAll">
+
+<input type="checkbox" id="selectAll">
+
+Select All
+
+</label>
+
+<button id="deleteBtn" onclick="deleteSelected()" style="display:none">
+🗑 Delete
+</button>
+
+</div>
+
 
 <div id="breadcrumbs" class="breadcrumbs"></div>
 
-
-
-<!-- GALLERY GRID -->
-
 <div id="galleryGrid" class="galleryGrid"></div>
 
-
-
-<!-- ACTION BUTTONS -->
 
 <div class="actions">
 
@@ -63,9 +70,6 @@ class="btn"
 </div>
 
 
-
-<!-- VIEWER -->
-
 <div id="viewer" class="viewer">
 
 <img id="viewerImg">
@@ -73,7 +77,6 @@ class="btn"
 <button onclick="closeViewer()" class="closeViewer">←</button>
 
 </div>
-
 
 
 <script type="module" src="../js/gallery.js"></script>
