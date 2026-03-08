@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Image Gallery</title>
@@ -13,9 +15,12 @@
 <body>
 
 
-<div class="topbar">
 
-<button onclick="goBack()">←</button>
+<!-- HEADER -->
+
+<div class="galleryHeader">
+
+<button class="backBtn" onclick="goBack()">←</button>
 
 <h2>Image Gallery</h2>
 
@@ -23,43 +28,60 @@
 
 
 
-<div class="uploadBox">
+<!-- UPLOAD PANEL -->
 
-<div id="folderSelectors"></div>
-<button class="gradient-btn" onclick="addNewFolder()">+ New Folder</button>
+<div class="uploadCard">
 
-<button onclick="createFolder()">+ New Folder</button>
-
-<input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.webp,.zip">
-
-<button onclick="uploadFiles()">Upload Images</button>
-
-</div>
+<button class="gradient-btn" onclick="createFolder()">
++ New Folder
+</button>
 
 
+<input
+type="file"
+id="fileInput"
+multiple
+accept="image/*,.zip"
+>
 
-<div id="breadcrumbs"></div>
 
-
-
-<div id="toolbar">
-
-<button onclick="deleteSelected()">Delete</button>
-
+<button class="gradient-btn" onclick="uploadFiles()">
+Upload Images
+</button>
 
 </div>
 
 
 
-<div id="galleryGrid"></div>
+<!-- BREADCRUMBS -->
+
+<div id="breadcrumbs" class="breadcrumbs"></div>
 
 
 
-<!-- FULLSCREEN VIEWER -->
+<!-- TOOLBAR -->
 
-<div id="viewer">
+<div id="toolbar" class="toolbar" style="display:none">
 
-<button class="backBtn" onclick="closeViewer()">←</button>
+<button class="danger-btn" onclick="deleteSelected()">
+Delete
+</button>
+
+</div>
+
+
+
+<!-- GALLERY GRID -->
+
+<div id="galleryGrid" class="galleryGrid"></div>
+
+
+
+<!-- IMAGE VIEWER -->
+
+<div id="viewer" class="viewer" style="display:none">
+
+<button class="viewerClose" onclick="closeViewer()">←</button>
 
 <img id="viewerImg">
 
@@ -67,15 +89,13 @@
 
 
 
-<!-- UPLOAD POPUP -->
+<!-- UPLOAD PROGRESS POPUP -->
 
-<div id="uploadPopup">
+<div id="uploadPopup" class="uploadPopup" style="display:none">
 
-<div class="uploadBoxPopup">
+<div class="uploadBox">
 
-<h3>Uploading...</h3>
-
-<div class="progressBarOuter">
+<div class="progressBar">
 
 <div id="uploadProgressBar"></div>
 
@@ -89,9 +109,18 @@
 
 
 
+<!-- JSZip for ZIP upload -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+
+
+<!-- GALLERY SCRIPT -->
 
 <script type="module" src="../js/gallery.js"></script>
 
+
+
 </body>
+
 </html>
