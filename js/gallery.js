@@ -26,7 +26,7 @@ let currentFolder = "";
 let selectedItems = [];
 
 
-/* ================= LOAD FOLDER DROPDOWN ================= */
+/* ================= LOAD ROOT FOLDERS ================= */
 
 async function loadFolderDropdown(){
 
@@ -74,7 +74,7 @@ const folderRef = ref(storage,path);
 const res = await listAll(folderRef);
 
 
-/* ===== SHOW FOLDERS ===== */
+/* ===== SHOW SUB FOLDERS ===== */
 
 res.prefixes.forEach(f=>{
 
@@ -186,7 +186,7 @@ loadGallery(currentFolder);
 
 
 
-/* ================= RECURSIVE FOLDER DELETE ================= */
+/* ================= DELETE FOLDER RECURSIVE ================= */
 
 async function deleteFolderRecursive(path){
 
@@ -194,15 +194,11 @@ const folderRef = ref(storage,path);
 
 const res = await listAll(folderRef);
 
-/* delete files */
-
 for(const file of res.items){
 
 await deleteObject(file);
 
 }
-
-/* delete subfolders */
 
 for(const sub of res.prefixes){
 
@@ -250,11 +246,11 @@ loadGallery(currentFolder);
 
 async function uploadImage(file){
 
-const folder = folderSelect.value;
+const path = currentFolder
+? `product-images/${currentFolder}/${file.name}`
+: `product-images/${file.name}`;
 
-const path = folder ? `${folder}/${file.name}` : file.name;
-
-const storageRef = ref(storage,"product-images/"+path);
+const storageRef = ref(storage,path);
 
 const uploadTask = uploadBytesResumable(storageRef,file);
 
@@ -310,7 +306,7 @@ await uploadImage(new File([blob],name));
 
 
 
-/* ================= VIEWER ================= */
+/* ================= VIEW IMAGE ================= */
 
 function openViewer(url){
 
@@ -370,13 +366,17 @@ const name = prompt("Folder name");
 
 if(!name) return;
 
-const refPath = ref(storage,"product-images/"+name+"/.keep");
+const path = currentFolder
+? `product-images/${currentFolder}/${name}/.keep`
+: `product-images/${name}/.keep`;
 
-await uploadBytes(refPath,new Blob());
+const refPath = ref(storage,path);
+
+await uploadBytes(refPath,new Blob(["folder"]));
+
+loadGallery(currentFolder);
 
 loadFolderDropdown();
-
-loadGallery();
 
 };
 
