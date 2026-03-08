@@ -4,14 +4,18 @@ import {
 ref,
 uploadBytes,
 listAll,
-getDownloadURL
+getDownloadURL,
+deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 
 const grid = document.getElementById("galleryGrid");
 const breadcrumbs = document.getElementById("breadcrumbs");
+const deleteBtn = document.getElementById("deleteBtn");
+const selectAll = document.getElementById("selectAll");
 
 let currentFolder = "";
+let selected = [];
 
 
 /* LOAD GALLERY */
@@ -19,6 +23,9 @@ let currentFolder = "";
 async function loadGallery(folder=""){
 
 currentFolder = folder;
+selected=[];
+
+deleteBtn.style.display="none";
 
 grid.innerHTML="";
 
@@ -37,16 +44,29 @@ const res = await listAll(folderRef);
 
 res.prefixes.forEach(f=>{
 
-const card = document.createElement("div");
+const card=document.createElement("div");
 
 card.className="folderCard";
 
 card.innerHTML=`
+
+<input type="checkbox" class="itemCheck">
+
 <div class="folderIcon">📁</div>
+
 <div>${f.name}</div>
+
 `;
 
-card.onclick=()=>{
+const check = card.querySelector("input");
+
+check.onchange=()=>{
+toggleSelect(f,true,check.checked);
+};
+
+card.onclick=e=>{
+
+if(e.target.type==="checkbox") return;
 
 const folderPath =
 f.fullPath.replace("product-images/","");
@@ -70,9 +90,21 @@ const card=document.createElement("div");
 
 card.className="imageCard";
 
-card.innerHTML=`<img src="${url}">`;
+card.innerHTML=`
 
-card.onclick=()=>openViewer(url);
+<input type="checkbox" class="itemCheck">
+
+<img src="${url}">
+
+`;
+
+const check = card.querySelector("input");
+
+check.onchange=()=>{
+toggleSelect(file,false,check.checked);
+};
+
+card.querySelector("img").onclick=()=>openViewer(url);
 
 grid.appendChild(card);
 
@@ -81,6 +113,92 @@ grid.appendChild(card);
 }
 
 loadGallery();
+
+
+
+/* SELECT LOGIC */
+
+function toggleSelect(item,isFolder,checked){
+
+if(checked){
+
+selected.push({item,isFolder});
+
+}else{
+
+selected = selected.filter(i=>i.item!==item);
+
+}
+
+deleteBtn.style.display =
+selected.length ? "block" : "none";
+
+}
+
+
+
+/* SELECT ALL */
+
+selectAll.onchange=()=>{
+
+document.querySelectorAll(".itemCheck")
+.forEach(c=>{
+
+c.checked=selectAll.checked;
+
+});
+
+};
+
+
+
+/* DELETE */
+
+window.deleteSelected = async ()=>{
+
+if(!confirm("Delete selected items?")) return;
+
+for(const obj of selected){
+
+if(obj.isFolder){
+
+await deleteFolder(obj.item.fullPath);
+
+}else{
+
+await deleteObject(obj.item);
+
+}
+
+}
+
+loadGallery(currentFolder);
+
+};
+
+
+
+/* DELETE FOLDER RECURSIVE */
+
+async function deleteFolder(path){
+
+const folderRef = ref(storage,path);
+
+const res = await listAll(folderRef);
+
+for(const file of res.items){
+
+await deleteObject(file);
+
+}
+
+for(const sub of res.prefixes){
+
+await deleteFolder(sub.fullPath);
+
+}
+
+}
 
 
 
@@ -96,9 +214,7 @@ const path = currentFolder
 ? `product-images/${currentFolder}/${name}/.keep`
 : `product-images/${name}/.keep`;
 
-const folderRef = ref(storage,path);
-
-await uploadBytes(folderRef,new Blob(["folder"]));
+await uploadBytes(ref(storage,path),new Blob(["folder"]));
 
 loadGallery(currentFolder);
 
@@ -106,21 +222,18 @@ loadGallery(currentFolder);
 
 
 
-/* IMAGE UPLOAD */
+/* UPLOAD */
 
-document.getElementById("fileInput").addEventListener("change",async e=>{
+document.getElementById("fileInput")
+.addEventListener("change",async e=>{
 
-const files = e.target.files;
-
-for(const file of files){
+for(const file of e.target.files){
 
 const path = currentFolder
 ? `product-images/${currentFolder}/${file.name}`
 : `product-images/${file.name}`;
 
-const fileRef = ref(storage,path);
-
-await uploadBytes(fileRef,file);
+await uploadBytes(ref(storage,path),file);
 
 }
 
@@ -152,10 +265,9 @@ const span=document.createElement("span");
 
 span.innerText=" / "+p;
 
-const folderPath =
-parts.slice(0,index+1).join("/");
+const path=parts.slice(0,index+1).join("/");
 
-span.onclick=()=>loadGallery(folderPath);
+span.onclick=()=>loadGallery(path);
 
 breadcrumbs.appendChild(span);
 
@@ -169,14 +281,12 @@ breadcrumbs.appendChild(span);
 
 function openViewer(url){
 
-const viewer=document.getElementById("viewer");
-
-viewer.style.display="flex";
+document.getElementById("viewer").style.display="flex";
 
 document.getElementById("viewerImg").src=url;
 
 }
 
-window.closeViewer = ()=>{
+window.closeViewer=()=>{
 document.getElementById("viewer").style.display="none";
 };
