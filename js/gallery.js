@@ -337,7 +337,7 @@ loadGallery(currentFolder);
 
 
 
-/* ================= UPLOAD FOLDER ================= */
+/* ================= UPLOAD FOLDER (FIXED) ================= */
 
 folderInput.addEventListener("change", async (e)=>{
 
@@ -351,7 +351,13 @@ let count = 0;
 
 for(const file of files){
 
-let relativePath = file.webkitRelativePath
+let parts = file.webkitRelativePath.split("/");
+
+/* remove system path, keep only real folder + file */
+
+parts = parts.slice(-2);
+
+let relativePath = parts.join("/")
 .replaceAll(" ","_")
 .replaceAll(":","");
 
