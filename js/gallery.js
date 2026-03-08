@@ -14,8 +14,50 @@ const breadcrumbs = document.getElementById("breadcrumbs");
 const deleteBtn = document.getElementById("deleteBtn");
 const selectAll = document.getElementById("selectAll");
 
+const fileInput = document.getElementById("fileInput");
+const folderInput = document.getElementById("folderInput");
+
+const processPopup = document.getElementById("processPopup");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const processTitle = document.getElementById("processTitle");
+
+const viewer = document.getElementById("viewer");
+const viewerImg = document.getElementById("viewerImg");
+
 let currentFolder = "";
 let selected = [];
+
+
+
+/* ================= PROCESS POPUP ================= */
+
+function showProcess(title){
+
+processTitle.innerText = title;
+
+progressFill.style.width = "0%";
+
+progressText.innerText = "0%";
+
+processPopup.classList.remove("hidden");
+
+}
+
+function updateProgress(percent){
+
+progressFill.style.width = percent+"%";
+
+progressText.innerText = Math.round(percent)+"%";
+
+}
+
+function hideProcess(){
+
+processPopup.classList.add("hidden");
+
+}
+
 
 
 /* ================= LOAD GALLERY ================= */
@@ -38,7 +80,7 @@ const path = folder
 ? `product-images/${folder}`
 : "product-images";
 
-const folderRef = ref(storage, path);
+const folderRef = ref(storage,path);
 
 const res = await listAll(folderRef);
 
@@ -63,7 +105,7 @@ card.innerHTML = `
 
 const check = card.querySelector("input");
 
-check.onchange = () => toggleSelect(card, check.checked);
+check.onchange = ()=> toggleSelect(card,check.checked);
 
 card.onclick = (e)=>{
 
@@ -101,9 +143,9 @@ card.innerHTML = `
 
 const check = card.querySelector("input");
 
-check.onchange = () => toggleSelect(card, check.checked);
+check.onchange = ()=> toggleSelect(card,check.checked);
 
-card.querySelector("img").onclick = () => openViewer(url);
+card.querySelector("img").onclick = ()=> openViewer(url);
 
 grid.appendChild(card);
 
@@ -117,7 +159,7 @@ loadGallery();
 
 /* ================= SELECT ================= */
 
-function toggleSelect(card, checked){
+function toggleSelect(card,checked){
 
 const refPath = card.dataset.ref;
 
@@ -129,7 +171,7 @@ selected.push({path:refPath,isFolder});
 
 }else{
 
-selected = selected.filter(i => i.path !== refPath);
+selected = selected.filter(i=>i.path!==refPath);
 
 }
 
@@ -177,6 +219,10 @@ if(!selected.length) return;
 
 if(!confirm("Delete selected items?")) return;
 
+showProcess("Deleting Files");
+
+let count = 0;
+
 for(const item of selected){
 
 if(item.isFolder){
@@ -189,9 +235,15 @@ await deleteObject(ref(storage,item.path));
 
 }
 
+count++;
+
+updateProgress((count/selected.length)*100);
+
 }
 
-selected = [];
+hideProcess();
+
+selected=[];
 
 loadGallery(currentFolder);
 
@@ -245,9 +297,15 @@ loadGallery(currentFolder);
 
 /* ================= UPLOAD IMAGES ================= */
 
-document.getElementById("fileInput").addEventListener("change", async (e)=>{
+fileInput.addEventListener("change", async (e)=>{
 
-const files = e.target.files;
+const files = Array.from(e.target.files);
+
+if(!files.length) return;
+
+showProcess("Uploading Images");
+
+let count = 0;
 
 for(const file of files){
 
@@ -257,7 +315,49 @@ const path = currentFolder
 
 await uploadBytes(ref(storage,path),file);
 
+count++;
+
+updateProgress((count/files.length)*100);
+
 }
+
+hideProcess();
+
+loadGallery(currentFolder);
+
+});
+
+
+
+/* ================= UPLOAD FOLDER ================= */
+
+folderInput.addEventListener("change", async (e)=>{
+
+const files = Array.from(e.target.files);
+
+if(!files.length) return;
+
+showProcess("Uploading Folder");
+
+let count = 0;
+
+for(const file of files){
+
+const relativePath = file.webkitRelativePath;
+
+const path = currentFolder
+? `product-images/${currentFolder}/${relativePath}`
+: `product-images/${relativePath}`;
+
+await uploadBytes(ref(storage,path),file);
+
+count++;
+
+updateProgress((count/files.length)*100);
+
+}
+
+hideProcess();
 
 loadGallery(currentFolder);
 
@@ -269,7 +369,7 @@ loadGallery(currentFolder);
 
 function updateBreadcrumbs(){
 
-breadcrumbs.innerHTML = "";
+breadcrumbs.innerHTML="";
 
 const parts = currentFolder.split("/").filter(Boolean);
 
@@ -277,7 +377,7 @@ const root = document.createElement("span");
 
 root.innerText = "Home";
 
-root.style.cursor = "pointer";
+root.style.cursor="pointer";
 
 root.onclick = ()=> loadGallery("");
 
@@ -289,7 +389,7 @@ const span = document.createElement("span");
 
 span.innerText = " / " + p;
 
-span.style.cursor = "pointer";
+span.style.cursor="pointer";
 
 const folderPath = parts.slice(0,index+1).join("/");
 
@@ -307,14 +407,14 @@ breadcrumbs.appendChild(span);
 
 function openViewer(url){
 
-document.getElementById("viewer").style.display="flex";
+viewer.style.display="flex";
 
-document.getElementById("viewerImg").src = url;
+viewerImg.src = url;
 
 }
 
 window.closeViewer = ()=>{
 
-document.getElementById("viewer").style.display="none";
+viewer.style.display="none";
 
 };
