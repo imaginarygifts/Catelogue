@@ -18,16 +18,19 @@ let currentFolder = "";
 let selected = [];
 
 
-/* LOAD GALLERY */
+/* ================= LOAD GALLERY ================= */
 
 async function loadGallery(folder=""){
 
 currentFolder = folder;
-selected=[];
 
-deleteBtn.style.display="none";
+selected = [];
 
-grid.innerHTML="";
+deleteBtn.style.display = "none";
+
+selectAll.checked = false;
+
+grid.innerHTML = "";
 
 updateBreadcrumbs();
 
@@ -35,41 +38,38 @@ const path = folder
 ? `product-images/${folder}`
 : "product-images";
 
-const folderRef = ref(storage,path);
+const folderRef = ref(storage, path);
 
 const res = await listAll(folderRef);
 
 
-/* SHOW FOLDERS */
+/* ===== SHOW FOLDERS ===== */
 
 res.prefixes.forEach(f=>{
 
-const card=document.createElement("div");
+const card = document.createElement("div");
 
-card.className="folderCard";
+card.className = "folderCard";
 
-card.innerHTML=`
+card.dataset.ref = f.fullPath;
 
+card.dataset.type = "folder";
+
+card.innerHTML = `
 <input type="checkbox" class="itemCheck">
-
 <div class="folderIcon">📁</div>
-
 <div>${f.name}</div>
-
 `;
 
 const check = card.querySelector("input");
 
-check.onchange=()=>{
-toggleSelect(f,true,check.checked);
-};
+check.onchange = () => toggleSelect(card, check.checked);
 
-card.onclick=e=>{
+card.onclick = (e)=>{
 
 if(e.target.type==="checkbox") return;
 
-const folderPath =
-f.fullPath.replace("product-images/","");
+const folderPath = f.fullPath.replace("product-images/","");
 
 loadGallery(folderPath);
 
@@ -80,31 +80,30 @@ grid.appendChild(card);
 });
 
 
-/* SHOW IMAGES */
+/* ===== SHOW IMAGES ===== */
 
 for(const file of res.items){
 
 const url = await getDownloadURL(file);
 
-const card=document.createElement("div");
+const card = document.createElement("div");
 
-card.className="imageCard";
+card.className = "imageCard";
 
-card.innerHTML=`
+card.dataset.ref = file.fullPath;
 
+card.dataset.type = "image";
+
+card.innerHTML = `
 <input type="checkbox" class="itemCheck">
-
 <img src="${url}">
-
 `;
 
 const check = card.querySelector("input");
 
-check.onchange=()=>{
-toggleSelect(file,false,check.checked);
-};
+check.onchange = () => toggleSelect(card, check.checked);
 
-card.querySelector("img").onclick=()=>openViewer(url);
+card.querySelector("img").onclick = () => openViewer(url);
 
 grid.appendChild(card);
 
@@ -116,61 +115,83 @@ loadGallery();
 
 
 
-/* SELECT LOGIC */
+/* ================= SELECT ================= */
 
-function toggleSelect(item,isFolder,checked){
+function toggleSelect(card, checked){
+
+const refPath = card.dataset.ref;
+
+const isFolder = card.dataset.type === "folder";
 
 if(checked){
 
-selected.push({item,isFolder});
+selected.push({path:refPath,isFolder});
 
 }else{
 
-selected = selected.filter(i=>i.item!==item);
+selected = selected.filter(i => i.path !== refPath);
 
 }
 
-deleteBtn.style.display =
-selected.length ? "block" : "none";
+deleteBtn.style.display = selected.length ? "block" : "none";
 
 }
 
 
 
-/* SELECT ALL */
+/* ================= SELECT ALL ================= */
 
-selectAll.onchange=()=>{
+selectAll.onchange = ()=>{
 
-document.querySelectorAll(".itemCheck")
-.forEach(c=>{
+selected = [];
 
-c.checked=selectAll.checked;
+document.querySelectorAll(".itemCheck").forEach((checkbox)=>{
+
+checkbox.checked = selectAll.checked;
+
+const card = checkbox.closest(".folderCard, .imageCard");
+
+const path = card.dataset.ref;
+
+const isFolder = card.dataset.type === "folder";
+
+if(selectAll.checked){
+
+selected.push({path,isFolder});
+
+}
 
 });
+
+deleteBtn.style.display = selected.length ? "block" : "none";
 
 };
 
 
 
-/* DELETE */
+/* ================= DELETE ================= */
 
 window.deleteSelected = async ()=>{
 
+if(!selected.length) return;
+
 if(!confirm("Delete selected items?")) return;
 
-for(const obj of selected){
+for(const item of selected){
 
-if(obj.isFolder){
+if(item.isFolder){
 
-await deleteFolder(obj.item.fullPath);
+await deleteFolder(item.path);
 
 }else{
 
-await deleteObject(obj.item);
+await deleteObject(ref(storage,item.path));
 
 }
 
 }
+
+selected = [];
 
 loadGallery(currentFolder);
 
@@ -178,7 +199,7 @@ loadGallery(currentFolder);
 
 
 
-/* DELETE FOLDER RECURSIVE */
+/* ================= DELETE FOLDER ================= */
 
 async function deleteFolder(path){
 
@@ -202,7 +223,7 @@ await deleteFolder(sub.fullPath);
 
 
 
-/* CREATE FOLDER */
+/* ================= CREATE FOLDER ================= */
 
 window.createFolder = async ()=>{
 
@@ -222,12 +243,13 @@ loadGallery(currentFolder);
 
 
 
-/* UPLOAD */
+/* ================= UPLOAD IMAGES ================= */
 
-document.getElementById("fileInput")
-.addEventListener("change",async e=>{
+document.getElementById("fileInput").addEventListener("change", async (e)=>{
 
-for(const file of e.target.files){
+const files = e.target.files;
+
+for(const file of files){
 
 const path = currentFolder
 ? `product-images/${currentFolder}/${file.name}`
@@ -243,31 +265,35 @@ loadGallery(currentFolder);
 
 
 
-/* BREADCRUMBS */
+/* ================= BREADCRUMBS ================= */
 
 function updateBreadcrumbs(){
 
-breadcrumbs.innerHTML="";
+breadcrumbs.innerHTML = "";
 
-const parts=currentFolder.split("/").filter(Boolean);
+const parts = currentFolder.split("/").filter(Boolean);
 
-const root=document.createElement("span");
+const root = document.createElement("span");
 
-root.innerText="Home";
+root.innerText = "Home";
 
-root.onclick=()=>loadGallery("");
+root.style.cursor = "pointer";
+
+root.onclick = ()=> loadGallery("");
 
 breadcrumbs.appendChild(root);
 
 parts.forEach((p,index)=>{
 
-const span=document.createElement("span");
+const span = document.createElement("span");
 
-span.innerText=" / "+p;
+span.innerText = " / " + p;
 
-const path=parts.slice(0,index+1).join("/");
+span.style.cursor = "pointer";
 
-span.onclick=()=>loadGallery(path);
+const folderPath = parts.slice(0,index+1).join("/");
+
+span.onclick = ()=> loadGallery(folderPath);
 
 breadcrumbs.appendChild(span);
 
@@ -277,16 +303,18 @@ breadcrumbs.appendChild(span);
 
 
 
-/* VIEWER */
+/* ================= IMAGE VIEWER ================= */
 
 function openViewer(url){
 
 document.getElementById("viewer").style.display="flex";
 
-document.getElementById("viewerImg").src=url;
+document.getElementById("viewerImg").src = url;
 
 }
 
-window.closeViewer=()=>{
+window.closeViewer = ()=>{
+
 document.getElementById("viewer").style.display="none";
+
 };
