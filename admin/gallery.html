@@ -52,23 +52,19 @@ Select All
 + Add Folder
 </button>
 
-<input
-type="file"
-id="fileInput"
-multiple
-accept="image/*"
-style="display:none"
->
+<input type="file" id="fileInput" multiple accept="image/*" hidden>
 
-<button
-onclick="document.getElementById('fileInput').click()"
-class="btn"
->
+<button onclick="document.getElementById('fileInput').click()" class="btn">
 + Add Images
 </button>
 
-</div>
+<input type="file" id="folderInput" webkitdirectory hidden>
 
+<button onclick="document.getElementById('folderInput').click()" class="btn">
++ Upload Folder
+</button>
+
+</div>
 
 <div id="viewer" class="viewer">
 
@@ -78,6 +74,26 @@ class="btn"
 
 </div>
 
+
+<!-- PROCESS POPUP -->
+
+<div id="processPopup" class="processPopup hidden">
+
+<div class="processBox">
+
+<h3 id="processTitle">Processing...</h3>
+
+<div class="progressBar">
+
+<div id="progressFill"></div>
+
+</div>
+
+<div id="progressText">0%</div>
+
+</div>
+
+</div>
 
 <script type="module" src="../js/gallery.js"></script>
 
