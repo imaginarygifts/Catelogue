@@ -180,3 +180,13 @@ background:linear-gradient(45deg,#ff8a00,#ff2d7a);
 margin-top:10px;
 font-size:18px;
 }
+
+.folder-select{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+border-radius:10px;
+background:#111;
+color:#fff;
+border:1px solid #333;
+}
