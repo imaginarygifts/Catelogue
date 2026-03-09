@@ -14,7 +14,6 @@
 
 <body>
 
-
 <div class="header">
 
 <button class="backBtn" onclick="history.back()">←</button>
@@ -29,7 +28,6 @@
 <label class="selectAll">
 
 <input type="checkbox" id="selectAll">
-
 Select All
 
 </label>
@@ -56,19 +54,26 @@ Rename
 + Add Folder
 </button>
 
-<input type="file" id="fileInput" multiple accept="image/*" hidden>
 
-<button onclick="document.getElementById('fileInput').click()" class="btn">
+<!-- IMAGE UPLOAD -->
+
+<input type="file" id="imageInput" multiple accept="image/*" hidden>
+
+<button onclick="document.getElementById('imageInput').click()" class="btn">
 + Add Images
 </button>
 
-<input type="file" id="folderInput" webkitdirectory hidden>
 
-<button onclick="document.getElementById('folderInput').click()" class="btn">
-+ Upload Folder
+<!-- ZIP UPLOAD -->
+
+<input type="file" id="zipInput" accept=".zip" hidden>
+
+<button onclick="document.getElementById('zipInput').click()" class="btn">
++ Upload ZIP
 </button>
 
 </div>
+
 
 <div id="viewer" class="viewer">
 
@@ -88,9 +93,7 @@ Rename
 <h3 id="processTitle">Processing...</h3>
 
 <div class="progressBar">
-
 <div id="progressFill"></div>
-
 </div>
 
 <div id="progressText">0%</div>
@@ -98,6 +101,10 @@ Rename
 </div>
 
 </div>
+
+
+<!-- ZIP LIBRARY -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
 <script type="module" src="../js/gallery.js"></script>
 
