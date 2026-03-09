@@ -13,7 +13,6 @@ const grid = document.getElementById("galleryGrid");
 const breadcrumbs = document.getElementById("breadcrumbs");
 
 const deleteBtn = document.getElementById("deleteBtn");
-const renameBtn = document.getElementById("renameBtn");
 
 const selectAll = document.getElementById("selectAll");
 
