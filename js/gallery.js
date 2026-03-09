@@ -29,7 +29,6 @@ let currentFolder = "";
 let selected = [];
 
 
-
 /* ================= PROCESS POPUP ================= */
 
 function showProcess(title){
@@ -89,8 +88,6 @@ const res = await listAll(folderRef);
 
 res.prefixes.forEach(f=>{
 
-const folderName = decodeURIComponent(f.name);
-
 const card = document.createElement("div");
 
 card.className = "folderCard";
@@ -102,7 +99,7 @@ card.dataset.type = "folder";
 card.innerHTML = `
 <input type="checkbox" class="itemCheck">
 <div class="folderIcon">📁</div>
-<div>${folderName}</div>
+<div>${decodeURIComponent(f.name)}</div>
 `;
 
 const check = card.querySelector("input");
@@ -315,11 +312,9 @@ let count = 0;
 
 for(const file of files){
 
-const cleanName = file.name.replaceAll(" ","_");
-
 const path = currentFolder
-? `product-images/${currentFolder}/${cleanName}`
-: `product-images/${cleanName}`;
+? `product-images/${currentFolder}/${file.name}`
+: `product-images/${file.name}`;
 
 await uploadBytes(ref(storage,path),file);
 
@@ -337,7 +332,7 @@ loadGallery(currentFolder);
 
 
 
-/* ================= UPLOAD FOLDER (FIXED) ================= */
+/* ================= UPLOAD FOLDER ================= */
 
 folderInput.addEventListener("change", async (e)=>{
 
@@ -351,13 +346,8 @@ let count = 0;
 
 for(const file of files){
 
-let parts = file.webkitRelativePath.split("/");
-
-/* remove system path, keep only real folder + file */
-
-parts = parts.slice(-2);
-
-let relativePath = parts.join("/")
+/* keep ORIGINAL folder structure */
+let relativePath = file.webkitRelativePath
 .replaceAll(" ","_")
 .replaceAll(":","");
 
