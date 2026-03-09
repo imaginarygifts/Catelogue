@@ -62,6 +62,7 @@ let allProducts = [];
 
 let selectedTags = [];
 let gallerySelected = [];
+const galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
 
 // ===== POPUP =====
 function showPopup(msg) {
@@ -458,6 +459,7 @@ window.openGalleryPicker = function () {
 async function loadGalleryFolder(path){
 
   currentGalleryPath = path;
+updateGalleryBreadcrumbs(path);
 
   const grid = document.getElementById("galleryPickerGrid");
 
@@ -467,6 +469,42 @@ async function loadGalleryFolder(path){
 
   const res = await listAll(folderRef);
 
+
+
+
+
+function updateGalleryBreadcrumbs(path){
+
+  if(!galleryBreadcrumbs) return;
+
+  galleryBreadcrumbs.innerHTML = "";
+
+  const parts = path.replace("product-images","").split("/").filter(Boolean);
+
+  const home = document.createElement("span");
+  home.innerText = "Home";
+  home.style.cursor = "pointer";
+  home.onclick = () => loadGalleryFolder("product-images");
+
+  galleryBreadcrumbs.appendChild(home);
+
+  let buildPath = "product-images";
+
+  parts.forEach(part => {
+
+    buildPath += "/" + part;
+
+    const span = document.createElement("span");
+    span.innerText = " / " + decodeURIComponent(part);
+    span.style.cursor = "pointer";
+
+    span.onclick = () => loadGalleryFolder(buildPath);
+
+    galleryBreadcrumbs.appendChild(span);
+
+  });
+
+}
 
   /* ===== SHOW FOLDERS ===== */
 
