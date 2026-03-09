@@ -265,6 +265,75 @@ await deleteFolder(sub.fullPath);
 }
 
 
+/* ================= RENAME FOLDER ================= */
+
+window.renameFolder = async () => {
+
+if(selected.length !== 1 || !selected[0].isFolder){
+alert("Select one folder");
+return;
+}
+
+const oldPath = selected[0].path;
+
+const newName = prompt("New folder name");
+
+if(!newName) return;
+
+const parent = oldPath.substring(0, oldPath.lastIndexOf("/"));
+
+const newPath = parent
+? parent + "/" + newName
+: newName;
+
+showProcess("Renaming Folder");
+
+await moveFolder(oldPath, newPath);
+
+hideProcess();
+
+loadGallery(currentFolder);
+
+};
+
+
+
+/* ================= MOVE FOLDER ================= */
+
+async function moveFolder(oldPath,newPath){
+
+const folderRef = ref(storage,oldPath);
+
+const res = await listAll(folderRef);
+
+/* move files */
+
+for(const file of res.items){
+
+const url = await getDownloadURL(file);
+
+const blob = await (await fetch(url)).blob();
+
+const newFilePath = `${newPath}/${file.name}`;
+
+await uploadBytes(ref(storage,newFilePath),blob);
+
+await deleteObject(file);
+
+}
+
+/* move subfolders */
+
+for(const sub of res.prefixes){
+
+const subName = sub.fullPath.split("/").pop();
+
+await moveFolder(sub.fullPath,`${newPath}/${subName}`);
+
+}
+
+}
+
 
 /* ================= CREATE FOLDER ================= */
 
