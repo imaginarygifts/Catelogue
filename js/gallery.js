@@ -13,8 +13,6 @@ const grid = document.getElementById("galleryGrid");
 const breadcrumbs = document.getElementById("breadcrumbs");
 
 const deleteBtn = document.getElementById("deleteBtn");
-const renameBtn = document.getElementById("renameBtn");
-
 const selectAll = document.getElementById("selectAll");
 
 const imageInput = document.getElementById("imageInput");
@@ -30,7 +28,6 @@ const viewerImg = document.getElementById("viewerImg");
 
 let currentFolder = "";
 let selected = [];
-
 
 
 /* ================= PROCESS POPUP ================= */
@@ -70,7 +67,6 @@ currentFolder = folder;
 selected = [];
 
 deleteBtn.style.display = "none";
-renameBtn.style.display = "none";
 
 selectAll.checked = false;
 
@@ -165,18 +161,16 @@ const refPath = card.dataset.ref;
 const isFolder = card.dataset.type === "folder";
 
 if(checked){
+
 selected.push({path:refPath,isFolder});
+
 }else{
+
 selected = selected.filter(i=>i.path!==refPath);
+
 }
 
 deleteBtn.style.display = selected.length ? "block" : "none";
-
-if(selected.length === 1 && selected[0].isFolder){
-renameBtn.style.display = "block";
-}else{
-renameBtn.style.display = "none";
-}
 
 }
 
@@ -199,7 +193,9 @@ const path = card.dataset.ref;
 const isFolder = card.dataset.type === "folder";
 
 if(selectAll.checked){
+
 selected.push({path,isFolder});
+
 }
 
 });
@@ -225,9 +221,13 @@ let count = 0;
 for(const item of selected){
 
 if(item.isFolder){
+
 await deleteFolder(item.path);
+
 }else{
+
 await deleteObject(ref(storage,item.path));
+
 }
 
 count++;
@@ -255,11 +255,15 @@ const folderRef = ref(storage,path);
 const res = await listAll(folderRef);
 
 for(const file of res.items){
+
 await deleteObject(file);
+
 }
 
 for(const sub of res.prefixes){
+
 await deleteFolder(sub.fullPath);
+
 }
 
 }
