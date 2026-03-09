@@ -931,6 +931,24 @@ padding:15px;
 background:#111;
 }
 
+.gallery-breadcrumbs{
+padding:10px 15px;
+font-size:14px;
+background:#111;
+border-bottom:1px solid #222;
+white-space:nowrap;
+overflow-x:auto;
+}
+
+.gallery-breadcrumbs span{
+color:#aaa;
+cursor:pointer;
+}
+
+.gallery-breadcrumbs span:hover{
+color:#fff;
+}
+
 
 /* GRID */
 
