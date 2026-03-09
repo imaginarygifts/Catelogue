@@ -11,11 +11,14 @@ deleteObject
 
 const grid = document.getElementById("galleryGrid");
 const breadcrumbs = document.getElementById("breadcrumbs");
+
 const deleteBtn = document.getElementById("deleteBtn");
+const renameBtn = document.getElementById("renameBtn");
+
 const selectAll = document.getElementById("selectAll");
 
-const fileInput = document.getElementById("fileInput");
-const folderInput = document.getElementById("folderInput");
+const imageInput = document.getElementById("imageInput");
+const zipInput = document.getElementById("zipInput");
 
 const processPopup = document.getElementById("processPopup");
 const progressFill = document.getElementById("progressFill");
@@ -37,7 +40,6 @@ function showProcess(title){
 processTitle.innerText = title;
 
 progressFill.style.width = "0%";
-
 progressText.innerText = "0%";
 
 processPopup.classList.remove("hidden");
@@ -46,9 +48,8 @@ processPopup.classList.remove("hidden");
 
 function updateProgress(percent){
 
-progressFill.style.width = percent+"%";
-
-progressText.innerText = Math.round(percent)+"%";
+progressFill.style.width = percent + "%";
+progressText.innerText = Math.round(percent) + "%";
 
 }
 
@@ -69,6 +70,7 @@ currentFolder = folder;
 selected = [];
 
 deleteBtn.style.display = "none";
+renameBtn.style.display = "none";
 
 selectAll.checked = false;
 
@@ -89,25 +91,22 @@ const res = await listAll(folderRef);
 
 res.prefixes.forEach(f=>{
 
-const folderName = decodeURIComponent(f.name);
-
 const card = document.createElement("div");
 
 card.className = "folderCard";
 
 card.dataset.ref = f.fullPath;
-
 card.dataset.type = "folder";
 
 card.innerHTML = `
 <input type="checkbox" class="itemCheck">
 <div class="folderIcon">📁</div>
-<div>${folderName}</div>
+<div>${decodeURIComponent(f.name)}</div>
 `;
 
 const check = card.querySelector("input");
 
-check.onchange = ()=> toggleSelect(card,check.checked);
+check.onchange = ()=>toggleSelect(card,check.checked);
 
 card.onclick = (e)=>{
 
@@ -135,7 +134,6 @@ const card = document.createElement("div");
 card.className = "imageCard";
 
 card.dataset.ref = file.fullPath;
-
 card.dataset.type = "image";
 
 card.innerHTML = `
@@ -145,9 +143,9 @@ card.innerHTML = `
 
 const check = card.querySelector("input");
 
-check.onchange = ()=> toggleSelect(card,check.checked);
+check.onchange = ()=>toggleSelect(card,check.checked);
 
-card.querySelector("img").onclick = ()=> openViewer(url);
+card.querySelector("img").onclick = ()=>openViewer(url);
 
 grid.appendChild(card);
 
@@ -164,20 +162,21 @@ loadGallery();
 function toggleSelect(card,checked){
 
 const refPath = card.dataset.ref;
-
 const isFolder = card.dataset.type === "folder";
 
 if(checked){
-
 selected.push({path:refPath,isFolder});
-
 }else{
-
 selected = selected.filter(i=>i.path!==refPath);
-
 }
 
 deleteBtn.style.display = selected.length ? "block" : "none";
+
+if(selected.length === 1 && selected[0].isFolder){
+renameBtn.style.display = "block";
+}else{
+renameBtn.style.display = "none";
+}
 
 }
 
@@ -189,20 +188,18 @@ selectAll.onchange = ()=>{
 
 selected = [];
 
-document.querySelectorAll(".itemCheck").forEach((checkbox)=>{
+document.querySelectorAll(".itemCheck").forEach(cb=>{
 
-checkbox.checked = selectAll.checked;
+cb.checked = selectAll.checked;
 
-const card = checkbox.closest(".folderCard, .imageCard");
+const card = cb.closest(".folderCard,.imageCard");
 
 const path = card.dataset.ref;
 
 const isFolder = card.dataset.type === "folder";
 
 if(selectAll.checked){
-
 selected.push({path,isFolder});
-
 }
 
 });
@@ -228,13 +225,9 @@ let count = 0;
 for(const item of selected){
 
 if(item.isFolder){
-
 await deleteFolder(item.path);
-
 }else{
-
 await deleteObject(ref(storage,item.path));
-
 }
 
 count++;
@@ -262,15 +255,11 @@ const folderRef = ref(storage,path);
 const res = await listAll(folderRef);
 
 for(const file of res.items){
-
 await deleteObject(file);
-
 }
 
 for(const sub of res.prefixes){
-
 await deleteFolder(sub.fullPath);
-
 }
 
 }
@@ -285,13 +274,11 @@ const name = prompt("Folder name");
 
 if(!name) return;
 
-const cleanName = name
-.replaceAll(" ","_")
-.replaceAll(":","");
+const clean = name.replace(/[^\w\-]/g,"_");
 
 const path = currentFolder
-? `product-images/${currentFolder}/${cleanName}/.keep`
-: `product-images/${cleanName}/.keep`;
+? `product-images/${currentFolder}/${clean}/.keep`
+: `product-images/${clean}/.keep`;
 
 await uploadBytes(ref(storage,path),new Blob(["folder"]));
 
@@ -303,7 +290,7 @@ loadGallery(currentFolder);
 
 /* ================= UPLOAD IMAGES ================= */
 
-fileInput.addEventListener("change", async (e)=>{
+imageInput.addEventListener("change", async (e)=>{
 
 const files = Array.from(e.target.files);
 
@@ -315,11 +302,9 @@ let count = 0;
 
 for(const file of files){
 
-const cleanName = file.name.replaceAll(" ","_");
-
 const path = currentFolder
-? `product-images/${currentFolder}/${cleanName}`
-: `product-images/${cleanName}`;
+? `product-images/${currentFolder}/${file.name}`
+: `product-images/${file.name}`;
 
 await uploadBytes(ref(storage,path),file);
 
@@ -337,33 +322,37 @@ loadGallery(currentFolder);
 
 
 
-/* ================= UPLOAD FOLDER ================= */
+/* ================= UPLOAD ZIP ================= */
 
-folderInput.addEventListener("change", async (e)=>{
+zipInput.addEventListener("change", async (e)=>{
 
-const files = Array.from(e.target.files);
+const file = e.target.files[0];
 
-if(!files.length) return;
+if(!file) return;
 
-showProcess("Uploading Folder");
+showProcess("Extracting ZIP");
+
+const zip = await JSZip.loadAsync(file);
+
+const entries = Object.values(zip.files);
 
 let count = 0;
 
-for(const file of files){
+for(const entry of entries){
 
-let relativePath = file.webkitRelativePath
-.replaceAll(" ","_")
-.replaceAll(":","");
+if(entry.dir) continue;
+
+const blob = await entry.async("blob");
 
 const path = currentFolder
-? `product-images/${currentFolder}/${relativePath}`
-: `product-images/${relativePath}`;
+? `product-images/${currentFolder}/${entry.name}`
+: `product-images/${entry.name}`;
 
-await uploadBytes(ref(storage,path),file);
+await uploadBytes(ref(storage,path),blob);
 
 count++;
 
-updateProgress((count/files.length)*100);
+updateProgress((count/entries.length)*100);
 
 }
 
@@ -385,25 +374,23 @@ const parts = currentFolder.split("/").filter(Boolean);
 
 const root = document.createElement("span");
 
-root.innerText = "Home";
-
+root.innerText="Home";
 root.style.cursor="pointer";
 
-root.onclick = ()=> loadGallery("");
+root.onclick = ()=>loadGallery("");
 
 breadcrumbs.appendChild(root);
 
-parts.forEach((p,index)=>{
+parts.forEach((p,i)=>{
 
 const span = document.createElement("span");
 
-span.innerText = " / " + decodeURIComponent(p);
-
+span.innerText=" / "+decodeURIComponent(p);
 span.style.cursor="pointer";
 
-const folderPath = parts.slice(0,index+1).join("/");
+const path = parts.slice(0,i+1).join("/");
 
-span.onclick = ()=> loadGallery(folderPath);
+span.onclick = ()=>loadGallery(path);
 
 breadcrumbs.appendChild(span);
 
