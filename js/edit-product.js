@@ -481,6 +481,7 @@ function updateGalleryBreadcrumbs(path){
 
   const parts = path.replace("product-images","").split("/").filter(Boolean);
 
+  // HOME
   const home = document.createElement("span");
   home.innerText = "Home";
   home.style.cursor = "pointer";
@@ -488,17 +489,22 @@ function updateGalleryBreadcrumbs(path){
 
   galleryBreadcrumbs.appendChild(home);
 
-  let buildPath = "product-images";
+  // BUILD PATH STEP BY STEP
+  let currentPath = "product-images";
 
-  parts.forEach(part => {
+  parts.forEach((part,index)=>{
 
-    buildPath += "/" + part;
+    currentPath += "/" + part;
 
     const span = document.createElement("span");
     span.innerText = " / " + decodeURIComponent(part);
     span.style.cursor = "pointer";
 
-    span.onclick = () => loadGalleryFolder(buildPath);
+    const pathCopy = currentPath;   // important fix
+
+    span.onclick = () => {
+      loadGalleryFolder(pathCopy);
+    };
 
     galleryBreadcrumbs.appendChild(span);
 
