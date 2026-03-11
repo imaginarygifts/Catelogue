@@ -5,7 +5,8 @@ import {
   query,
   orderBy,
   doc,
-  updateDoc
+  updateDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ================= STATE ================= */
@@ -40,6 +41,12 @@ const bulkType = document.getElementById("bulkActionType");
 const bulkValue = document.getElementById("bulkActionValue");
 const selectAllCheckbox = document.getElementById("selectAllOrders");
 const whatsappBtn = document.getElementById("whatsappBtn");
+const orderSound = new Audio("/sounds/order.mp3");
+
+
+if(Notification.permission !== "granted"){
+  Notification.requestPermission();
+}
 
 /* ================= BULK ACTION OPTIONS ================= */
 bulkType.addEventListener("change", () => {
@@ -130,6 +137,69 @@ async function loadOrders() {
 
 await loadCategories();
 await loadOrders();
+
+/* ================= NEW ORDER ALERT ================= */
+
+let latestOrderTime = Date.now();
+
+const newOrderQuery = query(
+  collection(db,"orders"),
+  orderBy("createdAt","desc")
+);
+
+onSnapshot(newOrderQuery,(snapshot)=>{
+
+  snapshot.docChanges().forEach(change=>{
+
+    if(change.type === "added"){
+
+      const order = change.doc.data();
+
+      if(order.createdAt > latestOrderTime){
+
+        notifyNewOrder(change.doc.id,order);
+
+      }
+
+    }
+
+  });
+
+});
+
+
+
+
+function notifyNewOrder(id,order){
+
+  const title = "🛒 New Order Received";
+
+  const body =
+`${order.productName}
+
+Customer: ${order.customer?.name}
+Amount: ₹${order.pricing?.finalAmount || order.price}`;
+
+  /* PLAY SOUND */
+
+  orderSound.play().catch(()=>{});
+
+  /* WEB NOTIFICATION */
+
+  if(Notification.permission === "granted"){
+
+    const n = new Notification(title,{
+      body: body,
+      icon: "/img/logo.png"
+    });
+
+    n.onclick = () => {
+      window.open(`order-view.html?id=${id}`);
+    };
+
+  }
+
+}
 
 /* ================= DATE RANGE ================= */
 window.setRange = function (range, btn) {
