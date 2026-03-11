@@ -352,31 +352,46 @@ function toggleWhatsappBtn(){
 
 }
 
-/* ================= WHATSAPP BUTTON CLICK ================= */
+/* ================= WHATSAPP BUTTON DROPDOWN ================= */
 
-whatsappBtn.addEventListener("click", () => {
+whatsappBtn.addEventListener("click", (e) => {
 
-  const option = prompt(
-`Send WhatsApp Message:
+  let menu = document.getElementById("waMenu");
 
-1 - Payment Reminder
-2 - Order Status
-3 - Confirm Order
-4 - Payment Status
-5 - Custom Message
+  if(menu){
+    menu.remove();
+    return;
+  }
 
-Enter option number`
-  );
+  menu = document.createElement("div");
+  menu.id = "waMenu";
 
-  if(option === "1") sendWhatsappMessage("payment");
+  menu.innerHTML = `
+     <div class="wa-item" data-type="confirm">✅ Confirm Order</div>
 
-  if(option === "2") sendWhatsappMessage("status");
+    <div class="wa-item" data-type="payment">💰 Payment Reminder</div>
 
-  if(option === "3") sendWhatsappMessage("confirm");
+    <div class="wa-item" data-type="status">📦 Order Status</div>
+    
+    <div class="wa-item" data-type="paymentStatus">💳 Payment Status</div>
 
-  if(option === "4") sendWhatsappMessage("paymentStatus");
+    <div class="wa-item" data-type="custom">✏️ Custom Message</div>
+  `;
 
-  if(option === "5") sendWhatsappMessage("custom");
+  document.body.appendChild(menu);
+
+  const rect = whatsappBtn.getBoundingClientRect();
+
+  menu.style.top = rect.bottom + window.scrollY + "px";
+  menu.style.left = rect.left + "px";
+
+  menu.querySelectorAll(".wa-item").forEach(item=>{
+    item.onclick = () => {
+      const type = item.dataset.type;
+      sendWhatsappMessage(type);
+      menu.remove();
+    };
+  });
 
 });
 
