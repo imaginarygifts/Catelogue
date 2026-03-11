@@ -352,6 +352,34 @@ function toggleWhatsappBtn(){
 
 }
 
+/* ================= WHATSAPP BUTTON CLICK ================= */
+
+whatsappBtn.addEventListener("click", () => {
+
+  const option = prompt(
+`Send WhatsApp Message:
+
+1 - Payment Reminder
+2 - Order Status
+3 - Confirm Order
+4 - Payment Status
+5 - Custom Message
+
+Enter option number`
+  );
+
+  if(option === "1") sendWhatsappMessage("payment");
+
+  if(option === "2") sendWhatsappMessage("status");
+
+  if(option === "3") sendWhatsappMessage("confirm");
+
+  if(option === "4") sendWhatsappMessage("paymentStatus");
+
+  if(option === "5") sendWhatsappMessage("custom");
+
+});
+
 
 
 /* ================= WHATSAPP MESSAGE ================= */
