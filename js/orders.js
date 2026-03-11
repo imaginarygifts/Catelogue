@@ -432,7 +432,7 @@ window.sendWhatsappMessage = function(type){
       message =
 `Hello ${name} 👋
 
-Your payment for order ${orderId} is pending.
+Your payment for order ${orderId} from *Imaginary Gifts* is pending.
 
 Amount: ₹${amount}
 
@@ -449,7 +449,7 @@ Thank you.`;
       message =
 `Hello ${name} 👋
 
-Your order ${orderId} is currently *${order.orderStatus}*.
+Your order ${orderId} from *Imaginary Gifts* is currently *${order.orderStatus}*.
 
 We will update you once it ships.
 
@@ -464,7 +464,7 @@ Thank you for shopping with us.`;
       message =
 `Hello ${name} 👋
 
-Your order ${orderId} has been confirmed.
+Your order ${orderId} from *Imaginary Gifts* has been confirmed.
 
 We will start preparing your order shortly.
 
@@ -479,7 +479,7 @@ Thank you for choosing us.`;
       message =
 `Hello ${name} 👋
 
-Payment status for order ${orderId}:
+Payment status for order ${orderId} from *Imaginary Gifts*:
 
 Status: *${getPaymentStatus(order)}*
 
