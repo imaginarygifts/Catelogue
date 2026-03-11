@@ -140,7 +140,7 @@ await loadOrders();
 
 /* ================= NEW ORDER ALERT ================= */
 
-let latestOrderTime = 0;
+let latestOrderTime = Date.now();
 
 const newOrderQuery = query(
   collection(db,"orders"),
