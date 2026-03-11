@@ -422,6 +422,7 @@ window.sendWhatsappMessage = function(type){
       order?.finalAmount ||
       order?.price ||
       0;
+    const productUrl = `https://imaginarygifts.shopcom.in/product?id=${order.productId}`;
 
     let message = "";
 
@@ -435,6 +436,9 @@ window.sendWhatsappMessage = function(type){
 Your payment for order ${orderId} from *Imaginary Gifts* is pending.
 
 Amount: ₹${amount}
+
+Product:
+https://imaginarygifts.shopcom.in/product.html?id=${order.productId}
 
 Please complete the payment.
 
@@ -453,6 +457,9 @@ Your order ${orderId} from *Imaginary Gifts* is currently *${order.orderStatus}*
 
 We will update you once its Ready.
 
+Product:
+https://imaginarygifts.shopcom.in/product.html?id=${order.productId}
+
 Thank you for shopping with us.`;
 
     }
@@ -465,6 +472,9 @@ Thank you for shopping with us.`;
 `Hello ${name} 👋
 
 Your order ${orderId} from *Imaginary Gifts* has been confirmed.
+
+Product:
+https://imaginarygifts.shopcom.in/product.html?id=${order.productId}
 
 We will start preparing your order shortly.
 
@@ -484,6 +494,9 @@ Payment status for order ${orderId} from *Imaginary Gifts*:
 Status: *${getPaymentStatus(order)}*
 
 Amount: ₹${amount}
+
+Product:
+https://imaginarygifts.shopcom.in/product.html?id=${order.productId}
 
 Thank you.`;
 
