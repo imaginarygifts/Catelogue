@@ -451,7 +451,7 @@ Thank you.`;
 
 Your order ${orderId} from *Imaginary Gifts* is currently *${order.orderStatus}*.
 
-We will update you once it ships.
+We will update you once its Ready.
 
 Thank you for shopping with us.`;
 
