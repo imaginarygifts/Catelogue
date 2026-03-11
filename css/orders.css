@@ -331,3 +331,16 @@ body.dark {
   height: 18px;
   accent-color: #00ff9c;
 }
+
+.hidden{
+display:none;
+}
+
+.wa-btn{
+background:#25D366;
+color:#fff;
+border:none;
+padding:10px 16px;
+border-radius:10px;
+font-weight:600;
+}
