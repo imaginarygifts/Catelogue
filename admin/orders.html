@@ -105,6 +105,11 @@
     <input type="checkbox" id="selectAllOrders">
     <span>Select All</span>
   </label>
+
+<button id="whatsappBtn" class="wa-btn hidden">
+WhatsApp
+</button>
+
 </div>
 
   </div>
@@ -121,6 +126,30 @@
     <span id="pageNo">Page 1</span>
     <button onclick="nextPage()">Next ▶</button>
   </div>
+
+<div id="whatsappPopup" class="popup hidden">
+
+<div class="popup-box">
+
+<h3>Send WhatsApp Message</h3>
+
+<button onclick="sendWhatsApp('payment')">
+Payment Reminder
+</button>
+
+<button onclick="sendWhatsApp('status')">
+Order Status
+</button>
+
+<button onclick="sendWhatsApp('custom')">
+Custom Message
+</button>
+
+<button onclick="closeWhatsAppPopup()">Cancel</button>
+
+</div>
+
+</div>
 
 </body>
 </html>
