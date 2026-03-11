@@ -39,6 +39,7 @@ const paymentStatusFilter = document.getElementById("paymentStatusFilter");
 const bulkType = document.getElementById("bulkActionType");
 const bulkValue = document.getElementById("bulkActionValue");
 const selectAllCheckbox = document.getElementById("selectAllOrders");
+const whatsappBtn = document.getElementById("whatsappBtn");
 
 /* ================= BULK ACTION OPTIONS ================= */
 bulkType.addEventListener("change", () => {
@@ -252,7 +253,12 @@ function renderOrders() {
       </div>
     `;
 
-    card.querySelector(".order-check").addEventListener("click", e => e.stopPropagation());
+    const checkbox = card.querySelector(".order-check");
+
+checkbox.addEventListener("click", e => e.stopPropagation());
+
+checkbox.addEventListener("change", toggleWhatsappBtn);
+
     card.onclick = () => location.href = `order-view.html?id=${o.id}`;
 
     listEl.appendChild(card);
@@ -326,9 +332,140 @@ window.applyBulkAction = async function () {
 
 /* ================= SELECT ALL ================= */
 selectAllCheckbox.addEventListener("change", () => {
+
   document.querySelectorAll(".order-check")
     .forEach(c => (c.checked = selectAllCheckbox.checked));
+
+  toggleWhatsappBtn();
+
 });
+
+function toggleWhatsappBtn(){
+
+  const checked = document.querySelectorAll(".order-check:checked");
+
+  if(checked.length){
+    whatsappBtn.classList.remove("hidden");
+  }else{
+    whatsappBtn.classList.add("hidden");
+  }
+
+}
+
+
+
+/* ================= WHATSAPP MESSAGE ================= */
+
+window.sendWhatsappMessage = function(type){
+
+  const checked = [...document.querySelectorAll(".order-check:checked")];
+
+  if(!checked.length) return alert("Select orders first");
+
+  checked.forEach(cb=>{
+
+    const id = cb.dataset.id;
+
+    const order = allOrders.find(o=>o.id === id);
+
+    const phone = order?.customer?.phone;
+
+    if(!phone) return;
+
+    const name = order?.customer?.name || "";
+    const orderId = order?.orderNumber || "";
+    const amount =
+      order?.pricing?.finalAmount ||
+      order?.finalAmount ||
+      order?.price ||
+      0;
+
+    let message = "";
+
+    /* ===== PAYMENT REMINDER ===== */
+
+    if(type === "payment"){
+
+      message =
+`Hello ${name} 👋
+
+Your payment for order ${orderId} is pending.
+
+Amount: ₹${amount}
+
+Please complete the payment.
+
+Thank you.`;
+
+    }
+
+    /* ===== ORDER STATUS ===== */
+
+    if(type === "status"){
+
+      message =
+`Hello ${name} 👋
+
+Your order ${orderId} is currently *${order.orderStatus}*.
+
+We will update you once it ships.
+
+Thank you for shopping with us.`;
+
+    }
+
+    /* ===== CONFIRM ORDER ===== */
+
+    if(type === "confirm"){
+
+      message =
+`Hello ${name} 👋
+
+Your order ${orderId} has been confirmed.
+
+We will start preparing your order shortly.
+
+Thank you for choosing us.`;
+
+    }
+
+    /* ===== PAYMENT STATUS ===== */
+
+    if(type === "paymentStatus"){
+
+      message =
+`Hello ${name} 👋
+
+Payment status for order ${orderId}:
+
+Status: *${getPaymentStatus(order)}*
+
+Amount: ₹${amount}
+
+Thank you.`;
+
+    }
+
+    /* ===== CUSTOM ===== */
+
+    if(type === "custom"){
+
+      message = prompt("Enter message");
+
+      if(!message) return;
+
+    }
+
+    const url =
+`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url,"_blank");
+
+  });
+
+};
+
+
 
 /* ================= EVENT LISTENERS ================= */
 [
