@@ -41,19 +41,24 @@
 
   <!-- IMAGES -->
   <h3>Images</h3>
-<input type="file" id="images" multiple accept="image/*">
+<div class="image-picker-group">
 
-<button type="button" class="image-pick-box" onclick="openGalleryPicker()">
-Select From Gallery
-</button>
-  <div id="imagePreview" class="image-row"></div>
-
+  <!-- Upload Images -->
   <label class="image-picker">
     <input type="file" id="images" multiple accept="image/*">
     <div class="image-pick-box">
       Tap to add images
     </div>
   </label>
+
+  <!-- Select From Gallery -->
+  <label class="image-picker" onclick="openGalleryPicker()">
+    <div class="image-pick-box">
+      Select from Gallery
+    </div>
+  </label>
+
+</div>
   
     <!-- products linking -->
     <div><h4>Related Designs</h4>
