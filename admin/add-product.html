@@ -41,6 +41,11 @@
 
   <!-- IMAGES -->
   <h3>Images</h3>
+<input type="file" id="images" multiple accept="image/*">
+
+<button type="button" onclick="openGalleryPicker()">
+Select From Gallery
+</button>
   <div id="imagePreview" class="image-row"></div>
 
   <label class="image-picker">
@@ -206,6 +211,22 @@
 </div>
 
 <div id="popup" class="popup hidden"></div>
+
+
+<!-- IMAGE GALLERY PICKER -->
+<div id="galleryPicker" class="gallery-picker hidden">
+
+  <div class="gallery-header">
+    <button onclick="closeGalleryPicker()">← Back</button>
+    <h3>Select Images</h3>
+    <button onclick="addSelectedImages()">Add Selected</button>
+  </div>
+
+  <div id="galleryBreadcrumbs" class="gallery-breadcrumbs"></div>
+
+  <div id="galleryPickerGrid" class="gallery-picker-grid"></div>
+
+</div>
 
 <!-- Guard -->
 <script type="module" src="../js/guard.js"></script>
