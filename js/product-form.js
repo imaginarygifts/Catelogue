@@ -49,6 +49,10 @@ let colors = [];
 let sizes = [];
 let customOptions = [];
 let images = [];
+let galleryImages = [];
+let gallerySelected = [];
+let currentGalleryPath = "product-images";
+const galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
 let relatedDesigns = [];
 let allProducts = [];
 let selectedTags = [];
@@ -123,8 +127,13 @@ if (imagesInput) {
 }
 
 function renderImagePreview() {
+
   preview.innerHTML = "";
+
+  /* Uploaded files */
+
   images.forEach((file, index) => {
+
     const div = document.createElement("div");
     div.className = "image-card";
 
@@ -140,8 +149,35 @@ function renderImagePreview() {
 
     div.appendChild(img);
     div.appendChild(del);
+
     preview.appendChild(div);
+
   });
+
+  /* Gallery images */
+
+  galleryImages.forEach((url, index) => {
+
+    const div = document.createElement("div");
+    div.className = "image-card";
+
+    const img = document.createElement("img");
+    img.src = url;
+
+    const del = document.createElement("span");
+    del.innerText = "×";
+    del.onclick = () => {
+      galleryImages.splice(index, 1);
+      renderImagePreview();
+    };
+
+    div.appendChild(img);
+    div.appendChild(del);
+
+    preview.appendChild(div);
+
+  });
+
 }
 
 // ========== COLORS ==========
@@ -341,6 +377,148 @@ window.toggleTag = function(slug, checked) {
 };
 
 loadTags();
+
+
+/* ========== STORAGE GALLERY PICKER ========== */
+
+window.openGalleryPicker = function(){
+
+  document.getElementById("galleryPicker").classList.remove("hidden");
+
+  loadGalleryFolder("product-images");
+
+}
+
+async function loadGalleryFolder(path){
+
+  currentGalleryPath = path;
+
+  updateGalleryBreadcrumbs(path);
+
+  const grid = document.getElementById("galleryPickerGrid");
+
+  grid.innerHTML = "";
+
+  const folderRef = ref(storage,path);
+
+  const res = await listAll(folderRef);
+
+
+  /* folders */
+
+  res.prefixes.forEach(folder=>{
+
+    const div = document.createElement("div");
+    div.className="gallery-folder";
+
+    div.innerHTML=`
+      <div class="folder-icon">📁</div>
+      <span>${folder.name}</span>
+    `;
+
+    div.onclick=()=>loadGalleryFolder(folder.fullPath);
+
+    grid.appendChild(div);
+
+  });
+
+
+  /* images */
+
+  for(const file of res.items){
+
+    const url = await getDownloadURL(file);
+
+    const div=document.createElement("div");
+    div.className="gallery-img";
+
+    div.innerHTML=`
+      <input type="checkbox" class="gallery-check">
+      <img src="${url}">
+    `;
+
+    const checkbox=div.querySelector("input");
+
+    checkbox.onchange=()=>{
+
+      if(checkbox.checked){
+
+        gallerySelected.push(url);
+
+      }else{
+
+        gallerySelected=gallerySelected.filter(x=>x!==url);
+
+      }
+
+    };
+
+    grid.appendChild(div);
+
+  }
+
+}
+
+
+function updateGalleryBreadcrumbs(path){
+
+  if(!galleryBreadcrumbs) return;
+
+  galleryBreadcrumbs.innerHTML="";
+
+  const parts=path.replace("product-images","").split("/").filter(Boolean);
+
+  const home=document.createElement("span");
+
+  home.innerText="Home";
+
+  home.style.cursor="pointer";
+
+  home.onclick=()=>loadGalleryFolder("product-images");
+
+  galleryBreadcrumbs.appendChild(home);
+
+  let current="product-images";
+
+  parts.forEach(part=>{
+
+    current+="/"+part;
+
+    const span=document.createElement("span");
+
+    span.innerText=" / "+decodeURIComponent(part);
+
+    span.style.cursor="pointer";
+
+    const pathCopy=current;
+
+    span.onclick=()=>loadGalleryFolder(pathCopy);
+
+    galleryBreadcrumbs.appendChild(span);
+
+  });
+
+}
+
+window.closeGalleryPicker=function(){
+
+  document.getElementById("galleryPicker").classList.add("hidden");
+
+}
+
+window.addSelectedImages=function(){
+
+  gallerySelected.forEach(url=>galleryImages.push(url));
+
+  gallerySelected=[];
+
+  renderImagePreview();
+
+  closeGalleryPicker();
+
+}
+
+
 // ========== SAVE PRODUCT ==========
 window.saveProduct = async () => {
   const name = nameInput.value.trim();
@@ -369,7 +547,7 @@ if (selectedOption.dataset.type === "sub") {
   try {
     showPopup("Uploading images...");
 
-    const uploadedImages = [];
+    const uploadedImages = [...galleryImages];
 
     for (let file of images) {
       const imgRef = ref(storage, `products/${Date.now()}-${file.name}`);
