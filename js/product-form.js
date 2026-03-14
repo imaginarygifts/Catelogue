@@ -503,9 +503,13 @@ function updateGalleryBreadcrumbs(path){
 
 }
 
-window.closeGalleryPicker=function(){
+window.closeGalleryPicker = function(){
 
-  document.getElementById("galleryPicker").classList.add("hidden");
+  const picker = document.getElementById("galleryPicker");
+
+  if(picker){
+    picker.classList.add("hidden");
+  }
 
 }
 
@@ -523,7 +527,7 @@ window.addSelectedImages = function () {
 
   renderImagePreview();
 
-  closeGalleryPicker();
+  window.closeGalleryPicker();
 
 };
 
