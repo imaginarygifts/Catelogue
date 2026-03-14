@@ -139,8 +139,8 @@ function renderImagePreview() {
     div.className = "image-card";
 
     const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-
+    img.src = file instanceof File ? URL.createObjectURL(file) : file;
+    
     const del = document.createElement("span");
     del.innerText = "×";
     del.onclick = () => {
@@ -433,10 +433,12 @@ async function loadGalleryFolder(path){
     const div=document.createElement("div");
     div.className="gallery-img";
 
-    div.innerHTML=`
-      <input type="checkbox" class="gallery-check">
-      <img src="${url}">
-    `;
+    const checked = gallerySelected.includes(url) ? "checked" : "";
+
+div.innerHTML = `
+  <input type="checkbox" class="gallery-check" ${checked}>
+  <img src="${url}">
+`;
 
     const checkbox=div.querySelector("input");
 
@@ -507,18 +509,23 @@ window.closeGalleryPicker=function(){
 
 }
 
-window.addSelectedImages=function(){
+window.addSelectedImages = function () {
 
-  gallerySelected.forEach(url=>galleryImages.push(url));
+  gallerySelected.forEach(url => {
 
-  gallerySelected=[];
+    if (!galleryImages.includes(url)) {
+      galleryImages.push(url);
+    }
+
+  });
+
+  gallerySelected = [];
 
   renderImagePreview();
 
   closeGalleryPicker();
 
-}
-
+};
 
 // ========== SAVE PRODUCT ==========
 window.saveProduct = async () => {
