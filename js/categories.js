@@ -32,16 +32,20 @@ async function loadCategories() {
   const subs = {};
 
   snap.forEach(d => {
-    const c = { id: d.id, ...d.data() };
+  const c = { id: d.id, ...d.data() };
 
-    if (!c.parentId) {
-      main.push(c);
-      subs[c.id] = [];
-    } else {
-      if (!subs[c.parentId]) subs[c.parentId] = [];
-      subs[c.parentId].push(c);
-    }
-  });
+  if (!c.parentId) {
+    main.push(c);
+
+    if (!subs[c.id]) subs[c.id] = [];
+
+  } else {
+
+    if (!subs[c.parentId]) subs[c.parentId] = [];
+    subs[c.parentId].push(c);
+
+  }
+});
 
   /* MAIN CATEGORY DROPDOWN */
   main.forEach(c => {
