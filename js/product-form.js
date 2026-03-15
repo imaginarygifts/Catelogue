@@ -121,9 +121,10 @@ loadCategories();
 if (imagesInput) {
   imagesInput.addEventListener("change", (e) => {
     const files = Array.from(e.target.files || []);
-    images = [];
+    
     files.forEach(file => images.push(file));
     renderImagePreview();
+    imagesInput.value = "";
   });
 }
 
