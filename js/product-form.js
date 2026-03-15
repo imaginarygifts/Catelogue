@@ -428,45 +428,35 @@ async function loadGalleryFolder(path){
 
   /* images */
 
-  await Promise.all(
-
-  res.items.map(async (file) => {
+  for(const file of res.items){
 
     const url = await getDownloadURL(file);
 
-    const div = document.createElement("div");
-    div.className = "gallery-img";
+    const div=document.createElement("div");
+    div.className="gallery-img";
 
     const checked = gallerySelected.includes(url) ? "checked" : "";
 
-    div.innerHTML = `
-      <input type="checkbox" class="gallery-check" ${checked}>
-      <img src="${url}" loading="lazy">
-    `;
+div.innerHTML = `
+  <input type="checkbox" class="gallery-check" ${checked}>
+  <img src="${url}">
+`;
 
-    const checkbox = div.querySelector("input");
+    const checkbox=div.querySelector("input");
 
-    checkbox.onchange = () => {
+    checkbox.onchange=()=>{
 
-      if (checkbox.checked) {
+      if(checkbox.checked){
 
-        if (!gallerySelected.includes(url)) {
-          gallerySelected.push(url);
-        }
+        gallerySelected.push(url);
 
-      } else {
+      }else{
 
-        gallerySelected = gallerySelected.filter(x => x !== url);
+        gallerySelected=gallerySelected.filter(x=>x!==url);
 
       }
 
     };
-
-    grid.appendChild(div);
-
-  })
-
-);
 
     grid.appendChild(div);
 
