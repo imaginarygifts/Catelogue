@@ -127,11 +127,14 @@ if (imagesInput) {
   });
 }
 
+
+
+
 function renderImagePreview() {
 
   preview.innerHTML = "";
 
-  /* Uploaded files */
+  /* Uploaded images */
 
   images.forEach((file, index) => {
 
@@ -139,18 +142,18 @@ function renderImagePreview() {
     div.className = "image-card";
 
     const img = document.createElement("img");
-    img.src = file instanceof File ? URL.createObjectURL(file) : file;
-    
+    img.src = URL.createObjectURL(file);
+
     const del = document.createElement("span");
     del.innerText = "×";
+
     del.onclick = () => {
-      images.splice(index, 1);
+      images.splice(index,1);
       renderImagePreview();
     };
 
     div.appendChild(img);
     div.appendChild(del);
-
     preview.appendChild(div);
 
   });
@@ -167,20 +170,19 @@ function renderImagePreview() {
 
     const del = document.createElement("span");
     del.innerText = "×";
+
     del.onclick = () => {
-      galleryImages.splice(index, 1);
+      galleryImages.splice(index,1);
       renderImagePreview();
     };
 
     div.appendChild(img);
     div.appendChild(del);
-
     preview.appendChild(div);
 
   });
 
 }
-
 // ========== COLORS ==========
 window.addColor = () => {
   const name = document.getElementById("colorName").value.trim();
@@ -426,35 +428,45 @@ async function loadGalleryFolder(path){
 
   /* images */
 
-  for(const file of res.items){
+  await Promise.all(
+
+  res.items.map(async (file) => {
 
     const url = await getDownloadURL(file);
 
-    const div=document.createElement("div");
-    div.className="gallery-img";
+    const div = document.createElement("div");
+    div.className = "gallery-img";
 
     const checked = gallerySelected.includes(url) ? "checked" : "";
 
-div.innerHTML = `
-  <input type="checkbox" class="gallery-check" ${checked}>
-  <img src="${url}">
-`;
+    div.innerHTML = `
+      <input type="checkbox" class="gallery-check" ${checked}>
+      <img src="${url}" loading="lazy">
+    `;
 
-    const checkbox=div.querySelector("input");
+    const checkbox = div.querySelector("input");
 
-    checkbox.onchange=()=>{
+    checkbox.onchange = () => {
 
-      if(checkbox.checked){
+      if (checkbox.checked) {
 
-        gallerySelected.push(url);
+        if (!gallerySelected.includes(url)) {
+          gallerySelected.push(url);
+        }
 
-      }else{
+      } else {
 
-        gallerySelected=gallerySelected.filter(x=>x!==url);
+        gallerySelected = gallerySelected.filter(x => x !== url);
 
       }
 
     };
+
+    grid.appendChild(div);
+
+  })
+
+);
 
     grid.appendChild(div);
 
@@ -515,9 +527,14 @@ window.closeGalleryPicker = function(){
 
 window.addSelectedImages = function () {
 
+  if(!gallerySelected.length){
+    alert("Select images first");
+    return;
+  }
+
   gallerySelected.forEach(url => {
 
-    if (!galleryImages.includes(url)) {
+    if(!galleryImages.includes(url)){
       galleryImages.push(url);
     }
 
@@ -527,9 +544,9 @@ window.addSelectedImages = function () {
 
   renderImagePreview();
 
-  window.closeGalleryPicker();
+  document.getElementById("galleryPicker").classList.add("hidden");
 
-};
+}
 
 // ========== SAVE PRODUCT ==========
 window.saveProduct = async () => {
