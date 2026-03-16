@@ -188,6 +188,12 @@ function renderProducts() {
     if (activeSubCategory !== "all" && p.subCategoryId !== activeSubCategory)
       return false;
 
+    if (stockFilter === "in" && p.inStock === false)
+    return false;
+
+  if (stockFilter === "out" && p.inStock !== false)
+    return false;
+
     return true;
   });
 
@@ -269,3 +275,4 @@ window.duplicateProduct = async (id) => {
 
 loadCategories();
 loadProducts();
+renderStockFilter();
