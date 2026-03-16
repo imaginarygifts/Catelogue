@@ -75,53 +75,61 @@ function hidePopup() {
 }
 
 // Load categories
-async function loadCategories() {
+async function loadCategories(){
+
   catSelect.innerHTML = `<option value="">Select category</option>`;
 
   const snap = await getDocs(
-    query(collection(db, "categories"), orderBy("order"))
+    query(collection(db,"categories"),orderBy("order"))
   );
 
-  const main = [];
-  const subs = {};
+  const categories = [];
 
-  snap.forEach(d => {
-    const c = { id: d.id, ...d.data() };
-
-    if (!c.parentId) {
-      main.push(c);
-      subs[c.id] = [];
-    } else {
-      if (!subs[c.parentId]) subs[c.parentId] = [];
-      subs[c.parentId].push(c);
-    }
-  });
-
-  main.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m.id;
-    opt.textContent = m.name;
-    opt.dataset.type = "main";
-    catSelect.appendChild(opt);
-
-    (subs[m.id] || []).forEach(s => {
-      const subOpt = document.createElement("option");
-      subOpt.value = s.id;
-      subOpt.textContent = "— " + s.name;
-      subOpt.dataset.type = "sub";
-      subOpt.dataset.parent = m.id;
-      catSelect.appendChild(subOpt);
+  snap.forEach(doc=>{
+    categories.push({
+      id: doc.id,
+      ...doc.data()
     });
   });
-}
 
+  const mains = categories.filter(c => !c.parentId);
+
+  mains.forEach(main=>{
+
+    // main category
+    const opt = document.createElement("option");
+    opt.value = main.id;
+    opt.textContent = main.name;
+    opt.dataset.type = "main";
+
+    catSelect.appendChild(opt);
+
+    // sub categories
+    const subs = categories.filter(c => c.parentId === main.id);
+
+    subs.forEach(sub=>{
+
+      const subOpt = document.createElement("option");
+
+      subOpt.value = sub.id;
+      subOpt.textContent = "— " + sub.name;
+      subOpt.dataset.type = "sub";
+      subOpt.dataset.parent = main.id;
+
+      catSelect.appendChild(subOpt);
+
+    });
+
+  });
+
+}
 loadCategories();
 
 // ========== IMAGE PICKER ==========
 if (imagesInput) {
   imagesInput.addEventListener("change", (e) => {
     const files = Array.from(e.target.files || []);
-    
+
     files.forEach(file => images.push(file));
     renderImagePreview();
     imagesInput.value = "";
