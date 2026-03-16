@@ -607,3 +607,50 @@ text-decoration:line-through;
 opacity:0.6;
 font-size:13px;
 }
+
+
+
+
+.img-wrap{
+position:relative;
+}
+
+/* general badge */
+
+.badge{
+position:absolute;
+padding:4px 8px;
+border-radius:8px;
+font-size:11px;
+font-weight:600;
+color:#000;
+}
+
+/* bestseller */
+
+.badge.bestseller{
+top:8px;
+right:8px;
+background:linear-gradient(135deg,#ffd700,#ffb700);
+}
+
+/* discount */
+
+.badge.discount{
+top:8px;
+left:8px;
+background:#ff4d4d;
+color:#fff;
+}
+
+/* out of stock */
+
+.badge.stock{
+bottom:8px;
+left:8px;
+background:#555;
+color:#fff;
+}
+
+
+
