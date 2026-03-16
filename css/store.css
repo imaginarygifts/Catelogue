@@ -529,3 +529,20 @@ body {
   font-weight:600;
   margin-top:4px;
 }
+
+.price-wrap{
+display:flex;
+gap:6px;
+align-items:center;
+}
+
+.price-wrap .sale{
+font-weight:700;
+font-size:16px;
+}
+
+.price-wrap .old{
+text-decoration:line-through;
+opacity:0.6;
+font-size:13px;
+}
