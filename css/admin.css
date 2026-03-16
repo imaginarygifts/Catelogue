@@ -1040,22 +1040,9 @@ margin-bottom:6px;
 @media (max-width:600px){
 
 .gallery-picker-grid{
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(4,1fr);
 gap:10px;
 }
 
 }
 
-/* CSS LOAD TEST */
-
-.gallery-picker{
-border:6px solid red !important;
-}
-
-.gallery-picker-grid{
-background:yellow !important;
-}
-
-.gallery-img{
-background:blue !important;
-}
