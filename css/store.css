@@ -580,14 +580,6 @@ background:#ff4d4d;
 color:#fff;
 }
 
-/* out of stock */
-
-.badge.stock{
-bottom:8px;
-left:8px;
-background:#555;
-color:#fff;
-}
 
 /* price style */
 
@@ -658,19 +650,25 @@ font-size:10px;
 font-weight:700;
 }
 
-/* ---------- OUT OF STOCK ---------- */
+/* ---------- IMAGE WRAP ---------- */
+
 .img-wrap{
 position:relative;
+overflow:hidden;
+border-radius:16px;
+}
+
+/* ---------- OUT OF STOCK ---------- */
 
 .badge.stock{
 position:absolute;
-top:10px;
-left:10px;
+top:8px;
+left:8px;
 
 background:#ff3b3b;
 color:#fff;
 
-padding:5px 12px;
+padding:4px 10px;
 font-size:12px;
 font-weight:600;
 
