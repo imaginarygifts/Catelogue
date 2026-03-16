@@ -223,7 +223,8 @@ function renderProducts() {
   grid.innerHTML = "";
 
   const filtered = allProducts.filter(p => {
-
+       
+    if(p.inStock === false) return false;
     if (
       activeCategory !== "all" &&
       p.categoryId !== activeCategory
