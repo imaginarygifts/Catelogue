@@ -1045,3 +1045,17 @@ gap:10px;
 }
 
 }
+
+/* CSS LOAD TEST */
+
+.gallery-picker{
+border:6px solid red !important;
+}
+
+.gallery-picker-grid{
+background:yellow !important;
+}
+
+.gallery-img{
+background:blue !important;
+}
