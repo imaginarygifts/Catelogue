@@ -81,49 +81,53 @@ window.toggleSection = (id) => {
 };
 
 // ===== LOAD CATEGORIES =====
-async function loadCategories() {
-
-  const snap = await getDocs(
-    query(collection(db, "categories"), orderBy("order"))
-  );
+async function loadCategories(){
 
   catSelect.innerHTML = `<option value="">Select category</option>`;
 
-  const main = [];
-  const subs = {};
+  const snap = await getDocs(
+    query(collection(db,"categories"),orderBy("order"))
+  );
 
-  snap.forEach(d => {
-    const c = { id: d.id, ...d.data() };
+  const categories = [];
 
-    if (!c.parentId) {
-      main.push(c);
-      subs[c.id] = [];
-    } else {
-      if (!subs[c.parentId]) subs[c.parentId] = [];
-      subs[c.parentId].push(c);
-    }
+  snap.forEach(doc=>{
+    categories.push({
+      id: doc.id,
+      ...doc.data()
+    });
   });
 
-  main.forEach(m => {
+  const mains = categories.filter(c => !c.parentId);
 
+  mains.forEach(main=>{
+
+    // main category
     const opt = document.createElement("option");
-    opt.value = m.id;
-    opt.textContent = m.name;
+    opt.value = main.id;
+    opt.textContent = main.name;
     opt.dataset.type = "main";
+
     catSelect.appendChild(opt);
 
-    (subs[m.id] || []).forEach(s => {
+    // sub categories
+    const subs = categories.filter(c => c.parentId === main.id);
+
+    subs.forEach(sub=>{
 
       const subOpt = document.createElement("option");
-      subOpt.value = s.id;
-      subOpt.textContent = "— " + s.name;
+
+      subOpt.value = sub.id;
+      subOpt.textContent = "— " + sub.name;
       subOpt.dataset.type = "sub";
-      subOpt.dataset.parent = m.id;
+      subOpt.dataset.parent = main.id;
 
       catSelect.appendChild(subOpt);
+
     });
 
   });
+
 }
 
 // ===== LOAD PRODUCT =====
