@@ -53,7 +53,7 @@ let images = [];
 let galleryImages = [];
 let gallerySelected = [];
 let currentGalleryPath = "product-images";
-const galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
+let galleryBreadcrumbs;
 let relatedDesigns = [];
 let allProducts = [];
 let selectedTags = [];
@@ -467,6 +467,8 @@ div.innerHTML = `
 
 
 function updateGalleryBreadcrumbs(path){
+
+  galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
 
   if(!galleryBreadcrumbs) return;
 
