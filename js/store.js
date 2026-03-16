@@ -45,7 +45,6 @@ async function loadTags() {
   if (!tagRow) return;
 
   const snap = await getDocs(collection(db, "tags"));
-
   const tags = snap.docs.map(d => d.data());
 
   renderTags(tags);
@@ -166,9 +165,12 @@ function renderTags(tags) {
   allChip.dataset.slug = "all";
 
   allChip.onclick = () => {
+
     activeTag = "all";
+
     updateTagUI();
     renderProducts();
+
   };
 
   tagRow.appendChild(allChip);
@@ -188,7 +190,6 @@ function renderTags(tags) {
       activeTag = tag.slug;
 
       updateTagUI();
-
       renderProducts();
 
     };
@@ -254,7 +255,10 @@ function renderProducts() {
 
     card.className = "product-card";
 
-    const isBestseller = p.isBestseller === true;
+    const isBestseller =
+      p.isBestseller === true ||
+      p.isBestseller === "true" ||
+      (Array.isArray(p.tags) && p.tags.includes("bestseller"));
 
     card.innerHTML = `
       <div class="img-wrap">
