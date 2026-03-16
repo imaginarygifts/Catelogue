@@ -216,6 +216,7 @@ function updateTagUI() {
 
 /* ================= PRODUCT RENDER ================= */
 
+
 function renderProducts() {
 
   if (!grid) return;
@@ -223,8 +224,7 @@ function renderProducts() {
   grid.innerHTML = "";
 
   const filtered = allProducts.filter(p => {
-       
-    if(p.inStock === false) return false;
+
     if (
       activeCategory !== "all" &&
       p.categoryId !== activeCategory
@@ -253,28 +253,62 @@ function renderProducts() {
   filtered.forEach(p => {
 
     const card = document.createElement("div");
-
     card.className = "product-card";
+
+    /* ================= BADGES ================= */
 
     const isBestseller =
       p.isBestseller === true ||
       p.isBestseller === "true" ||
       (Array.isArray(p.tags) && p.tags.includes("bestseller"));
 
+    const outOfStock = p.inStock === false;
+
+    let discount = 0;
+
+    if (p.salePrice && p.basePrice && p.salePrice < p.basePrice) {
+      discount = Math.round(
+        ((p.basePrice - p.salePrice) / p.basePrice) * 100
+      );
+    }
+
+    let badges = "";
+
+    if (isBestseller) {
+      badges += `<span class="badge bestseller">🔥 Bestseller</span>`;
+    }
+
+    if (discount > 0) {
+      badges += `<span class="badge discount">-${discount}%</span>`;
+    }
+
+    if (outOfStock) {
+      badges += `<span class="badge stock">Out of Stock</span>`;
+    }
+
+    /* ================= CARD HTML ================= */
+
     card.innerHTML = `
       <div class="img-wrap">
-        ${isBestseller ? `<span class="badge">🔥 Bestseller</span>` : ""}
+
+        ${badges}
+
         <img loading="lazy" src="${p.images?.[0] || ""}">
+
       </div>
+
       <h4>${p.name}</h4>
+
       <div class="price-wrap">
 
-${p.salePrice && p.salePrice < p.basePrice
-? `<span class="sale">₹${p.salePrice}</span>
-   <span class="old">₹${p.basePrice}</span>`
-: `<span class="sale">₹${p.basePrice}</span>`}
+        ${
+          p.salePrice && p.salePrice < p.basePrice
+          ? `<span class="sale">₹${p.salePrice}</span>
+             <span class="old">₹${p.basePrice}</span>`
+          : `<span class="sale">₹${p.basePrice}</span>`
+        }
 
-</div>
+      </div>
     `;
 
     card.onclick = () => {
