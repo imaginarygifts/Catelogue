@@ -389,7 +389,9 @@ window.openGalleryPicker = function(){
 
   document.getElementById("galleryPicker").classList.remove("hidden");
 
+setTimeout(()=>{
   loadGalleryFolder("product-images");
+},10);
 
 }
 
