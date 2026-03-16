@@ -145,6 +145,8 @@ async function loadProduct() {
   nameInput.value = p.name || "";
   descInput.value = p.description || "";
   priceInput.value = p.basePrice || "";
+  salePriceInput.value = p.salePrice || "";
+if (stockStatus) stockStatus.value = p.inStock ? "true" : "false";
   catSelect.value = p.subCategoryId || p.categoryId || "";
   existingImages = p.images || [];
 
