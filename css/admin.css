@@ -909,11 +909,13 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
-height:100vh;
+height:100dvh;
 background:#000;
 z-index:9999;
+
 display:flex;
 flex-direction:column;
+
 overflow:hidden;
 }
 
@@ -930,7 +932,9 @@ justify-content:space-between;
 align-items:center;
 padding:15px;
 background:#111;
+
 flex-shrink:0;
+
 position:sticky;
 top:0;
 z-index:10;
@@ -944,8 +948,10 @@ padding:10px 15px;
 font-size:14px;
 background:#111;
 border-bottom:1px solid #222;
+
 white-space:nowrap;
 overflow-x:auto;
+
 flex-shrink:0;
 }
 
@@ -962,8 +968,13 @@ color:#fff;
 /* GRID */
 
 .gallery-picker-grid{
+
 flex:1;
+min-height:0; /* VERY IMPORTANT FIX */
+
 overflow-y:auto;
+overflow-x:hidden;
+
 padding:15px;
 
 display:grid;
@@ -972,7 +983,7 @@ grid-template-columns:repeat(3,1fr);
 
 gap:12px;
 
-align-items:start;
+align-content:start;
 justify-items:stretch;
 
 -webkit-overflow-scrolling:touch;
@@ -985,8 +996,10 @@ justify-items:stretch;
 position:relative;
 width:100%;
 aspect-ratio:1/1;
+
 border-radius:10px;
 overflow:hidden;
+
 background:#111;
 }
 
@@ -1023,9 +1036,12 @@ aspect-ratio:1/1;
 
 background:#1a1a1a;
 border-radius:10px;
+
 cursor:pointer;
+
 font-size:14px;
 text-align:center;
+
 padding:10px;
 }
 
@@ -1040,9 +1056,8 @@ margin-bottom:6px;
 @media (max-width:600px){
 
 .gallery-picker-grid{
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(3,1fr);
 gap:10px;
 }
 
 }
-
