@@ -267,7 +267,14 @@ function renderProducts() {
         <img loading="lazy" src="${p.images?.[0] || ""}">
       </div>
       <h4>${p.name}</h4>
-      <p>₹${p.basePrice}</p>
+      <div class="price-wrap">
+
+${p.salePrice && p.salePrice < p.basePrice
+? `<span class="sale">₹${p.salePrice}</span>
+   <span class="old">₹${p.basePrice}</span>`
+: `<span class="sale">₹${p.basePrice}</span>`}
+
+</div>
     `;
 
     card.onclick = () => {
