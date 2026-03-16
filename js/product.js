@@ -153,11 +153,47 @@ async function loadRelatedDesigns() {
 function render() {
   const details = document.getElementById("productDetails");
 
-  let html = `
-    <h2>${product.name}</h2>
-    <p>${product.description}</p>
-    <h3>₹<span id="price">${finalPrice}</span></h3>
-  `;
+  let discount = 0;
+
+if (product.salePrice && product.salePrice < product.basePrice) {
+  discount = Math.round(
+    ((product.basePrice - product.salePrice) / product.basePrice) * 100
+  );
+}
+
+let priceHTML = `
+<div class="price-wrap">
+  ${
+    product.salePrice && product.salePrice < product.basePrice
+      ? `
+        <span class="sale">₹<span id="price">${product.salePrice}</span></span>
+        <span class="old">₹${product.basePrice}</span>
+      `
+      : `
+        <span class="sale">₹<span id="price">${product.basePrice}</span></span>
+      `
+  }
+</div>
+`;
+
+let badgeHTML = "";
+
+if (discount > 0) {
+  badgeHTML += `<span class="badge discount">-${discount}%</span>`;
+}
+
+if (product.inStock === false) {
+  badgeHTML += `<span class="badge stock">Out of Stock</span>`;
+}
+
+let html = `
+<div class="product-header">
+  ${badgeHTML}
+  <h2>${product.name}</h2>
+  <p>${product.description}</p>
+  ${priceHTML}
+</div>
+`;
 
   // ===== RELATED DESIGNS =====
   if (relatedProducts.length > 1) {
