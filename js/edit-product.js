@@ -28,6 +28,8 @@ const nameInput = document.getElementById("name");
 const descInput = document.getElementById("desc");
 const priceInput = document.getElementById("price");
 const catSelect = document.getElementById("category");
+const salePriceInput = document.getElementById("salePrice");
+const stockStatus = document.getElementById("stockStatus");
 
 const preview = document.getElementById("imagePreview");
 const newImagesInput = document.getElementById("newImages");
@@ -653,6 +655,8 @@ if (selectedOption.dataset.type === "sub") {
       name,
       description: descInput.value,
       basePrice: Number(price),
+salePrice: Number(salePriceInput.value || price),
+inStock: stockStatus ? stockStatus.value === "true" : true,
       categoryId,
 subCategoryId,
       images: finalImages,
