@@ -9,11 +9,13 @@ const subCategoryBar = document.getElementById("subCategoryBar");
 let allProducts = [];
 let categories = [];
 
+
 let mainCategories = [];
 let subCategories = [];
 
 let activeCategory = "all";
 let activeSubCategory = "all";
+let stockFilter = "all";
 
 /* ================= LOAD CATEGORIES ================= */
 
@@ -114,6 +116,49 @@ function createSubBtn(label, id) {
 
   return btn;
 }
+
+
+/* ================= Stock filter ================= */
+
+function renderStockFilter(){
+
+  const bar = document.getElementById("stockFilterBar");
+  if(!bar) return;
+
+  bar.innerHTML = "";
+
+  bar.appendChild(createStockBtn("All","all"));
+  bar.appendChild(createStockBtn("In Stock","in"));
+  bar.appendChild(createStockBtn("Out of Stock","out"));
+
+}
+
+function createStockBtn(label,value){
+
+  const btn = document.createElement("div");
+
+  btn.className =
+  "category-pill" + (stockFilter === value ? " active" : "");
+
+  btn.innerText = label;
+
+  btn.onclick = () => {
+
+    stockFilter = value;
+
+    document
+      .querySelectorAll("#stockFilterBar .category-pill")
+      .forEach(p => p.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    renderProducts();
+  };
+
+  return btn;
+
+}
+
 
 /* ================= LOAD PRODUCTS ================= */
 
