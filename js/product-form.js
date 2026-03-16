@@ -470,20 +470,31 @@ div.innerHTML = `
 
 function updateGalleryBreadcrumbs(path){
 
-  galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
+  let galleryBreadcrumbs = document.getElementById("galleryBreadcrumbs");
 
-  if(!galleryBreadcrumbs) return;
+  // if element missing create it
+  if(!galleryBreadcrumbs){
+
+    const picker = document.getElementById("galleryPicker");
+
+    galleryBreadcrumbs = document.createElement("div");
+    galleryBreadcrumbs.id = "galleryBreadcrumbs";
+    galleryBreadcrumbs.className = "gallery-breadcrumbs";
+
+    picker.insertBefore(
+      galleryBreadcrumbs,
+      document.getElementById("galleryPickerGrid")
+    );
+
+  }
 
   galleryBreadcrumbs.innerHTML="";
 
-  const parts=path.replace("product-images","").split("/").filter(Boolean);
+  const parts = path.replace("product-images","").split("/").filter(Boolean);
 
-  const home=document.createElement("span");
-
+  const home = document.createElement("span");
   home.innerText="Home";
-
   home.style.cursor="pointer";
-
   home.onclick=()=>loadGalleryFolder("product-images");
 
   galleryBreadcrumbs.appendChild(home);
@@ -492,12 +503,11 @@ function updateGalleryBreadcrumbs(path){
 
   parts.forEach(part=>{
 
-    current+="/"+part;
+    current += "/" + part;
 
-    const span=document.createElement("span");
+    const span = document.createElement("span");
 
-    span.innerText=" / "+decodeURIComponent(part);
-
+    span.innerText=" / " + decodeURIComponent(part);
     span.style.cursor="pointer";
 
     const pathCopy=current;
