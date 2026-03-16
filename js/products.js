@@ -152,19 +152,22 @@ function renderProducts() {
     div.className = "card";
 
     div.innerHTML = `
-      <div class="card-content">
-        <h3>${p.name}</h3>
-        <p>₹${p.basePrice}</p>
+  <div class="card-content">
+    <h3>${p.name}</h3>
+    <p>₹${p.basePrice}</p>
 
-        <div style="display:flex;gap:10px">
-          <button class="btn-outline" onclick="editProduct('${p.id}')">Edit</button>
-          <button class="btn-outline" onclick="duplicateProduct('${p.id}')">Duplicate</button>
-          <button class="btn-outline" onclick="deleteProduct('${p.id}')">Delete</button>
-        </div>
-      </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-outline" onclick="editProduct('${p.id}')">Edit</button>
+      <button class="btn-outline" onclick="duplicateProduct('${p.id}')">Duplicate</button>
+      <button class="btn-outline" onclick="deleteProduct('${p.id}')">Delete</button>
+    </div>
+  </div>
 
-      <img src="${p.images?.[0] || ''}">
-    `;
+  <div class="card-image">
+    ${p.inStock === false ? `<span class="stock-badge">Out of Stock</span>` : ""}
+    <img src="${p.images?.[0] || ''}">
+  </div>
+`;
 
     list.appendChild(div);
   });
@@ -173,7 +176,7 @@ function renderProducts() {
 /* ================= ACTIONS ================= */
 
 window.editProduct = (id) => {
-  location.href = `edit-product.html?id=${id}`;
+  location.href = `edit-product?id=${id}`;
 };
 
 window.deleteProduct = async (id) => {
@@ -206,7 +209,7 @@ window.duplicateProduct = async (id) => {
     const newDoc = await addDoc(collection(db, "products"), copy);
 
     // Open edit page of duplicated product
-    location.href = `edit-product.html?id=${newDoc.id}`;
+    location.href = `edit-product?id=${newDoc.id}`;
 
   } catch (err) {
 
