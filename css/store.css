@@ -669,12 +669,10 @@ left:8px;
 background:#ff3b3b;
 color:#fff;
 
-padding:4px 8px;
-font-size:11px;
+padding:5px 10px;
+font-size:12px;
 font-weight:600;
 
-border-radius:6px;
-
-display:inline-block;
+border-radius:20px;
 z-index:2;
 }
