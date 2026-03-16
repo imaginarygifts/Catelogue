@@ -613,44 +613,52 @@ font-size:13px;
 
 .img-wrap{
 position:relative;
+overflow:hidden;
+border-radius:16px;
 }
 
-/* general badge */
+/* ---------- GENERAL BADGE ---------- */
 
 .badge{
 position:absolute;
-padding:4px 8px;
-border-radius:8px;
-font-size:11px;
-font-weight:600;
-color:#000;
+font-size:12px;
+font-weight:700;
+padding:6px 10px;
+border-radius:999px;
+z-index:2;
 }
 
-/* bestseller */
+/* ---------- BESTSELLER ---------- */
 
 .badge.bestseller{
 top:8px;
 right:8px;
 background:linear-gradient(135deg,#ffd700,#ffb700);
+color:#000;
 }
 
-/* discount */
+/* ---------- DISCOUNT ---------- */
 
 .badge.discount{
 top:8px;
 left:8px;
-background:#ff4d4d;
-color:#fff;
+background:#00ff84;
+color:#000;
+border-radius:50px;
 }
 
-/* out of stock */
+/* ---------- OUT OF STOCK ---------- */
 
 .badge.stock{
-bottom:8px;
-left:8px;
-background:#555;
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+
+background:rgba(255,0,0,0.65);
 color:#fff;
+font-size:16px;
+font-weight:700;
+border-radius:16px;
 }
-
-
-
