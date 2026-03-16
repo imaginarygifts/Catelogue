@@ -23,6 +23,8 @@ const priceInput = document.getElementById("price");
 const catSelect = document.getElementById("category");
 const imagesInput = document.getElementById("images");
 const preview = document.getElementById("imagePreview");
+const salePriceInput = document.getElementById("salePrice");
+const stockStatus = document.getElementById("stockStatus");
 
 // Tags & Bestseller
 const tagBox = document.getElementById("tagCheckboxes");
@@ -624,6 +626,8 @@ if (selectedOption.dataset.type === "sub") {
       name,
       description: descInput.value,
       basePrice: Number(price),
+salePrice: Number(salePriceInput.value || price),
+inStock: stockStatus ? stockStatus.value === "true" : true,
       categoryId,
 subCategoryId,
       images: uploadedImages,
