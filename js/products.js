@@ -205,7 +205,14 @@ function renderProducts() {
     div.innerHTML = `
   <div class="card-content">
     <h3>${p.name}</h3>
-    <p>₹${p.basePrice}</p>
+    <div class="price-wrap">
+  ${
+    p.salePrice && p.salePrice < p.basePrice
+      ? `<span class="sale">₹${p.salePrice}</span>
+         <span class="old">₹${p.basePrice}</span>`
+      : `<span class="sale">₹${p.basePrice}</span>`
+  }
+</div>
 
     <div style="display:flex;gap:10px">
       <button class="btn-outline" onclick="editProduct('${p.id}')">Edit</button>
