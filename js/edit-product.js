@@ -146,7 +146,9 @@ async function loadProduct() {
   descInput.value = p.description || "";
   priceInput.value = p.basePrice || "";
   salePriceInput.value = p.salePrice || "";
-if (stockStatus) stockStatus.value = p.inStock ? "true" : "false";
+if (stockStatus) {
+  stockStatus.value = (p.inStock === false) ? "false" : "true";
+}
   catSelect.value = p.subCategoryId || p.categoryId || "";
   existingImages = p.images || [];
 
@@ -658,7 +660,7 @@ if (selectedOption.dataset.type === "sub") {
       description: descInput.value,
       basePrice: Number(price),
 salePrice: Number(salePriceInput.value || price),
-inStock: stockStatus ? stockStatus.value === "true" : true,
+inStock: stockStatus?.value === "true",
       categoryId,
 subCategoryId,
       images: finalImages,
@@ -670,7 +672,7 @@ subCategoryId,
       paymentSettings,
       relatedDesigns,
       tags: selectedTags,
-      bestseller: isBestseller
+      isBestseller: isBestseller
     });
 
     // ========== BIDIRECTIONAL LINKING ==========
