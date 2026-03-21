@@ -81,7 +81,7 @@ function updatePageMeta(product) {
 
   const title = product.name || "Imaginary Gifts";
   const description =
-    product.description || "Check out this customized product";
+    product.description || "Check out this customized gift product";
   const image = product.images?.[0] || "";
   const url = window.location.href;
 
@@ -209,7 +209,7 @@ let html = `
         <div class="design-card ${active}" onclick="goToDesign('${p.id}')">
           <img src="${p.images?.[0] || ""}">
           <small>${p.name}</small>
-          <div class="price">₹${p.basePrice}</div>
+          <div class="price">₹${product.salePrice}</div>
         </div>
       `;
     });
