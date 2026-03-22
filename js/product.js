@@ -209,7 +209,7 @@ let html = `
         <div class="design-card ${active}" onclick="goToDesign('${p.id}')">
           <img src="${p.images?.[0] || ""}">
           <small>${p.name}</small>
-          <div class="price">₹${product.salePrice}</div>
+          <div class="price">₹${p.salePrice}</div>
         </div>
       `;
     });
@@ -560,5 +560,5 @@ window.buyNow = function () {
 
   localStorage.setItem("checkoutData", JSON.stringify(data));
 
-  location.href = "order.html";
+  location.href = "order";
 };
