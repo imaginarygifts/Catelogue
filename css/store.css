@@ -66,13 +66,22 @@ body {
   left: 0;
 }
 
-.sidebar a {
-  display: block;
-  padding: 12px 0;
-  color: white;
-  text-decoration: none;
-  border-bottom: 1px solid #222;
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 998;
+  display: none;
 }
+
+.overlay.active {
+  display: block;
+}
+
+
+
+
 
 .close-btn {
   font-size: 20px;
