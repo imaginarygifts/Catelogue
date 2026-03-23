@@ -6,6 +6,8 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
+
 /* ================= ELEMENTS ================= */
 
 const grid = document.getElementById("productGrid");
@@ -24,6 +26,19 @@ let activeCategory = "all";
 let activeSubCategory = "all";
 let activeTag = "all";
 let searchQuery = ""; // ✅ NEW
+
+
+
+
+
+window.toggleSidebar = function () {
+  document.getElementById("sidebar")?.classList.toggle("active");
+  document.getElementById("overlay")?.classList.toggle("active");
+};
+
+
+
+
 
 /* ================= LOAD DATA ================= */
 
