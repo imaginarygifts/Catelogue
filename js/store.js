@@ -23,6 +23,7 @@ let subCategories = [];
 let activeCategory = "all";
 let activeSubCategory = "all";
 let activeTag = "all";
+let searchQuery = ""; // ✅ NEW
 
 /* ================= LOAD DATA ================= */
 
@@ -165,12 +166,9 @@ function renderTags(tags) {
   allChip.dataset.slug = "all";
 
   allChip.onclick = () => {
-
     activeTag = "all";
-
     updateTagUI();
     renderProducts();
-
   };
 
   tagRow.appendChild(allChip);
@@ -186,12 +184,9 @@ function renderTags(tags) {
     chip.dataset.slug = tag.slug;
 
     chip.onclick = () => {
-
       activeTag = tag.slug;
-
       updateTagUI();
       renderProducts();
-
     };
 
     tagRow.appendChild(chip);
@@ -216,7 +211,6 @@ function updateTagUI() {
 
 /* ================= PRODUCT RENDER ================= */
 
-
 function renderProducts() {
 
   if (!grid) return;
@@ -239,15 +233,22 @@ function renderProducts() {
       (!Array.isArray(p.tags) || !p.tags.includes(activeTag))
     ) return false;
 
+    // ✅ SEARCH FILTER
+    if (
+      searchQuery &&
+      !(
+        p.name.toLowerCase().includes(searchQuery) ||
+        p.description?.toLowerCase().includes(searchQuery)
+      )
+    ) return false;
+
     return true;
 
   });
 
   if (!filtered.length) {
-
     grid.innerHTML = `<p class="empty">No products found</p>`;
     return;
-
   }
 
   filtered.forEach(p => {
@@ -255,7 +256,7 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
-    /* ================= BADGES ================= */
+    /* ===== BADGES ===== */
 
     const isBestseller =
       p.isBestseller === true ||
@@ -286,28 +287,23 @@ function renderProducts() {
       badges += `<span class="badge stock">Out of Stock</span>`;
     }
 
-    /* ================= CARD HTML ================= */
+    /* ===== CARD HTML ===== */
 
     card.innerHTML = `
       <div class="img-wrap">
-
         ${badges}
-
         <img loading="lazy" src="${p.images?.[0] || ""}">
-
       </div>
 
       <h4>${p.name}</h4>
 
       <div class="price-wrap">
-
         ${
           p.salePrice && p.salePrice < p.basePrice
           ? `<span class="sale">₹${p.salePrice}</span>
              <span class="old">₹${p.basePrice}</span>`
           : `<span class="sale">₹${p.basePrice}</span>`
         }
-
       </div>
     `;
 
@@ -325,7 +321,7 @@ function renderProducts() {
 
 (async function init() {
 
-  console.log("✅ store.js stable init");
+  console.log("✅ store.js updated with search");
 
   await loadProducts();
   await loadCategories();
@@ -333,5 +329,15 @@ function renderProducts() {
 
   renderMainCategories();
   renderProducts();
+
+  // ✅ SEARCH LISTENER
+  const searchInput = document.getElementById("searchInput");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      searchQuery = this.value.toLowerCase();
+      renderProducts();
+    });
+  }
 
 })();
