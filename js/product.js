@@ -119,7 +119,10 @@ async function loadProduct() {
   if (!snap.exists()) return;
 
   product = snap.data();
-  finalPrice = product.basePrice;
+  finalPrice =
+  product.salePrice && product.salePrice < product.basePrice
+    ? product.salePrice
+    : product.basePrice;
 
   updatePageMeta({
     name: product.name,
@@ -209,7 +212,9 @@ let html = `
         <div class="design-card ${active}" onclick="goToDesign('${p.id}')">
           <img src="${p.images?.[0] || ""}">
           <small>${p.name}</small>
-          <div class="price">₹${p.salePrice}</div>
+          <div class="price">
+  ₹${(p.salePrice && p.salePrice < p.basePrice) ? p.salePrice : p.basePrice}
+</div>
         </div>
       `;
     });
@@ -380,11 +385,20 @@ window.uploadCustomImage = async function(i, file) {
 
 // ===== PRICE =====
 function recalcPrice() {
-  finalPrice = product.basePrice;
 
+  // ✅ choose correct starting price
+  const base =
+    product.salePrice && product.salePrice < product.basePrice
+      ? product.salePrice
+      : product.basePrice;
+
+  finalPrice = base;
+
+  // variants
   if (selected.color) finalPrice += selected.color.price;
   if (selected.size) finalPrice += selected.size.price;
 
+  // custom options
   Object.values(selected.options).forEach(p => finalPrice += p);
 
   document.getElementById("price").innerText = finalPrice;
