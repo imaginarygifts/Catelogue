@@ -8,10 +8,34 @@
 </head>
 <body>
 
-
 <header class="topbar">
-  <h1>Imaginary Gifts - Customized Gifts</h1>
+
+  <!-- LEFT: MENU -->
+  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+
+  <!-- CENTER: LOGO -->
+  <div class="logo">Imaginary Gifts</div>
+
+  <!-- RIGHT: SEARCH -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search products...">
+  </div>
+
 </header>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sidebar">
+  <div class="close-btn" onclick="toggleSidebar()">✕</div>
+
+  <a href="#">Home</a>
+  <a href="#">Categories</a>
+  <a href="#">Orders</a>
+  <a href="#">Contact</a>
+</div>
+
+
+
+
 
 <div id="categoryBar" class="category-scroll"></div>
 <div id="subCategoryBar" class="subcategory-row"></div>
