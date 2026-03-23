@@ -5,16 +5,79 @@ body {
   color: white;
 }
 
+
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(10px);
-  padding: 14px 16px;
-  text-align: center;
-  font-weight: 600;
 }
+
+/* MENU */
+.menu-btn {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* LOGO */
+.logo {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* SEARCH */
+.search-box {
+  flex: 1;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  background: #1f1f1f;
+  color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #111;
+  padding: 20px;
+  z-index: 999;
+  transition: 0.3s;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px 0;
+  color: white;
+  text-decoration: none;
+  border-bottom: 1px solid #222;
+}
+
+.close-btn {
+  font-size: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
 
 .category-scroll {
   display: flex;
