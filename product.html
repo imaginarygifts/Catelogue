@@ -19,6 +19,53 @@
   <link rel="stylesheet" href="css/store.css">
 </head>
 <body>
+
+<!-- ================= TOP BAR ================= -->
+<header class="topbar">
+
+  <!-- MENU -->
+  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+
+  <!-- LOGO (IMAGE) -->
+  <div class="logo">
+    <img src="https://firebasestorage.googleapis.com/v0/b/imaginary-gifts.firebasestorage.app/o/product-images%2FIG%2F1000273765.webp?alt=media&token=e093bc6c-c32b-407b-b75c-cfc5eef152ef" alt="Imaginary Gifts">
+  </div>
+
+  <!-- SEARCH ICON -->
+  <div class="search-icon" onclick="openSearch()">🔍</div>
+
+</header>
+
+
+<!-- ================= SEARCH OVERLAY ================= -->
+<div id="searchOverlay" class="search-overlay">
+  <input type="text" id="searchInput" placeholder="Search for products...">
+</div>
+
+
+<!-- ================= SIDEBAR ================= -->
+<div id="sidebar" class="sidebar">
+
+  <!-- SEARCH INSIDE SIDEBAR -->
+  <div class="sidebar-header">
+    <input type="text" placeholder="Search for products">
+  </div>
+
+  <!-- MENU -->
+  <a href="index.html">🏠 Home</a>
+  <a href="shop.html">🛍 Shop</a>
+  <a href="about.html">ℹ️ About Us</a>
+  <a href="contact.html">📞 Contact Us</a>
+  <a href="terms.html">📜 Terms & Conditions</a>
+  <a href="privacy.html">🔒 Privacy Policy</a>
+  <a href="refund.html">💸 Refund Policy</a>
+  <a href="shipping.html">🚚 Shipping Policy</a>
+
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
     <div class="top-bar custom-topbar">
   <span class="back-btn" onclick="goBack()">←</span>
 </div>
