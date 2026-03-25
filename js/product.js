@@ -21,6 +21,34 @@ let selected = {
 
 
 
+let searchQuery = "";
+
+/* ================= SIDEBAR ================= */
+
+window.toggleSidebar = function () {
+  document.getElementById("sidebar")?.classList.toggle("active");
+  document.getElementById("overlay")?.classList.toggle("active");
+};
+
+/* ================= SEARCH OVERLAY ================= */
+
+window.openSearch = function () {
+  document.getElementById("searchOverlay")?.classList.add("active");
+};
+
+document.addEventListener("click", function (e) {
+  const overlay = document.getElementById("searchOverlay");
+
+  if (
+    overlay &&
+    !overlay.contains(e.target) &&
+    !e.target.classList.contains("search-icon")
+  ) {
+    overlay.classList.remove("active");
+  }
+});
+
+
 
 function validateRequiredSelections() {
   const errors = [];
