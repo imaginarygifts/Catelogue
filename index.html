@@ -8,49 +8,74 @@
 </head>
 <body>
 
+<!-- ================= TOP BAR ================= -->
 <header class="topbar">
 
-  <!-- LEFT: MENU -->
+  <!-- MENU -->
   <div class="menu-btn" onclick="toggleSidebar()">☰</div>
 
-
-  <!-- CENTER: LOGO -->
-  <div class="logo">Imaginary Gifts</div>
-
-  <!-- RIGHT: SEARCH -->
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search products...">
+  <!-- LOGO (IMAGE) -->
+  <div class="logo">
+    <img src="images/logo.png" alt="Imaginary Gifts">
   </div>
+
+  <!-- SEARCH ICON -->
+  <div class="search-icon" onclick="openSearch()">🔍</div>
 
 </header>
 
-<!-- SIDEBAR -->
-<div id="sidebar" class="sidebar">
-  <div class="close-btn" onclick="toggleSidebar()">✕</div>
 
-  <a href="#">Home</a>
-  <a href="#">Categories</a>
-  <a href="#">Orders</a>
-  <a href="#">Contact</a>
+<!-- ================= SEARCH OVERLAY ================= -->
+<div id="searchOverlay" class="search-overlay">
+  <input type="text" id="searchInput" placeholder="Search for products...">
 </div>
+
+
+<!-- ================= SIDEBAR ================= -->
+<div id="sidebar" class="sidebar">
+
+  <!-- SEARCH INSIDE SIDEBAR -->
+  <div class="sidebar-header">
+    <input type="text" placeholder="Search for products">
+  </div>
+
+  <!-- MENU -->
+  <a href="index.html">🏠 Home</a>
+  <a href="shop.html">🛍 Shop</a>
+  <a href="about.html">ℹ️ About Us</a>
+  <a href="contact.html">📞 Contact Us</a>
+  <a href="terms.html">📜 Terms & Conditions</a>
+  <a href="privacy.html">🔒 Privacy Policy</a>
+  <a href="refund.html">💸 Refund Policy</a>
+  <a href="shipping.html">🚚 Shipping Policy</a>
+
+</div>
+
+<!-- OVERLAY -->
 <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
 
-
-
+<!-- ================= CATEGORY ================= -->
 <div id="categoryBar" class="category-scroll"></div>
 <div id="subCategoryBar" class="subcategory-row"></div>
-<div class="tag-filter-row" id="tagFilterRow">
-  <!-- Tags will load here -->
-</div>
 
+<!-- TAG FILTER -->
+<div class="tag-filter-row" id="tagFilterRow"></div>
+
+
+<!-- ================= PRODUCTS ================= -->
 <main>
   <div id="productGrid" class="product-grid"></div>
 </main>
 
+
+<!-- SHARE BUTTON -->
 <div id="shareBtn" onclick="sharePage()">🔗</div>
 
+
+<!-- ================= JS ================= -->
 <script type="module" src="js/store.js"></script>
 <script src="js/share.js"></script>
+
 </body>
 </html>
