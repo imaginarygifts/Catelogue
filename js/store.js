@@ -6,8 +6,6 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-
-
 /* ================= ELEMENTS ================= */
 
 const grid = document.getElementById("productGrid");
@@ -25,20 +23,32 @@ let subCategories = [];
 let activeCategory = "all";
 let activeSubCategory = "all";
 let activeTag = "all";
-let searchQuery = ""; // ✅ NEW
+let searchQuery = "";
 
-
-
-
+/* ================= SIDEBAR ================= */
 
 window.toggleSidebar = function () {
   document.getElementById("sidebar")?.classList.toggle("active");
   document.getElementById("overlay")?.classList.toggle("active");
 };
 
+/* ================= SEARCH OVERLAY ================= */
 
+window.openSearch = function () {
+  document.getElementById("searchOverlay")?.classList.add("active");
+};
 
+document.addEventListener("click", function (e) {
+  const overlay = document.getElementById("searchOverlay");
 
+  if (
+    overlay &&
+    !overlay.contains(e.target) &&
+    !e.target.classList.contains("search-icon")
+  ) {
+    overlay.classList.remove("active");
+  }
+});
 
 /* ================= LOAD DATA ================= */
 
@@ -66,25 +76,22 @@ async function loadTags() {
   renderTags(tags);
 }
 
-/* ================= CATEGORY UI ================= */
+/* ================= CATEGORY ================= */
 
 function renderMainCategories() {
-
   if (!categoryBar) return;
 
   categoryBar.innerHTML = "";
-  if (subCategoryBar) subCategoryBar.innerHTML = "";
+  subCategoryBar && (subCategoryBar.innerHTML = "");
 
   categoryBar.appendChild(createMainBtn("All", "all"));
 
   mainCategories.forEach(cat => {
     categoryBar.appendChild(createMainBtn(cat.name, cat.id));
   });
-
 }
 
 function createMainBtn(label, id) {
-
   const div = document.createElement("div");
 
   div.className =
@@ -93,7 +100,6 @@ function createMainBtn(label, id) {
   div.innerText = label;
 
   div.onclick = () => {
-
     activeCategory = id;
     activeSubCategory = "all";
 
@@ -105,17 +111,14 @@ function createMainBtn(label, id) {
 
     renderSubCategories();
     renderProducts();
-
   };
 
   return div;
-
 }
 
-/* ================= SUB CATEGORIES ================= */
+/* ================= SUB CATEGORY ================= */
 
 function renderSubCategories() {
-
   if (!subCategoryBar) return;
 
   subCategoryBar.innerHTML = "";
@@ -133,11 +136,9 @@ function renderSubCategories() {
   subs.forEach(sub => {
     subCategoryBar.appendChild(createSubBtn(sub.name, sub.id));
   });
-
 }
 
 function createSubBtn(label, id) {
-
   const div = document.createElement("div");
 
   div.className =
@@ -147,7 +148,6 @@ function createSubBtn(label, id) {
   div.innerText = label;
 
   div.onclick = () => {
-
     activeSubCategory = id;
 
     document
@@ -157,28 +157,22 @@ function createSubBtn(label, id) {
     div.classList.add("active");
 
     renderProducts();
-
   };
 
   return div;
-
 }
 
 /* ================= TAGS ================= */
 
 function renderTags(tags) {
-
   if (!tagRow) return;
 
   tagRow.innerHTML = "";
 
   const allChip = document.createElement("div");
-
   allChip.className =
     "tag-chip" + (activeTag === "all" ? " active" : "");
-
   allChip.innerText = "All";
-  allChip.dataset.slug = "all";
 
   allChip.onclick = () => {
     activeTag = "all";
@@ -189,14 +183,12 @@ function renderTags(tags) {
   tagRow.appendChild(allChip);
 
   tags.forEach(tag => {
-
     const chip = document.createElement("div");
 
     chip.className =
       "tag-chip" + (activeTag === tag.slug ? " active" : "");
 
     chip.innerText = tag.name;
-    chip.dataset.slug = tag.slug;
 
     chip.onclick = () => {
       activeTag = tag.slug;
@@ -205,60 +197,48 @@ function renderTags(tags) {
     };
 
     tagRow.appendChild(chip);
-
   });
-
 }
 
 function updateTagUI() {
-
   document.querySelectorAll(".tag-chip").forEach(chip => {
-
     chip.classList.remove("active");
-
-    if (chip.dataset.slug === activeTag) {
+    if (chip.innerText.toLowerCase() === activeTag) {
       chip.classList.add("active");
     }
-
   });
-
 }
 
-/* ================= PRODUCT RENDER ================= */
+/* ================= PRODUCTS ================= */
 
 function renderProducts() {
-
   if (!grid) return;
 
   grid.innerHTML = "";
 
   const filtered = allProducts.filter(p => {
 
-    if (
-      activeCategory !== "all" &&
-      p.categoryId !== activeCategory
-    ) return false;
+    if (activeCategory !== "all" && p.categoryId !== activeCategory)
+      return false;
 
-    if (activeSubCategory !== "all") {
-      if (p.subCategoryId !== activeSubCategory) return false;
-    }
+    if (activeSubCategory !== "all" && p.subCategoryId !== activeSubCategory)
+      return false;
 
     if (
       activeTag !== "all" &&
       (!Array.isArray(p.tags) || !p.tags.includes(activeTag))
     ) return false;
 
-    // ✅ SEARCH FILTER
+    // 🔍 SEARCH
     if (
       searchQuery &&
       !(
-        p.name.toLowerCase().includes(searchQuery) ||
+        p.name?.toLowerCase().includes(searchQuery) ||
         p.description?.toLowerCase().includes(searchQuery)
       )
     ) return false;
 
     return true;
-
   });
 
   if (!filtered.length) {
@@ -276,13 +256,13 @@ function renderProducts() {
     const isBestseller =
       p.isBestseller === true ||
       p.isBestseller === "true" ||
-      (Array.isArray(p.tags) && p.tags.includes("bestseller"));
+      p.tags?.includes("bestseller");
 
     const outOfStock = p.inStock === false;
 
     let discount = 0;
 
-    if (p.salePrice && p.basePrice && p.salePrice < p.basePrice) {
+    if (p.salePrice && p.salePrice < p.basePrice) {
       discount = Math.round(
         ((p.basePrice - p.salePrice) / p.basePrice) * 100
       );
@@ -302,7 +282,7 @@ function renderProducts() {
       badges += `<span class="badge stock">Out of Stock</span>`;
     }
 
-    /* ===== CARD HTML ===== */
+    /* ===== HTML ===== */
 
     card.innerHTML = `
       <div class="img-wrap">
@@ -315,9 +295,9 @@ function renderProducts() {
       <div class="price-wrap">
         ${
           p.salePrice && p.salePrice < p.basePrice
-          ? `<span class="sale">₹${p.salePrice}</span>
-             <span class="old">₹${p.basePrice}</span>`
-          : `<span class="sale">₹${p.basePrice}</span>`
+            ? `<span class="sale">₹${p.salePrice}</span>
+               <span class="old">₹${p.basePrice}</span>`
+            : `<span class="sale">₹${p.basePrice}</span>`
         }
       </div>
     `;
@@ -327,16 +307,14 @@ function renderProducts() {
     };
 
     grid.appendChild(card);
-
   });
-
 }
 
 /* ================= INIT ================= */
 
 (async function init() {
 
-  console.log("✅ store.js updated with search");
+  console.log("✅ FINAL store.js loaded");
 
   await loadProducts();
   await loadCategories();
@@ -345,12 +323,13 @@ function renderProducts() {
   renderMainCategories();
   renderProducts();
 
-  // ✅ SEARCH LISTENER
+  /* ===== SEARCH INPUT ===== */
+
   const searchInput = document.getElementById("searchInput");
 
   if (searchInput) {
     searchInput.addEventListener("input", function () {
-      searchQuery = this.value.toLowerCase();
+      searchQuery = this.value.toLowerCase().trim();
       renderProducts();
     });
   }
