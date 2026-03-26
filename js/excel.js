@@ -1,190 +1,246 @@
 import { db } from "./firebase.js";
 import {
-collection,
-getDocs,
-addDoc
+  collection,
+  getDocs,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const fileInput = document.getElementById("excelUpload");
+
+/* ================= CATEGORY HELPER ================= */
+
+async function getOrCreateCategory(name, parentId = null) {
+
+  const snap = await getDocs(collection(db, "categories"));
+
+  let found = null;
+
+  snap.forEach(doc => {
+    const c = doc.data();
+
+    if (
+      c.name?.toLowerCase() === name.toLowerCase() &&
+      (c.parentId || null) === parentId
+    ) {
+      found = { id: doc.id, ...c };
+    }
+  });
+
+  if (found) return found.id;
+
+  // create new category
+  const newCat = await addDoc(collection(db, "categories"), {
+    name,
+    parentId,
+    order: Date.now()
+  });
+
+  return newCat.id;
+}
 
 /* ================= DOWNLOAD TEMPLATE ================= */
 
 window.downloadTemplate = () => {
 
-const data = [
-{
-name:"",
-description:"",
-basePrice:"",
-categoryId:"",
-subCategoryId:"",
-images:"",
-tags:"",
-colors:"",
-sizes:"",
-customOptions:"",
-bestseller:"false"
-}
-];
+  const data = [
+    {
+      name: "",
+      description: "",
+      basePrice: "",
+      salePrice: "",
+      category: "",
+      subCategory: "",
+      images: "",
+      tags: "",
+      colors: "",
+      sizes: "",
+      customOptions: "",
+      bestseller: "false"
+    }
+  ];
 
-const ws = XLSX.utils.json_to_sheet(data);
-const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
 
-XLSX.utils.book_append_sheet(wb, ws, "products");
+  XLSX.utils.book_append_sheet(wb, ws, "products");
 
-XLSX.writeFile(wb,"product-template.xlsx");
-
+  XLSX.writeFile(wb, "product-template.xlsx");
 };
 
 /* ================= EXPORT PRODUCTS ================= */
 
 window.exportProducts = async () => {
 
-const snap = await getDocs(collection(db,"products"));
+  const snap = await getDocs(collection(db, "products"));
+  const catSnap = await getDocs(collection(db, "categories"));
 
-const rows = [];
+  const categoryMap = {};
 
-snap.forEach(doc=>{
+  catSnap.forEach(d => {
+    categoryMap[d.id] = d.data();
+  });
 
-const p = doc.data();
+  const rows = [];
 
-rows.push({
+  snap.forEach(doc => {
 
-name:p.name,
-description:p.description,
-basePrice:p.basePrice,
-categoryId:p.categoryId || "",
-subCategoryId:p.subCategoryId || "",
-images:(p.images || []).join(","),
-tags:(p.tags || []).join(","),
+    const p = doc.data();
 
-colors:(p.variants?.colors || [])
-.map(c=>`${c.name}|${c.price}|${c.required}`)
-.join(";"),
+    rows.push({
 
-sizes:(p.variants?.sizes || [])
-.map(s=>`${s.name}|${s.price}|${s.required}`)
-.join(";"),
+      name: p.name,
+      description: p.description,
 
-customOptions:(p.customOptions || [])
-.map(o=>`${o.type}|${o.label}|${o.price}|${o.required}`)
-.join(";"),
+      basePrice: p.basePrice,
+      salePrice: p.salePrice || "",
 
-bestseller:p.bestseller || false
+      category: categoryMap[p.categoryId]?.name || "",
+      subCategory: categoryMap[p.subCategoryId]?.name || "",
 
-});
+      images: (p.images || []).join(","),
+      tags: (p.tags || []).join(","),
 
-});
+      colors: (p.variants?.colors || [])
+        .map(c => `${c.name}|${c.price}|${c.required}`)
+        .join(";"),
 
-const ws = XLSX.utils.json_to_sheet(rows);
-const wb = XLSX.utils.book_new();
+      sizes: (p.variants?.sizes || [])
+        .map(s => `${s.name}|${s.price}|${s.required}`)
+        .join(";"),
 
-XLSX.utils.book_append_sheet(wb,ws,"products");
+      customOptions: (p.customOptions || [])
+        .map(o => `${o.type}|${o.label}|${o.price}|${o.required}`)
+        .join(";"),
 
-XLSX.writeFile(wb,"products-export.xlsx");
+      bestseller: p.isBestseller || false
 
+    });
+
+  });
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(wb, ws, "products");
+
+  XLSX.writeFile(wb, "products-export.xlsx");
 };
 
-/* ================= UPLOAD EXCEL ================= */
+/* ================= IMPORT EXCEL ================= */
 
-fileInput.addEventListener("change", async (e)=>{
+fileInput.addEventListener("change", async (e) => {
 
-const file = e.target.files[0];
+  const file = e.target.files[0];
+  if (!file) return;
 
-const reader = new FileReader();
+  const reader = new FileReader();
 
-reader.onload = async (evt)=>{
+  reader.onload = async (evt) => {
 
-const data = new Uint8Array(evt.target.result);
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
 
-const workbook = XLSX.read(data,{type:"array"});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
 
-const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    for (const r of rows) {
 
-const rows = XLSX.utils.sheet_to_json(sheet);
+      /* ===== CATEGORY ===== */
 
-for(const r of rows){
+      let categoryId = null;
+      let subCategoryId = null;
 
-/* images */
+      if (r.category) {
+        categoryId = await getOrCreateCategory(r.category);
+      }
 
-const images = r.images ? r.images.split(",") : [];
+      if (r.subCategory && categoryId) {
+        subCategoryId = await getOrCreateCategory(r.subCategory, categoryId);
+      }
 
-/* tags */
+      /* ===== IMAGES ===== */
 
-const tags = r.tags ? r.tags.split(",") : [];
+      const images = r.images ? r.images.split(",") : [];
 
-/* colors */
+      /* ===== TAGS ===== */
 
-const colors = r.colors
-? r.colors.split(";").map(c=>{
-const [name,price,required] = c.split("|");
-return {
-name,
-price:Number(price),
-required:required==="true"
-};
-})
-: [];
+      const tags = r.tags ? r.tags.split(",") : [];
 
-/* sizes */
+      /* ===== COLORS ===== */
 
-const sizes = r.sizes
-? r.sizes.split(";").map(s=>{
-const [name,price,required] = s.split("|");
-return {
-name,
-price:Number(price),
-required:required==="true"
-};
-})
-: [];
+      const colors = r.colors
+        ? r.colors.split(";").map(c => {
+            const [name, price, required] = c.split("|");
+            return {
+              name,
+              price: Number(price),
+              required: required === "true"
+            };
+          })
+        : [];
 
-/* custom options */
+      /* ===== SIZES ===== */
 
-const customOptions = r.customOptions
-? r.customOptions.split(";").map(o=>{
-const [type,label,price,required] = o.split("|");
-return {
-type,
-label,
-price:Number(price),
-required:required==="true"
-};
-})
-: [];
+      const sizes = r.sizes
+        ? r.sizes.split(";").map(s => {
+            const [name, price, required] = s.split("|");
+            return {
+              name,
+              price: Number(price),
+              required: required === "true"
+            };
+          })
+        : [];
 
-await addDoc(collection(db,"products"),{
+      /* ===== CUSTOM OPTIONS ===== */
 
-name:r.name,
-description:r.description,
-basePrice:Number(r.basePrice),
+      const customOptions = r.customOptions
+        ? r.customOptions.split(";").map(o => {
+            const [type, label, price, required] = o.split("|");
+            return {
+              type,
+              label,
+              price: Number(price),
+              required: required === "true"
+            };
+          })
+        : [];
 
-categoryId:r.categoryId || null,
-subCategoryId:r.subCategoryId || null,
+      /* ===== SAVE PRODUCT ===== */
 
-images,
+      await addDoc(collection(db, "products"), {
 
-tags,
+        name: r.name,
+        description: r.description,
 
-variants:{
-colors,
-sizes
-},
+        basePrice: Number(r.basePrice),
+        salePrice: Number(r.salePrice || r.basePrice),
 
-customOptions,
+        categoryId,
+        subCategoryId,
 
-bestseller:r.bestseller==="true",
+        images,
+        tags,
 
-createdAt:Date.now()
+        variants: {
+          colors,
+          sizes
+        },
 
-});
+        customOptions,
 
-}
+        isBestseller: r.bestseller === "true",
 
-alert("Products Imported Successfully");
+        createdAt: Date.now()
 
-};
+      });
 
-reader.readAsArrayBuffer(file);
+    }
+
+    alert("✅ Products Imported Successfully");
+
+  };
+
+  reader.readAsArrayBuffer(file);
 
 });
