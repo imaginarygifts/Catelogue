@@ -205,8 +205,9 @@ let html = `
 <div class="product-header">
   ${badgeHTML}
   <h2>${product.name}</h2>
-  <p>${product.description}</p>
   ${priceHTML}
+  <p>${product.description}</p>
+
 </div>
 `;
 
