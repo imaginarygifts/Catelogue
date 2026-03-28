@@ -25,9 +25,19 @@ let activeSubCategory = "all";
 let activeTag = "all";
 let searchQuery = "";
 
-/* ================= URL FUNCTIONS ================= */
+/* ================= HELPER ================= */
 
-// 🔹 READ FROM URL PATH
+function createSlug(text) {
+  return text
+    ?.toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+}
+
+/* ================= URL SYSTEM ================= */
+
+// READ FROM URL
 function applyFiltersFromPath() {
   const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
   if (!path) return;
@@ -40,13 +50,17 @@ function applyFiltersFromPath() {
 
   // CATEGORY
   if (categorySlug) {
-    const cat = mainCategories.find(c => c.slug === categorySlug);
+    const cat = mainCategories.find(
+      c => c.slug === categorySlug || createSlug(c.name) === categorySlug
+    );
     if (cat) activeCategory = cat.id;
   }
 
   // SUBCATEGORY
   if (subSlug) {
-    const sub = subCategories.find(s => s.slug === subSlug);
+    const sub = subCategories.find(
+      s => s.slug === subSlug || createSlug(s.name) === subSlug
+    );
     if (sub) activeSubCategory = sub.id;
   }
 
@@ -56,20 +70,22 @@ function applyFiltersFromPath() {
   }
 }
 
-// 🔹 UPDATE URL PATH
+// UPDATE URL
 function updateURL() {
   let path = "";
 
   // CATEGORY
   if (activeCategory !== "all") {
     const cat = mainCategories.find(c => c.id === activeCategory);
-    if (cat) path += `/${cat.slug}`;
+    const slug = cat?.slug || createSlug(cat?.name);
+    if (slug) path += `/${slug}`;
   }
 
   // SUBCATEGORY
   if (activeSubCategory !== "all") {
     const sub = subCategories.find(s => s.id === activeSubCategory);
-    if (sub) path += `/${sub.slug}`;
+    const slug = sub?.slug || createSlug(sub?.name);
+    if (slug) path += `/${slug}`;
   }
 
   // TAG
@@ -168,7 +184,7 @@ function createMainBtn(label, id) {
 
     renderSubCategories();
     renderProducts();
-    updateURL(); // ✅
+    updateURL();
   };
 
   return div;
@@ -215,7 +231,7 @@ function createSubBtn(label, id) {
     div.classList.add("active");
 
     renderProducts();
-    updateURL(); // ✅
+    updateURL();
   };
 
   return div;
@@ -237,7 +253,7 @@ function renderTags(tags) {
     activeTag = "all";
     updateTagUI();
     renderProducts();
-    updateURL(); // ✅
+    updateURL();
   };
 
   tagRow.appendChild(allChip);
@@ -254,7 +270,7 @@ function renderTags(tags) {
       activeTag = tag.slug;
       updateTagUI();
       renderProducts();
-      updateURL(); // ✅
+      updateURL();
     };
 
     tagRow.appendChild(chip);
@@ -361,13 +377,13 @@ function renderProducts() {
 
 (async function init() {
 
-  console.log("✅ SEO URL store.js loaded");
+  console.log("✅ FINAL FIXED store.js loaded");
 
   await loadProducts();
   await loadCategories();
   await loadTags();
 
-  applyFiltersFromPath(); // ✅ IMPORTANT
+  applyFiltersFromPath();
 
   renderMainCategories();
   renderSubCategories();
