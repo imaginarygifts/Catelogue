@@ -25,6 +25,63 @@ let activeSubCategory = "all";
 let activeTag = "all";
 let searchQuery = "";
 
+/* ================= URL FUNCTIONS ================= */
+
+// 🔹 READ FROM URL PATH
+function applyFiltersFromPath() {
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+  if (!path) return;
+
+  const parts = path.split("/");
+
+  const categorySlug = parts[0];
+  const subSlug = parts[1];
+  const tagSlug = parts[2];
+
+  // CATEGORY
+  if (categorySlug) {
+    const cat = mainCategories.find(c => c.slug === categorySlug);
+    if (cat) activeCategory = cat.id;
+  }
+
+  // SUBCATEGORY
+  if (subSlug) {
+    const sub = subCategories.find(s => s.slug === subSlug);
+    if (sub) activeSubCategory = sub.id;
+  }
+
+  // TAG
+  if (tagSlug) {
+    activeTag = tagSlug;
+  }
+}
+
+// 🔹 UPDATE URL PATH
+function updateURL() {
+  let path = "";
+
+  // CATEGORY
+  if (activeCategory !== "all") {
+    const cat = mainCategories.find(c => c.id === activeCategory);
+    if (cat) path += `/${cat.slug}`;
+  }
+
+  // SUBCATEGORY
+  if (activeSubCategory !== "all") {
+    const sub = subCategories.find(s => s.id === activeSubCategory);
+    if (sub) path += `/${sub.slug}`;
+  }
+
+  // TAG
+  if (activeTag !== "all") {
+    path += `/${activeTag}`;
+  }
+
+  if (!path) path = "/";
+
+  window.history.replaceState({}, "", path);
+}
+
 /* ================= SIDEBAR ================= */
 
 window.toggleSidebar = function () {
@@ -32,7 +89,7 @@ window.toggleSidebar = function () {
   document.getElementById("overlay")?.classList.toggle("active");
 };
 
-/* ================= SEARCH OVERLAY ================= */
+/* ================= SEARCH ================= */
 
 window.openSearch = function () {
   document.getElementById("searchOverlay")?.classList.add("active");
@@ -111,6 +168,7 @@ function createMainBtn(label, id) {
 
     renderSubCategories();
     renderProducts();
+    updateURL(); // ✅
   };
 
   return div;
@@ -157,6 +215,7 @@ function createSubBtn(label, id) {
     div.classList.add("active");
 
     renderProducts();
+    updateURL(); // ✅
   };
 
   return div;
@@ -178,6 +237,7 @@ function renderTags(tags) {
     activeTag = "all";
     updateTagUI();
     renderProducts();
+    updateURL(); // ✅
   };
 
   tagRow.appendChild(allChip);
@@ -194,6 +254,7 @@ function renderTags(tags) {
       activeTag = tag.slug;
       updateTagUI();
       renderProducts();
+      updateURL(); // ✅
     };
 
     tagRow.appendChild(chip);
@@ -229,7 +290,6 @@ function renderProducts() {
       (!Array.isArray(p.tags) || !p.tags.includes(activeTag))
     ) return false;
 
-    // 🔍 SEARCH
     if (
       searchQuery &&
       !(
@@ -251,11 +311,8 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
-    /* ===== BADGES ===== */
-
     const isBestseller =
       p.isBestseller === true ||
-      p.isBestseller === "true" ||
       p.tags?.includes("bestseller");
 
     const outOfStock = p.inStock === false;
@@ -270,19 +327,9 @@ function renderProducts() {
 
     let badges = "";
 
-    if (isBestseller) {
-      badges += `<span class="badge bestseller">🔥 Bestseller</span>`;
-    }
-
-    if (discount > 0) {
-      badges += `<span class="badge discount">-${discount}%</span>`;
-    }
-
-    if (outOfStock) {
-      badges += `<span class="badge stock">Out of Stock</span>`;
-    }
-
-    /* ===== HTML ===== */
+    if (isBestseller) badges += `<span class="badge bestseller">🔥 Bestseller</span>`;
+    if (discount > 0) badges += `<span class="badge discount">-${discount}%</span>`;
+    if (outOfStock) badges += `<span class="badge stock">Out of Stock</span>`;
 
     card.innerHTML = `
       <div class="img-wrap">
@@ -314,16 +361,17 @@ function renderProducts() {
 
 (async function init() {
 
-  console.log("✅ FINAL store.js loaded");
+  console.log("✅ SEO URL store.js loaded");
 
   await loadProducts();
   await loadCategories();
   await loadTags();
 
-  renderMainCategories();
-  renderProducts();
+  applyFiltersFromPath(); // ✅ IMPORTANT
 
-  /* ===== SEARCH INPUT ===== */
+  renderMainCategories();
+  renderSubCategories();
+  renderProducts();
 
   const searchInput = document.getElementById("searchInput");
 
@@ -331,6 +379,7 @@ function renderProducts() {
     searchInput.addEventListener("input", function () {
       searchQuery = this.value.toLowerCase().trim();
       renderProducts();
+      updateURL();
     });
   }
 
