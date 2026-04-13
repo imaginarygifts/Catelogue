@@ -25,77 +25,52 @@ let activeSubCategory = "all";
 let activeTag = "all";
 let searchQuery = "";
 
-/* ================= HELPER ================= */
-
-function createSlug(text) {
-  return text
-    ?.toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]+/g, "");
-}
-
 /* ================= URL SYSTEM ================= */
 
 // READ FROM URL
-function applyFiltersFromPath() {
-  const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
-  if (!path) return;
+function applyFiltersFromURL() {
+  const params = new URLSearchParams(window.location.search);
 
-  const parts = path.split("/");
+  const category = params.get("category");
+  const sub = params.get("sub");
+  const tag = params.get("tag");
+  const search = params.get("search");
 
-  const categorySlug = parts[0];
-  const subSlug = parts[1];
-  const tagSlug = parts[2];
-
-  // CATEGORY
-  if (categorySlug) {
-    const cat = mainCategories.find(
-      c => c.slug === categorySlug || createSlug(c.name) === categorySlug
-    );
-    if (cat) activeCategory = cat.id;
-  }
-
-  // SUBCATEGORY
-  if (subSlug) {
-    const sub = subCategories.find(
-      s => s.slug === subSlug || createSlug(s.name) === subSlug
-    );
-    if (sub) activeSubCategory = sub.id;
-  }
-
-  // TAG
-  if (tagSlug) {
-    activeTag = tagSlug;
-  }
+  if (category) activeCategory = category;
+  if (sub) activeSubCategory = sub;
+  if (tag) activeTag = tag;
+  if (search) searchQuery = search.toLowerCase();
 }
 
 // UPDATE URL
 function updateURL() {
-  let path = "";
+  const url = new URL(window.location);
 
-  // CATEGORY
   if (activeCategory !== "all") {
-    const cat = mainCategories.find(c => c.id === activeCategory);
-    const slug = cat?.slug || createSlug(cat?.name);
-    if (slug) path += `/${slug}`;
+    url.searchParams.set("category", activeCategory);
+  } else {
+    url.searchParams.delete("category");
   }
 
-  // SUBCATEGORY
   if (activeSubCategory !== "all") {
-    const sub = subCategories.find(s => s.id === activeSubCategory);
-    const slug = sub?.slug || createSlug(sub?.name);
-    if (slug) path += `/${slug}`;
+    url.searchParams.set("sub", activeSubCategory);
+  } else {
+    url.searchParams.delete("sub");
   }
 
-  // TAG
   if (activeTag !== "all") {
-    path += `/${activeTag}`;
+    url.searchParams.set("tag", activeTag);
+  } else {
+    url.searchParams.delete("tag");
   }
 
-  if (!path) path = "/";
+  if (searchQuery) {
+    url.searchParams.set("search", searchQuery);
+  } else {
+    url.searchParams.delete("search");
+  }
 
-  window.history.replaceState({}, "", path);
+  window.history.replaceState({}, "", url);
 }
 
 /* ================= SIDEBAR ================= */
@@ -377,13 +352,13 @@ function renderProducts() {
 
 (async function init() {
 
-  console.log("✅ FINAL FIXED store.js loaded");
+  console.log("✅ ID-based filter system loaded");
 
   await loadProducts();
   await loadCategories();
   await loadTags();
 
-  applyFiltersFromPath();
+  applyFiltersFromURL(); // ✅ IMPORTANT
 
   renderMainCategories();
   renderSubCategories();
