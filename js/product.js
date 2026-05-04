@@ -428,7 +428,7 @@ window.orderNow = function () {
   // 1️⃣ Validate required product options first
   const errors = validateRequiredSelections();
   if (errors.length) {
-    alert("⚠ Please complete required options:\n\n" + errors.join("\n"));
+    showErrorModal(errors);
     return;
   }
 
@@ -576,7 +576,7 @@ window.buyNow = function () {
 
   const errors = validateRequiredSelections();
   if (errors.length) {
-    alert("⚠ Please complete required options:\n\n" + errors.join("\n"));
+    showErrorModal(errors);
     return;
   }
   const data = {
@@ -592,4 +592,25 @@ window.buyNow = function () {
   localStorage.setItem("checkoutData", JSON.stringify(data));
 
   location.href = "order";
+};
+
+
+
+function showErrorModal(errors) {
+  const modal = document.getElementById("errorModal");
+  const list = document.getElementById("errorList");
+
+  list.innerHTML = "";
+
+  errors.forEach(err => {
+    const li = document.createElement("li");
+    li.innerText = err;
+    list.appendChild(li);
+  });
+
+  modal.classList.remove("hidden");
+}
+
+window.closeErrorModal = function () {
+  document.getElementById("errorModal").classList.add("hidden");
 };
