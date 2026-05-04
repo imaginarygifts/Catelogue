@@ -205,35 +205,14 @@ let html = `
 <div class="product-header">
   ${badgeHTML}
   <h2>${product.name}</h2>
-  ${priceHTML}
+
   <p>${product.description}</p>
 
+  ${priceHTML}
 </div>
 `;
-
-  // ===== RELATED DESIGNS =====
-  if (relatedProducts.length > 1) {
-    html += `
-      <div class="design-wrap">
-        <h4>Select Design</h4>
-        <div class="design-row">
-    `;
-
-    relatedProducts.forEach(p => {
-      const active = p.name === product.name ? "active" : "";
-      html += `
-        <div class="design-card ${active}" onclick="goToDesign('${p.id}')">
-          <img src="${p.images?.[0] || ""}">
-          <small>${p.name}</small>
-          <div class="price">
-  ₹${(p.salePrice && p.salePrice < p.basePrice) ? p.salePrice : p.basePrice}
-</div>
-        </div>
-      `;
-    });
-
-    html += `</div></div>`;
-  }
+  
+  
 
   // COLORS
   if (product.variants?.colors?.length) {
@@ -292,6 +271,31 @@ let html = `
 
     });
   }
+
+// ===== RELATED DESIGNS =====
+
+if (relatedProducts.length > 1) {
+  html += `
+    <div class="design-wrap">
+      <h3>You may also like</h3>
+      <div class="design-row">
+  `;
+
+  relatedProducts.forEach(p => {
+    const active = p.name === product.name ? "active" : "";
+    html += `
+      <div class="design-card ${active}" onclick="goToDesign('${p.id}')">
+        <img src="${p.images?.[0] || ""}">
+        <small>${p.name}</small>
+        <div class="price">
+₹${(p.salePrice && p.salePrice < p.basePrice) ? p.salePrice : p.basePrice}
+</div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+}
 
   details.innerHTML = html;
 }
