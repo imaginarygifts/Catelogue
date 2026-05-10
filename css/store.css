@@ -835,6 +835,9 @@ z-index:3;
 
 
 
+.hidden{
+  display:none !important;
+}
 
 .error-modal {
   position: fixed;
