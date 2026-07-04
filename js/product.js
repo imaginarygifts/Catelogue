@@ -395,15 +395,6 @@ function recalcPrice() {
 
 
 
-
-window.closeCustomizePopup = function () {
-
-  document
-    .getElementById("customizeOverlay")
-    .classList.add("hidden");
-
-};
-
 window.nextToAddress = function () {
 
   const errors = validateRequiredSelections();
@@ -439,7 +430,195 @@ window.backToCustomize = function(){
 
 
 
+/* ================= CUSTOMIZE POPUP ================= */
 
+function renderCustomizePopup() {
+
+  const container = document.getElementById("customOptionsContainer");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // Update popup price
+  const popupPrice = document.getElementById("popupPrice");
+  if (popupPrice) popupPrice.innerText = "₹" + finalPrice;
+
+  if (!product.customOptions?.length) return;
+
+  product.customOptions.forEach((o, i) => {
+
+    const wrap = document.createElement("div");
+
+    wrap.style.marginBottom = "16px";
+
+    // ---------- LABEL ----------
+
+    const label = document.createElement("label");
+
+    label.innerHTML =
+      o.label +
+      (o.required
+        ? ' <span style="color:red">*</span>'
+        : "");
+
+    wrap.appendChild(label);
+
+    // ---------- TEXT ----------
+
+    if (o.type === "text") {
+
+      wrap.innerHTML += `
+        <input
+          class="custom-input"
+          placeholder="${o.label}"
+          value="${selected.optionValues[i] || ""}"
+          oninput="addTextOption(${i},this.value);
+                   document.getElementById('popupPrice').innerText='₹'+finalPrice;">
+      `;
+
+    }
+
+    // ---------- CHECKBOX ----------
+
+    else if (o.type === "checkbox") {
+
+      wrap.innerHTML += `
+        <div class="option-row">
+
+          <input
+            type="checkbox"
+
+            ${selected.optionValues[i] ? "checked" : ""}
+
+            onchange="
+              toggleCheckbox(${i},this.checked);
+              document.getElementById('popupPrice').innerText='₹'+finalPrice;
+            ">
+
+          <span>
+            ${o.label}
+            (+₹${o.price})
+          </span>
+
+        </div>
+      `;
+
+    }
+
+    // ---------- DROPDOWN ----------
+
+    else if (o.type === "dropdown") {
+
+      let options =
+        `<option value="">Select ${o.label}</option>`;
+
+      o.choices.forEach(choice => {
+
+        options += `
+          <option
+
+            value="${choice}"
+
+            ${
+              selected.optionValues[i] === choice
+                ? "selected"
+                : ""
+            }
+
+          >
+            ${choice}
+          </option>
+        `;
+
+      });
+
+      wrap.innerHTML += `
+        <select
+
+          class="custom-select"
+
+          onchange="
+            addDropdownOption(${i},this.value);
+            document.getElementById('popupPrice').innerText='₹'+finalPrice;
+          "
+
+        >
+
+          ${options}
+
+        </select>
+      `;
+
+    }
+    // ---------- IMAGE ----------
+
+    else if (o.type === "image") {
+
+      wrap.innerHTML += `
+        <div class="upload-box">
+
+          <input
+            type="file"
+            accept="image/*"
+            onchange="uploadCustomImage(${i}, this.files[0])">
+
+          <small id="uploadStatus${i}">
+            ${
+              selected.imageLinks[i]
+                ? "Uploaded ✔"
+                : ""
+            }
+          </small>
+
+        </div>
+      `;
+
+    }
+
+    container.appendChild(wrap);
+
+  });
+
+}
+
+
+
+
+
+window.openCustomizePopup = function () {
+
+  renderCustomizePopup();
+
+  document.getElementById("customizeOverlay")
+    .classList.remove("hidden");
+
+};
+
+window.closeCustomizePopup = function () {
+
+  document.getElementById("customizeOverlay")
+    .classList.add("hidden");
+
+};
+
+
+window.continueAfterCustomize = function () {
+
+  const errors = validateRequiredSelections();
+
+  if (errors.length) {
+    alert(errors.join("\n"));
+    return;
+  }
+
+  closeCustomizePopup();
+
+  document
+    .getElementById("waFormOverlay")
+    .classList.remove("hidden");
+
+};
 
 // ===== WHATSAPP ORDER =====
 
