@@ -343,28 +343,54 @@ window.addDropdownOption = function(i, val) {
 
 // ===== IMAGE UPLOAD OPTION =====
 window.uploadCustomImage = async function(i, file) {
+
   if (!file) return;
 
   const status = document.getElementById(`uploadStatus${i}`);
-  status.innerText = "Uploading...";
+
+  // Show uploading message
+  status.innerHTML = `
+    <div class="uploading">
+      ⏳ Uploading <b>${file.name}</b>...
+    </div>
+  `;
 
   try {
+
     const storageRef = ref(storage, `custom-images/${Date.now()}-${file.name}`);
+
     await uploadBytes(storageRef, file);
+
     const url = await getDownloadURL(storageRef);
 
     selected.options[i] = product.customOptions[i].price;
-    selected.optionValues[i] = "Image uploaded";
+    selected.optionValues[i] = file.name;
     selected.imageLinks[i] = url;
 
-    status.innerText = "Uploaded ✔";
+    // Success message
+    status.innerHTML = `
+      <div class="upload-success">
+        ✅ Uploaded Successfully
+        <br>
+        <small>${file.name}</small>
+      </div>
+    `;
 
     recalcPrice();
+
   } catch (err) {
+
     console.error(err);
-    status.innerText = "Upload failed ❌";
-    alert("Image upload failed: " + err.message);
+
+    status.innerHTML = `
+      <div class="upload-error">
+        ❌ Upload Failed
+      </div>
+    `;
+
+    alert(err.message);
   }
+
 };
 
 
