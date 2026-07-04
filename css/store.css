@@ -1018,3 +1018,32 @@ text-align:center;
 background:#fafafa;
 
 }
+
+
+.uploading{
+    color:#ffc107;
+    font-size:14px;
+    font-weight:600;
+    margin-top:8px;
+}
+
+.upload-success{
+    color:#32d74b;
+    font-size:14px;
+    font-weight:600;
+    margin-top:8px;
+}
+
+.upload-success small{
+    display:block;
+    color:#aaa;
+    margin-top:4px;
+    word-break:break-word;
+}
+
+.upload-error{
+    color:#ff4d4f;
+    font-size:14px;
+    font-weight:600;
+    margin-top:8px;
+}
