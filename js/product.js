@@ -592,7 +592,7 @@ function renderCustomizePopup() {
           <small id="uploadStatus${i}">
             ${
               selected.imageLinks[i]
-                ? "Uploaded ✔"
+                ? `✅ ${selected.optionValues[i]}`
                 : ""
             }
           </small>
