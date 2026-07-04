@@ -11,12 +11,12 @@ import {
 const grid = document.getElementById("productGrid");
 const categoryBar = document.getElementById("categoryBar");
 const subCategoryBar = document.getElementById("subCategoryBar");
-const tagRow = document.getElementById("tagFilterRow");
+const tagRow =  document.getElementById("tagFilterRow");
 
 /* ================= STATE ================= */
 
-let visibleCount = 25;
-const LOAD_STEP = 25;
+let visibleCount = 30;
+const LOAD_STEP = 30;
 let allProducts = [];
 let allCategories = [];
 let mainCategories = [];
@@ -24,7 +24,7 @@ let subCategories = [];
 
 let activeCategory = "all";
 let activeSubCategory = "all";
-let activeTag = "all";
+let activeTag = "bestseller";
 let searchQuery = "";
 
 /* ================= URL SYSTEM ================= */
