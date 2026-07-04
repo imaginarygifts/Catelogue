@@ -232,45 +232,12 @@ let html = `
     html += `</div>`;
   }
 
-  // CUSTOM OPTIONS
-  if (product.customOptions?.length) {
-    html += `<h4>Custom Options</h4>`;
-    product.customOptions.forEach((o, i) => {
 
-      if (o.type === "text") {
-        html += `<input class="custom-input" placeholder="${o.label}" oninput="addTextOption(${i}, this.value)">`;
-      }
 
-      if (o.type === "checkbox") {
-        html += `
-          <div class="option-row">
-            <input type="checkbox" onchange="toggleCheckbox(${i}, this.checked)">
-            <span>${o.label} (+₹${o.price})</span>
-          </div>
-        `;
-      }
+// Custom options will now open inside popup
 
-      if (o.type === "dropdown") {
-        html += `
-          <select class="custom-select" onchange="addDropdownOption(${i}, this.value)">
-            <option value="">Select ${o.label}</option>
-            ${o.choices.map(c => `<option value="${c}">${c}</option>`).join("")}
-          </select>
-        `;
-      }
 
-      if (o.type === "image") {
-        html += `
-          <div class="upload-box">
-            <label>${o.label}</label>
-            <input type="file" accept="image/*" onchange="uploadCustomImage(${i}, this.files[0])">
-            <small id="uploadStatus${i}"></small>
-          </div>
-        `;
-      }
 
-    });
-  }
 
 // ===== RELATED DESIGNS =====
 
@@ -400,6 +367,7 @@ window.uploadCustomImage = async function(i, file) {
   }
 };
 
+
 // ===== PRICE =====
 function recalcPrice() {
 
@@ -421,19 +389,68 @@ function recalcPrice() {
   document.getElementById("price").innerText = finalPrice;
 }
 
+
+
+
+
+
+
+
+window.closeCustomizePopup = function () {
+
+  document
+    .getElementById("customizeOverlay")
+    .classList.add("hidden");
+
+};
+
+window.nextToAddress = function () {
+
+  const errors = validateRequiredSelections();
+
+  if (errors.length) {
+
+    showErrorModal(errors);
+
+    return;
+
+  }
+
+  closeCustomizePopup();
+
+  document
+    .getElementById("waFormOverlay")
+    .classList.remove("hidden");
+
+};
+
+window.backToCustomize = function(){
+
+  document
+    .getElementById("waFormOverlay")
+    .classList.add("hidden");
+
+  document
+    .getElementById("customizeOverlay")
+    .classList.remove("hidden");
+
+};
+
+
+
+
+
+
 // ===== WHATSAPP ORDER =====
 
 window.orderNow = function () {
 
-  // 1️⃣ Validate required product options first
-  const errors = validateRequiredSelections();
-  if (errors.length) {
-    showErrorModal(errors);
-    return;
-  }
+  renderCustomizePopup();
 
-  // 2️⃣ Open WhatsApp order form
-  document.getElementById("waFormOverlay").classList.remove("hidden");
+  document
+    .getElementById("customizeOverlay")
+    .classList.remove("hidden");
+
 };
 
 
