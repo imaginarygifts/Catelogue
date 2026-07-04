@@ -529,14 +529,9 @@ function renderCustomizePopup() {
         <div class="option-row">
 
           <input
-            type="checkbox"
-
-            ${selected.optionValues[i] ? "checked" : ""}
-
-            onchange="
-              toggleCheckbox(${i},this.checked);
-              document.getElementById('popupPrice').innerText='₹'+finalPrice;
-            ">
+  type="checkbox"
+  ${selected.optionValues[i] ? "checked" : ""}
+  onchange="toggleCheckbox(${i},this.checked)">
 
           <span>
             ${o.label}
