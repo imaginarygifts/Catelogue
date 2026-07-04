@@ -397,7 +397,6 @@ window.uploadCustomImage = async function(i, file) {
 // ===== PRICE =====
 function recalcPrice() {
 
-  // ✅ choose correct starting price
   const base =
     product.salePrice && product.salePrice < product.basePrice
       ? product.salePrice
@@ -405,16 +404,33 @@ function recalcPrice() {
 
   finalPrice = base;
 
-  // variants
-  if (selected.color) finalPrice += selected.color.price;
-  if (selected.size) finalPrice += selected.size.price;
+  // Color price
+  if (selected.color) {
+    finalPrice += Number(selected.color.price || 0);
+  }
 
-  // custom options
-  Object.values(selected.options).forEach(p => finalPrice += p);
+  // Size price
+  if (selected.size) {
+    finalPrice += Number(selected.size.price || 0);
+  }
 
-  document.getElementById("price").innerText = finalPrice;
+  // Custom options price
+  Object.values(selected.options).forEach(price => {
+    finalPrice += Number(price || 0);
+  });
+
+  // Update product page price
+  const pagePrice = document.getElementById("price");
+  if (pagePrice) {
+    pagePrice.innerText = finalPrice;
+  }
+
+  // Update popup price
+  const popupPrice = document.getElementById("popupPrice");
+  if (popupPrice) {
+    popupPrice.innerText = "₹" + finalPrice;
+  }
 }
-
 
 
 
